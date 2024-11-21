@@ -5,7 +5,9 @@ import java.util.List;
 public class ClienteDTO {
 	private Long id;
 	private String username;
+	private String nombre;
 	private String email;
+	
 	private List<String> authorities;
 
 	// Getters y Setters
@@ -23,6 +25,14 @@ public class ClienteDTO {
 
 	public void setUsername(String username) {
 		this.username = username;
+	}
+
+	public String getNombre() {
+		return nombre;
+	}
+
+	public void setNombre(String nombre) {
+		this.nombre = nombre;
 	}
 
 	public String getEmail() {

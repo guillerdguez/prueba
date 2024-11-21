@@ -43,7 +43,7 @@ public class Producto {
 	@Column(name = "favorito")
 	private boolean favorito;
 
-	@Column(name = "precio_original")
+	@Column(name = "precio_original",nullable = true)
 	private Double precioOriginal; // Nuevo campo agregado
 
 	@OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -181,8 +181,12 @@ public class Producto {
 	}
 
 	public Double getPrecioOriginal() {
-		return precioOriginal;
+	    if (this.oferta && this.descuento != null && this.descuento > 0) {
+	        return this.precio / (1 - this.descuento / 100.0);
+	    }
+	    return null; // No está en oferta, no hay precio original
 	}
+
 
 	public void setPrecioOriginal(Double precioOriginal) {
 		this.precioOriginal = precioOriginal;

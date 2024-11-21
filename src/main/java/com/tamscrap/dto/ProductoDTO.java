@@ -118,7 +118,10 @@ public class ProductoDTO {
     }
 
     public Double getPrecioOriginal() {
-        return precioOriginal;
+        if (this.oferta && this.descuento != null && this.descuento > 0) {
+            return this.precio / (1 - this.descuento / 100.0);
+        }
+        return null;  
     }
 
     public void setPrecioOriginal(Double precioOriginal) {
