@@ -47,11 +47,15 @@ public class ProductoController {
     // READ
     @GetMapping("/listar")
     public ResponseEntity<List<ProductoDTO>> obtenerTodosLosProductos() {
-        logger.log(Level.INFO, "Obteniendo todos los productos");
-        List<ProductoDTO> productos = productoService.obtenerTodos().stream().map(this::convertirAProductoDTO)
-                .collect(Collectors.toList());
+        List<ProductoDTO> productos = productoService.obtenerTodos()
+            .stream()
+            .map(this::convertirAProductoDTO) // Aquí se llama al método
+            .collect(Collectors.toList());
+        
+        System.out.println(productos+"      "+" aaaaaaaaaqui");
         return new ResponseEntity<>(productos, HttpStatus.OK);
     }
+
 
     @GetMapping("/ver/{id}")
     public ResponseEntity<ProductoDTO> obtenerProductoPorId(@PathVariable Long id) {
@@ -141,6 +145,7 @@ public class ProductoController {
         dto.setDescuento(producto.getDescuento());
         dto.setFavorito(producto.isFavorito());
         dto.setPrecioOriginal(producto.getPrecioOriginal());
+        System.out.println(producto.getPrecioOriginal()+"aaaaaaaaaaaaaaaaaa");
 //        dto.setPedidos(producto.getPedidos().stream().map(pedido -> pedido.toPedidoDTO()).collect(Collectors.toSet()));
         return dto;
     }
