@@ -15,216 +15,225 @@ import java.util.Set;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Producto {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id")
-	private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
 
-	@Column(name = "nombre", unique = true, nullable = true)
-	private String nombre;
+    @Column(name = "nombre", unique = true, nullable = true)
+    private String nombre;
 
-	@Column(name = "precio")
-	private double precio;
+    @Column(name = "precio")
+    private double precio;
 
-	@Column(name = "imagen")
-	private String imagen;
+    @Column(name = "imagen")
+    private String imagen;
 
-	@Column(name = "lettering")
-	private boolean lettering;
+    @Column(name = "lettering")
+    private boolean lettering;
 
-	@Column(name = "scrapbooking")
-	private boolean scrapbooking;
+    @Column(name = "scrapbooking")
+    private boolean scrapbooking;
 
-	@Column(name = "oferta")
-	private boolean oferta;
+    @Column(name = "oferta")
+    private boolean oferta;
 
-	@Column(name = "descuento")
-	private Integer descuento;
-	@Column(name = "favorito")
-	private boolean favorito;
+    @Column(name = "descuento")
+    private Integer descuento;
+    
+    @Column(name = "favorito")
+    private boolean favorito;
 
-	@Column(name = "precio_original",nullable = true)
-	private Double precioOriginal; // Nuevo campo agregado
+    @Column(name = "precio_original", nullable = true)
+    private Double precioOriginal; // Nuevo campo agregado
 
-	@OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true)
-	private Set<ProductosPedidos> pedidos = new HashSet<>();
+    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ProductosPedidos> pedidos = new HashSet<>();
 
-	public Producto() {
-	}
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "carrito_id")
+    private Carrito carrito;
 
-//	public Producto(String nombre, double precio, String imagen) {
-//		this.nombre = nombre;
-//		this.precio = precio;
-//		this.imagen = imagen;
-//	}
-//
-//	 
-	
-	
-	
-	
-	
-	
-	
-	
-	public Producto(Long id, String nombre, double precio, String imagen, boolean lettering, boolean scrapbooking,
-			boolean oferta, Integer descuento, boolean favorito, Double precioOriginal) {
-		super();
-		this.id = id;
-		this.nombre = nombre;
-		this.precio = precio;
-		this.imagen = imagen;
-		this.lettering = lettering;
-		this.scrapbooking = scrapbooking;
-		this.oferta = oferta;
-		this.descuento = descuento;
-		this.favorito = favorito;
-		this.precioOriginal = precioOriginal;
-	}
+    public Producto() {
+    }
 
-	public Producto(Long id, String nombre, double precio, String imagen, boolean lettering, boolean scrapbooking,
-			boolean oferta, Integer descuento, boolean favorito, Double precioOriginal, Set<ProductosPedidos> pedidos) {
-		super();
-		this.id = id;
-		this.nombre = nombre;
-		this.precio = precio;
-		this.imagen = imagen;
-		this.lettering = lettering;
-		this.scrapbooking = scrapbooking;
-		this.oferta = oferta;
-		this.descuento = descuento;
-		this.favorito = favorito;
-		this.precioOriginal = precioOriginal;
-		this.pedidos = pedidos;
-	}
+    public Producto(Long id, String nombre, double precio, String imagen, boolean lettering, boolean scrapbooking,
+                    boolean oferta, Integer descuento, boolean favorito, Double precioOriginal) {
+        super();
+        this.id = id;
+        this.nombre = nombre;
+        this.precio = precio;
+        this.imagen = imagen;
+        this.lettering = lettering;
+        this.scrapbooking = scrapbooking;
+        this.oferta = oferta;
+        this.descuento = descuento;
+        this.favorito = favorito;
+        this.precioOriginal = precioOriginal;
+    }
 
-	public boolean isFavorito() {
-		return favorito;
-	}
+    public Producto(Long id, String nombre, double precio, String imagen, boolean lettering, boolean scrapbooking,
+                    boolean oferta, Integer descuento, boolean favorito, Double precioOriginal, Set<ProductosPedidos> pedidos) {
+        super();
+        this.id = id;
+        this.nombre = nombre;
+        this.precio = precio;
+        this.imagen = imagen;
+        this.lettering = lettering;
+        this.scrapbooking = scrapbooking;
+        this.oferta = oferta;
+        this.descuento = descuento;
+        this.favorito = favorito;
+        this.precioOriginal = precioOriginal;
+        this.pedidos = pedidos;
+    }
 
-	public void setFavorito(boolean favorito) {
-		this.favorito = favorito;
-	}
+    public boolean isFavorito() {
+        return favorito;
+    }
 
-	@Override
-	public String toString() {
-		return "Producto [id=" + id + ", nombre=" + nombre + ", precio=" + precio + ", imagen=" + imagen
-				+ ", lettering=" + lettering + ", scrapbooking=" + scrapbooking + ", oferta=" + oferta + ", descuento="
-				+ descuento + ", favorito=" + favorito + ", precioOriginal=" + precioOriginal + ", pedidos=" + pedidos
-				+ "]";
-	}
+    public void setFavorito(boolean favorito) {
+        this.favorito = favorito;
+    }
 
-	// Getters y Setters para todos los campos, incluyendo precioOriginal
+    @Override
+    public String toString() {
+        return "Producto [id=" + id + ", nombre=" + nombre + ", precio=" + precio + ", imagen=" + imagen
+                + ", lettering=" + lettering + ", scrapbooking=" + scrapbooking + ", oferta=" + oferta + ", descuento="
+                + descuento + ", favorito=" + favorito + ", precioOriginal=" + precioOriginal + ", pedidos=" + pedidos
+                + "]";
+    }
 
-	public Long getId() {
-		return id;
-	}
+    // Getters y Setters para todos los campos, incluyendo precioOriginal
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public String getNombre() {
-		return nombre;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public void setNombre(String nombre) {
-		this.nombre = nombre;
-	}
+    public String getNombre() {
+        return nombre;
+    }
 
-	public double getPrecio() {
-		return precio;
-	}
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
 
-	public void setPrecio(double precio) {
-		this.precio = precio;
-	}
+    public double getPrecio() {
+        return precio;
+    }
 
-	public String getImagen() {
-		return imagen;
-	}
+    public void setPrecio(double precio) {
+        this.precio = precio;
+    }
 
-	public void setImagen(String imagen) {
-		this.imagen = imagen;
-	}
+    public String getImagen() {
+        return imagen;
+    }
 
-	public boolean isLettering() {
-		return lettering;
-	}
+    public void setImagen(String imagen) {
+        this.imagen = imagen;
+    }
 
-	public void setLettering(boolean lettering) {
-		this.lettering = lettering;
-	}
+    public boolean isLettering() {
+        return lettering;
+    }
 
-	public boolean isScrapbooking() {
-		return scrapbooking;
-	}
+    public void setLettering(boolean lettering) {
+        this.lettering = lettering;
+    }
 
-	public void setScrapbooking(boolean scrapbooking) {
-		this.scrapbooking = scrapbooking;
-	}
+    public boolean isScrapbooking() {
+        return scrapbooking;
+    }
 
-	public boolean isOferta() {
-		return oferta;
-	}
+    public void setScrapbooking(boolean scrapbooking) {
+        this.scrapbooking = scrapbooking;
+    }
 
-	public void setOferta(boolean oferta) {
-		this.oferta = oferta;
-	}
+    public boolean isOferta() {
+        return oferta;
+    }
 
-	public Integer getDescuento() {
-		return descuento;
-	}
+    public void setOferta(boolean oferta) {
+        this.oferta = oferta;
+    }
 
-	public void setDescuento(Integer descuento) {
-		this.descuento = descuento;
-	}
+    public Integer getDescuento() {
+        return descuento;
+    }
 
-	public Double getPrecioOriginal() {
-	    if (this.oferta && this.descuento != null && this.descuento > 0) {
-	        return this.precio / (1 - this.descuento / 100.0);
-	    }
-	    return null; // No está en oferta, no hay precio original
-	}
+    public void setDescuento(Integer descuento) {
+        this.descuento = descuento;
+    }
 
+//    public Double getPrecioOriginal() {
+//        if (this.oferta && this.descuento != null && this.descuento > 0) {
+//            return this.precio / (1 - this.descuento / 100.0);
+//        }
+//        return null; // No está en oferta, no hay precio original
+//    }
+    public Double getPrecioOriginal() {
+        return precioOriginal != null ? precioOriginal : precio / (1 - (descuento / 100.0));
+    }
+    public void desactivarOferta() {
+        if (oferta) {
+            precio = precioOriginal; // Restablece el precio original
+            descuento = null;
+            oferta = false;
+            precioOriginal = null;
+        }
+    }
 
-	public void setPrecioOriginal(Double precioOriginal) {
-		this.precioOriginal = precioOriginal;
-	}
+    public void setPrecioOriginal(Double precioOriginal) {
+        this.precioOriginal = precioOriginal;
+    }
 
-	public Set<ProductosPedidos> getPedidos() {
-		return pedidos;
-	}
+    public Set<ProductosPedidos> getPedidos() {
+        return pedidos;
+    }
 
-	public void setPedidos(Set<ProductosPedidos> pedidos) {
-		this.pedidos = pedidos;
-	}
+    public void setPedidos(Set<ProductosPedidos> pedidos) {
+        this.pedidos = pedidos;
+    }
 
-	// Método para calcular el precio final basado en el descuento
-	public double getPrecioFinal() {
-		if (oferta && descuento != null && descuento > 0) {
-			return precio - (precio * descuento / 100.0);
-		}
-		return precio;
-	}
+    public Carrito getCarrito() {
+        return carrito;
+    }
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(id, nombre, precio, imagen, lettering, scrapbooking, oferta, descuento, precioOriginal,
-				pedidos);
-	}
+    public void setCarrito(Carrito carrito) {
+        this.carrito = carrito;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null || getClass() != obj.getClass())
-			return false;
-		Producto other = (Producto) obj;
-		return Objects.equals(id, other.id) && Objects.equals(nombre, other.nombre)
-				&& Double.compare(other.precio, precio) == 0 && Objects.equals(imagen, other.imagen)
-				&& lettering == other.lettering && scrapbooking == other.scrapbooking && oferta == other.oferta
-				&& Objects.equals(descuento, other.descuento) && Objects.equals(precioOriginal, other.precioOriginal)
-				&& Objects.equals(pedidos, other.pedidos);
-	}
+    // Método para calcular el precio final basado en el descuento
+    public double getPrecioFinal() {
+        if (oferta && descuento != null && descuento > 0) {
+            return precio - (precio * descuento / 100.0);
+        }
+        return precio;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, nombre, precio, imagen, lettering, scrapbooking, oferta, descuento, precioOriginal,
+                pedidos);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null || getClass() != obj.getClass())
+            return false;
+        Producto other = (Producto) obj;
+        return Objects.equals(id, other.id) && Objects.equals(nombre, other.nombre)
+                && Double.compare(other.precio, precio) == 0 && Objects.equals(imagen, other.imagen)
+                && lettering == other.lettering && scrapbooking == other.scrapbooking && oferta == other.oferta
+                && Objects.equals(descuento, other.descuento) && Objects.equals(precioOriginal, other.precioOriginal)
+                && Objects.equals(pedidos, other.pedidos);
+    }
 }
+

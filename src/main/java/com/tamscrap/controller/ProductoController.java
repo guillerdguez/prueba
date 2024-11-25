@@ -23,9 +23,14 @@ import com.tamscrap.model.Producto;
 import com.tamscrap.model.ProductosPedidos;
 import com.tamscrap.service.impl.ProductoServiceImpl;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+
 @RestController
 @RequestMapping("/api/producto")
 @CrossOrigin(origins = "http://localhost:4200/")
+@Api(tags = "Controlador de Productos", description = "Endpoints para la gestión de productos")
 public class ProductoController {
 
     private final ProductoServiceImpl productoService;
@@ -36,8 +41,10 @@ public class ProductoController {
     }
 
     // CREATE
+    @ApiOperation(value = "Agregar un nuevo producto", notes = "Crea un nuevo producto en la base de datos")
     @PostMapping("/addProducto")
-    public ResponseEntity<ProductoDTO> guardarProducto(@RequestBody ProductoDTO productoDTO) {
+    public ResponseEntity<ProductoDTO> guardarProducto(
+            @ApiParam(value = "DTO del producto a agregar", required = true) @RequestBody ProductoDTO productoDTO) {
         logger.log(Level.INFO, "Producto recibido: {0}", productoDTO);
         Producto producto = convertirADto(productoDTO);
         Producto savedProducto = productoService.insertarProducto(producto);
@@ -45,20 +52,21 @@ public class ProductoController {
     }
 
     // READ
+    @ApiOperation(value = "Listar todos los productos", notes = "Obtiene una lista de todos los productos disponibles")
     @GetMapping("/listar")
     public ResponseEntity<List<ProductoDTO>> obtenerTodosLosProductos() {
         List<ProductoDTO> productos = productoService.obtenerTodos()
-            .stream()
-            .map(this::convertirAProductoDTO) // Aquí se llama al método
-            .collect(Collectors.toList());
-        
-        System.out.println(productos+"      "+" aaaaaaaaaqui");
+                .stream()
+                .map(this::convertirAProductoDTO)
+                .collect(Collectors.toList());
+
         return new ResponseEntity<>(productos, HttpStatus.OK);
     }
 
-
+    @ApiOperation(value = "Obtener un producto por ID", notes = "Devuelve el producto correspondiente al ID especificado")
     @GetMapping("/ver/{id}")
-    public ResponseEntity<ProductoDTO> obtenerProductoPorId(@PathVariable Long id) {
+    public ResponseEntity<ProductoDTO> obtenerProductoPorId(
+            @ApiParam(value = "ID del producto a obtener", required = true) @PathVariable Long id) {
         logger.log(Level.INFO, "Obteniendo producto con ID: {0}", id);
         Producto producto = productoService.obtenerPorId(id);
         if (producto == null) {
@@ -67,6 +75,7 @@ public class ProductoController {
         return new ResponseEntity<>(convertirAProductoDTO(producto), HttpStatus.OK);
     }
 
+    @ApiOperation(value = "Obtener productos de lettering", notes = "Devuelve una lista de productos categorizados como lettering")
     @GetMapping("/lettering")
     public ResponseEntity<List<ProductoDTO>> obtenerProductosLettering() {
         List<ProductoDTO> productos = productoService.ObtenerProductosLettering().stream()
@@ -74,6 +83,7 @@ public class ProductoController {
         return new ResponseEntity<>(productos, HttpStatus.OK);
     }
 
+    @ApiOperation(value = "Obtener productos de scrapbooking", notes = "Devuelve una lista de productos categorizados como scrapbooking")
     @GetMapping("/scrapbooking")
     public ResponseEntity<List<ProductoDTO>> obtenerProductosScrapbooking() {
         List<ProductoDTO> productos = productoService.ObtenerProductosScrapbooking().stream()
@@ -81,16 +91,21 @@ public class ProductoController {
         return new ResponseEntity<>(productos, HttpStatus.OK);
     }
 
+    @ApiOperation(value = "Obtener productos en oferta", notes = "Devuelve una lista de productos en oferta")
     @GetMapping("/ofertas")
     public ResponseEntity<List<ProductoDTO>> obtenerProductosOferta() {
-        List<ProductoDTO> productos = productoService.ObtenerProductosOferta().stream().map(this::convertirAProductoDTO)
+        List<ProductoDTO> productos = productoService.ObtenerProductosOferta().stream()
+                .map(this::convertirAProductoDTO)
                 .collect(Collectors.toList());
         return new ResponseEntity<>(productos, HttpStatus.OK);
     }
 
     // UPDATE
+    @ApiOperation(value = "Editar un producto existente", notes = "Actualiza la información del producto especificado por el ID")
     @PutMapping("/editar/{id}")
-    public ResponseEntity<ProductoDTO> editarProducto(@PathVariable Long id, @RequestBody ProductoDTO productoDTO) {
+    public ResponseEntity<ProductoDTO> editarProducto(
+            @ApiParam(value = "ID del producto a editar", required = true) @PathVariable Long id,
+            @ApiParam(value = "DTO del producto con la nueva información", required = true) @RequestBody ProductoDTO productoDTO) {
         Producto productoExistente = productoService.obtenerPorId(id);
         if (productoExistente == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -114,10 +129,7 @@ public class ProductoController {
                     .collect(Collectors.toSet());
 
             productoExistente.getPedidos().clear();
-            for (ProductosPedidos nuevoPedido : nuevosPedidos) {
-                nuevoPedido.setProducto(productoExistente);
-                productoExistente.getPedidos().add(nuevoPedido);
-            }
+            productoExistente.getPedidos().addAll(nuevosPedidos);
         }
 
         Producto updatedProducto = productoService.insertarProducto(productoExistente);
@@ -125,8 +137,10 @@ public class ProductoController {
     }
 
     // DELETE
+    @ApiOperation(value = "Eliminar un producto", notes = "Elimina el producto especificado por el ID")
     @DeleteMapping("/borrar/{id}")
-    public ResponseEntity<String> eliminarProducto(@PathVariable Long id) {
+    public ResponseEntity<String> eliminarProducto(
+            @ApiParam(value = "ID del producto a eliminar", required = true) @PathVariable Long id) {
         productoService.eliminarProducto(id);
         logger.log(Level.INFO, "Producto con ID {0} eliminado", id);
         return new ResponseEntity<>("Producto eliminado con éxito", HttpStatus.NO_CONTENT);
@@ -145,8 +159,6 @@ public class ProductoController {
         dto.setDescuento(producto.getDescuento());
         dto.setFavorito(producto.isFavorito());
         dto.setPrecioOriginal(producto.getPrecioOriginal());
-        System.out.println(producto.getPrecioOriginal()+"aaaaaaaaaaaaaaaaaa");
-//        dto.setPedidos(producto.getPedidos().stream().map(pedido -> pedido.toPedidoDTO()).collect(Collectors.toSet()));
         return dto;
     }
 

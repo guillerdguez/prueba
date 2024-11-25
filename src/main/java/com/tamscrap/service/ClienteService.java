@@ -17,4 +17,5 @@ public interface ClienteService {
 	void eliminarCliente(Long id);
 
 	List<Cliente> obtenerTodos();
+	
 }
