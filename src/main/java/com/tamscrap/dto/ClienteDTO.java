@@ -3,51 +3,60 @@ package com.tamscrap.dto;
 import java.util.List;
 
 public class ClienteDTO {
-	private Long id;
-	private String username;
-	private String nombre;
-	private String email;
-	
-	private List<String> authorities;
+    private Long id;
+    private String username;
+    private String nombre;
+    private String email;
+    private String password; // Agregado para registro y autenticación
+    private List<String> authorities;
 
-	// Getters y Setters
-	public Long getId() {
-		return id;
-	}
+    // Getters y Setters
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public String getUsername() {
-		return username;
-	}
+    public String getUsername() {
+        return username;
+    }
 
-	public void setUsername(String username) {
-		this.username = username;
-	}
+    public String getNombre() {
+        return nombre;
+    }
 
-	public String getNombre() {
-		return nombre;
-	}
+    public String getEmail() {
+        return email;
+    }
 
-	public void setNombre(String nombre) {
-		this.nombre = nombre;
-	}
+    public List<String> getAuthorities() {
+        return authorities;
+    }
 
-	public String getEmail() {
-		return email;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
-	public List<String> getAuthorities() {
-		return authorities;
-	}
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
 
-	public void setAuthorities(List<String> authorities) {
-		this.authorities = authorities;
-	}
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setAuthorities(List<String> authorities) {
+        this.authorities = authorities;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
 }

@@ -21,15 +21,13 @@ public class ProductoServiceImpl implements ProductoService {
 	public List<Producto> obtenerTodos() {
 		return productoRepo.findAll();
 	}
-
 	@Override
 	public Producto insertarProducto(Producto producto) {
-
-		validarProducto(producto);
-
-		Producto savedProducto = productoRepo.save(producto);
-
-		return savedProducto;
+	    validarProducto(producto);
+	    System.err.println("Cantidad antes de guardar: " + producto.getCantidad());
+	    Producto savedProducto = productoRepo.save(producto);
+	    System.err.println("Cantidad después de guardar: " + savedProducto.getCantidad());
+	    return savedProducto;
 	}
 
 	private void validarProducto(Producto producto) {

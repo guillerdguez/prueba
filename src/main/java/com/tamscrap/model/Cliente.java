@@ -1,12 +1,9 @@
 package com.tamscrap.model;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,6 +19,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -33,10 +32,10 @@ public class Cliente implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     @Column(nullable = false)
     private String nombre;
-    
+
     @Column(unique = true, nullable = false)
     private String username;
 
@@ -48,7 +47,7 @@ public class Cliente implements UserDetails {
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
-    private List<UserAuthority> authorities; 
+    private Set<UserAuthority> authorities = new HashSet<>();
 
     @OneToMany(mappedBy = "cliente", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Pedido> pedidos = new HashSet<>();
@@ -57,15 +56,19 @@ public class Cliente implements UserDetails {
     @JoinColumn(name = "carrito_id", referencedColumnName = "id")
     private Carrito carrito;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "cliente_id")
-    private List<Producto> favoritos = new ArrayList<>();
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "cliente_favoritos",
+        joinColumns = @JoinColumn(name = "cliente_id"),
+        inverseJoinColumns = @JoinColumn(name = "producto_id")
+    )
+    private Set<Producto> favoritos = new HashSet<>();
 
     // Constructores
     public Cliente() {
     }
 
-    public Cliente(String nombre, String username, String password, String email, List<UserAuthority> authorities) {
+    public Cliente(String nombre, String username, String password, String email, Set<UserAuthority> authorities) {
         this.nombre = nombre;
         this.username = username;
         this.password = password;
@@ -75,35 +78,29 @@ public class Cliente implements UserDetails {
 
     // Métodos para gestionar los productos favoritos
     public void addFavorito(Producto producto) {
-        if (!favoritos.contains(producto)) {
-            favoritos.add(producto);
-        }
+        favoritos.add(producto);
     }
 
     public void removeFavorito(Producto producto) {
         favoritos.remove(producto);
     }
 
-    public List<Producto> getFavoritos() {
+    public Set<Producto> getFavoritos() {
         return favoritos;
     }
 
-    public String getNombre() {
-		return nombre;
-	}
-
-	public void setNombre(String nombre) {
-		this.nombre = nombre;
-	}
-
-	public void setFavoritos(List<Producto> favoritos) {
+    public void setFavoritos(Set<Producto> favoritos) {
         this.favoritos = favoritos;
     }
 
     // Override de métodos para UserDetails
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return authorities.stream().map(authority -> (GrantedAuthority) authority).collect(Collectors.toList());
+        return authorities;
+    }
+
+    public void setAuthorities(Set<UserAuthority> authorities) {
+        this.authorities = authorities;
     }
 
     @Override
@@ -111,46 +108,26 @@ public class Cliente implements UserDetails {
         return password;
     }
 
+    // Encriptar la contraseña antes de asignarla en el servicio
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     @Override
     public String getUsername() {
         return username;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
-
-    // Getters y Setters para otros campos
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public void setUsername(String username) {
         this.username = username;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
     }
 
     public String getEmail() {
@@ -160,11 +137,7 @@ public class Cliente implements UserDetails {
     public void setEmail(String email) {
         this.email = email;
     }
-
-    public void setAuthorities(List<UserAuthority> authorities) {
-        this.authorities = authorities;
-    }
-
+    
     public Set<Pedido> getPedidos() {
         return pedidos;
     }
@@ -192,8 +165,33 @@ public class Cliente implements UserDetails {
     }
 
     @Override
+    public boolean isAccountNonExpired() {
+        return true; // Cambia según tu lógica
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true; // Cambia según tu lógica
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true; // Cambia según tu lógica
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true; // Cambia según tu lógica
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    // hashCode y equals basados en id y username
+    @Override
     public int hashCode() {
-        return Objects.hash(authorities, email, id, password, pedidos, username, carrito, favoritos);
+        return Objects.hash(id, username);
     }
 
     @Override
@@ -203,16 +201,11 @@ public class Cliente implements UserDetails {
         if (obj == null || getClass() != obj.getClass())
             return false;
         Cliente other = (Cliente) obj;
-        return Objects.equals(authorities, other.authorities) && Objects.equals(email, other.email)
-                && Objects.equals(id, other.id) && Objects.equals(password, other.password)
-                && Objects.equals(pedidos, other.pedidos) && Objects.equals(username, other.username)
-                && Objects.equals(carrito, other.carrito) && Objects.equals(favoritos, other.favoritos);
+        return Objects.equals(id, other.id) && Objects.equals(username, other.username);
     }
 
     @Override
     public String toString() {
-        return "Cliente [id=" + id + ", nombre=" + nombre + ", username=" + username + ", password=" + password
-                + ", email=" + email + ", authorities=" + authorities + ", pedidos=" + pedidos 
-                + ", carrito=" + carrito + ", favoritos=" + favoritos + "]";
+        return "Cliente [id=" + id + ", nombre=" + nombre + ", username=" + username + ", email=" + email + "]";
     }
 }

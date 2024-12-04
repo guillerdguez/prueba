@@ -30,7 +30,7 @@ import io.swagger.annotations.ApiParam;
 @RestController
 @RequestMapping("/api/producto")
 @CrossOrigin(origins = "http://localhost:4200/")
-@Api(tags = "Controlador de Productos", description = "Endpoints para la gestión de productos")
+//@Api(tags = "Controlador de Productos", description = "Endpoints para la gestión de productos")
 public class ProductoController {
 
     private final ProductoServiceImpl productoService;
@@ -121,6 +121,7 @@ public class ProductoController {
         productoExistente.setDescuento(productoDTO.getDescuento());
         productoExistente.setFavorito(productoDTO.isFavorito());
         productoExistente.setPrecioOriginal(productoDTO.getPrecioOriginal());
+        productoExistente.setCantidad(productoDTO.getCantidad());
 
         // Solo actualizar pedidos si no son nulos
         if (productoDTO.getPedidos() != null) {
@@ -137,7 +138,7 @@ public class ProductoController {
     }
 
     // DELETE
-    @ApiOperation(value = "Eliminar un producto", notes = "Elimina el producto especificado por el ID")
+    //@ApiOperation(value = "Eliminar un producto", notes = "Elimina el producto especificado por el ID")
     @DeleteMapping("/borrar/{id}")
     public ResponseEntity<String> eliminarProducto(
             @ApiParam(value = "ID del producto a eliminar", required = true) @PathVariable Long id) {
@@ -159,6 +160,7 @@ public class ProductoController {
         dto.setDescuento(producto.getDescuento());
         dto.setFavorito(producto.isFavorito());
         dto.setPrecioOriginal(producto.getPrecioOriginal());
+        dto.setCantidad(producto.getCantidad());
         return dto;
     }
 
@@ -173,6 +175,7 @@ public class ProductoController {
         producto.setDescuento(dto.getDescuento());
         producto.setFavorito(dto.isFavorito());
         producto.setPrecioOriginal(dto.getPrecioOriginal());
+        producto.setCantidad(dto.getCantidad()); 
         return producto;
     }
 }
