@@ -1,18 +1,25 @@
 package com.tamscrap.service;
 
-import com.tamscrap.model.Cliente;
+ import java.util.List;
 
-import java.util.List;
+import com.tamscrap.model.Cliente;
+import com.tamscrap.model.Producto;
 
 public interface ClienteService {
 
-    Cliente obtenerPorId(Long id);
-
-    Cliente obtenerPorUsername(String username);
-
     Cliente insertarCliente(Cliente cliente);
+
+    List<Cliente> obtenerTodos();
+
+    Cliente obtenerPorId(Long id);
 
     void eliminarCliente(Long id);
 
-    List<Cliente> obtenerTodos();
+    Cliente obtenerPorUsername(String username);
+ 
+    void agregarAFavoritos(Long clienteId, Long productoId);
+
+    void eliminarDeFavoritos(Long clienteId, Long productoId);
+
+    List<Producto> obtenerFavoritos(Long clienteId);
 }

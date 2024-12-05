@@ -45,6 +45,14 @@ public class Cliente implements UserDetails {
     @Column(unique = true, nullable = false)
     private String email;
 
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "cliente_favoritos",
+        joinColumns = @JoinColumn(name = "cliente_id"),
+        inverseJoinColumns = @JoinColumn(name = "producto_id")
+    )
+    private Set<Producto> favoritos = new HashSet<>();
+
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
     private Set<UserAuthority> authorities = new HashSet<>();
@@ -55,14 +63,6 @@ public class Cliente implements UserDetails {
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "carrito_id", referencedColumnName = "id")
     private Carrito carrito;
-
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "cliente_favoritos",
-        joinColumns = @JoinColumn(name = "cliente_id"),
-        inverseJoinColumns = @JoinColumn(name = "producto_id")
-    )
-    private Set<Producto> favoritos = new HashSet<>();
 
     // Constructores
     public Cliente() {

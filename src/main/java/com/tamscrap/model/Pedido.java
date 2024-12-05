@@ -35,6 +35,8 @@ public class Pedido {
 
 	@Column(name = "fecha")
 	private LocalDateTime fechaCreacion;
+	@Column(name = "estado")
+	private String estado;
 
 	@ManyToOne
 	@JoinColumn(name = "id_cliente", nullable = true)
@@ -52,8 +54,10 @@ public class Pedido {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(cliente, fechaCreacion, id, precio);
+		return Objects.hash(cliente, estado, fechaCreacion, id, precio);
 	}
+
+ 
 
 	@Override
 	public boolean equals(Object obj) {
@@ -64,13 +68,21 @@ public class Pedido {
 		if (getClass() != obj.getClass())
 			return false;
 		Pedido other = (Pedido) obj;
-		return Objects.equals(cliente, other.cliente) && Objects.equals(fechaCreacion, other.fechaCreacion)
-				&& Objects.equals(id, other.id)
+		return Objects.equals(cliente, other.cliente) && Objects.equals(estado, other.estado)
+				&& Objects.equals(fechaCreacion, other.fechaCreacion) && Objects.equals(id, other.id)
 				&& Double.doubleToLongBits(precio) == Double.doubleToLongBits(other.precio);
 	}
 
 	public void setCliente(Cliente cliente) {
 		this.cliente = cliente;
+	}
+
+	public String getEstado() {
+		return estado;
+	}
+
+	public void setEstado(String estado) {
+		this.estado = estado;
 	}
 
 	public Pedido() {
@@ -81,6 +93,17 @@ public class Pedido {
 		cliente = a;
 		productos = new HashSet<ProductosPedidos>();
 
+	}
+
+	public Pedido(Long id, double precio, LocalDateTime fechaCreacion, String estado, Cliente cliente,
+			Set<ProductosPedidos> productos) {
+		super();
+		this.id = id;
+		this.precio = precio;
+		this.fechaCreacion = fechaCreacion;
+		this.estado = estado;
+		this.cliente = cliente;
+		this.productos = productos;
 	}
 
 	public void addProducto(Producto b, int cantidad) {
@@ -138,7 +161,8 @@ public class Pedido {
 
 	@Override
 	public String toString() {
-		return imprimirProductos();
+		return "Pedido [id=" + id + ", precio=" + precio + ", fechaCreacion=" + fechaCreacion + ", estado=" + estado
+				+ ", cliente=" + cliente + "]";
 	}
 
 	public String imprimirProductos() {

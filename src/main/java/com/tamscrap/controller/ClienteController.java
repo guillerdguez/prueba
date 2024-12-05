@@ -26,75 +26,73 @@ import com.tamscrap.service.impl.ClienteServiceImpl;
 @CrossOrigin(origins = "http://localhost:4200/")
 public class ClienteController {
 
-    private final ClienteServiceImpl clienteService;
+	private final ClienteServiceImpl clienteService;
 
-    public ClienteController(ClienteServiceImpl clienteService) {
-        this.clienteService = clienteService;
-    }
+	public ClienteController(ClienteServiceImpl clienteService) {
+		this.clienteService = clienteService;
+	}
 
-    // Obtener todos los clientes (solo ADMIN)
-    @GetMapping("/listar")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<List<ClienteDTO>> obtenerTodosLosClientes() {
-        List<ClienteDTO> clientes = clienteService.obtenerTodos().stream()
-                .map(this::convertirAClienteDTO)
-                .collect(Collectors.toList());
-        return new ResponseEntity<>(clientes, HttpStatus.OK);
-    }
+	// Obtener todos los clientes (solo ADMIN)
+	@GetMapping("/listar")
+	@PreAuthorize("hasAuthority('ADMIN')")
+	public ResponseEntity<List<ClienteDTO>> obtenerTodosLosClientes() {
+		List<ClienteDTO> clientes = clienteService.obtenerTodos().stream().map(this::convertirAClienteDTO)
+				.collect(Collectors.toList());
+		return new ResponseEntity<>(clientes, HttpStatus.OK);
+	}
 
-    // Obtener cliente por ID (solo ADMIN o el propio usuario)
-    @GetMapping("/ver/{id}")
-    @PreAuthorize("hasAuthority('ADMIN') or #id == principal.id")
-    public ResponseEntity<ClienteDTO> obtenerClientePorId(@PathVariable Long id) {
-        Cliente cliente = clienteService.obtenerPorId(id);
-        if (cliente == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(convertirAClienteDTO(cliente), HttpStatus.OK);
-    }
+	// Obtener cliente por ID (solo ADMIN o el propio usuario)
+	@GetMapping("/ver/{id}")
+	@PreAuthorize("hasAuthority('ADMIN') or #id == principal.id")
+	public ResponseEntity<ClienteDTO> obtenerClientePorId(@PathVariable Long id) {
+		Cliente cliente = clienteService.obtenerPorId(id);
+		if (cliente == null) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		return new ResponseEntity<>(convertirAClienteDTO(cliente), HttpStatus.OK);
+	}
 
-    // Actualizar cliente (solo ADMIN o el propio usuario)
-    @PutMapping("/editar/{id}")
-    @PreAuthorize("hasAuthority('ADMIN') or #id == principal.id")
-    public ResponseEntity<ClienteDTO> editarCliente(@PathVariable Long id, @RequestBody ClienteDTO clienteDTO) {
-        Cliente clienteExistente = clienteService.obtenerPorId(id);
-        if (clienteExistente == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+	// Actualizar cliente (solo ADMIN o el propio usuario)
+	@PutMapping("/editar/{id}")
+	@PreAuthorize("hasAuthority('ADMIN') or #id == principal.id")
+	public ResponseEntity<ClienteDTO> editarCliente(@PathVariable Long id, @RequestBody ClienteDTO clienteDTO) {
+		Cliente clienteExistente = clienteService.obtenerPorId(id);
+		if (clienteExistente == null) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
 
-        clienteExistente.setUsername(clienteDTO.getUsername());
-        clienteExistente.setEmail(clienteDTO.getEmail());
-        clienteExistente.setNombre(clienteDTO.getNombre());
+		clienteExistente.setUsername(clienteDTO.getUsername());
+		clienteExistente.setEmail(clienteDTO.getEmail());
+		clienteExistente.setNombre(clienteDTO.getNombre());
+		clienteExistente.setFavoritos(clienteDTO.getFavoritos());
+		// Si es ADMIN, puede cambiar los roles
+		if (clienteDTO.getAuthorities() != null && !clienteDTO.getAuthorities().isEmpty()) {
+			clienteExistente.setAuthorities(
+					clienteDTO.getAuthorities().stream().map(UserAuthority::valueOf).collect(Collectors.toSet()));
+		}
 
-        // Si es ADMIN, puede cambiar los roles
-        if (clienteDTO.getAuthorities() != null && !clienteDTO.getAuthorities().isEmpty()) {
-            clienteExistente.setAuthorities(clienteDTO.getAuthorities().stream()
-                    .map(UserAuthority::valueOf)
-                    .collect(Collectors.toSet()));
-        }
+		clienteService.insertarCliente(clienteExistente);
+		return new ResponseEntity<>(convertirAClienteDTO(clienteExistente), HttpStatus.OK);
+	}
 
-        clienteService.insertarCliente(clienteExistente);
-        return new ResponseEntity<>(convertirAClienteDTO(clienteExistente), HttpStatus.OK);
-    }
+	// Eliminar cliente (solo ADMIN)
+	@DeleteMapping("/borrar/{id}")
+	@PreAuthorize("hasAuthority('ADMIN')")
+	public ResponseEntity<Void> eliminarCliente(@PathVariable Long id) {
+		clienteService.eliminarCliente(id);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
 
-    // Eliminar cliente (solo ADMIN)
-    @DeleteMapping("/borrar/{id}")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<Void> eliminarCliente(@PathVariable Long id) {
-        clienteService.eliminarCliente(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
-    private ClienteDTO convertirAClienteDTO(Cliente cliente) {
-        ClienteDTO dto = new ClienteDTO();
-        dto.setId(cliente.getId());
-        dto.setUsername(cliente.getUsername());
-        dto.setNombre(cliente.getNombre());
-        dto.setEmail(cliente.getEmail());
-        dto.setAuthorities(cliente.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList()));
-        return dto;
-    }
+	private ClienteDTO convertirAClienteDTO(Cliente cliente) {
+		ClienteDTO dto = new ClienteDTO();
+		dto.setId(cliente.getId());
+		dto.setUsername(cliente.getUsername());
+		dto.setNombre(cliente.getNombre());
+		dto.setEmail(cliente.getEmail());
+		dto.setFavoritos(cliente.getFavoritos());
+		dto.setAuthorities(
+				cliente.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
+		return dto;
+	}
 
 }

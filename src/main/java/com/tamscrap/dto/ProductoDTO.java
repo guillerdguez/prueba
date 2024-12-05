@@ -50,7 +50,7 @@ public class ProductoDTO {
 		this.oferta = producto.isOferta();
 		this.descuento = producto.getDescuento();
 		this.precioOriginal = producto.getPrecioOriginal();  
-		this.favorito = producto.isFavorito();  
+ 
 		this.cantidad = producto.getCantidad(); 
 	}
 

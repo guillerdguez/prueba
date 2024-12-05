@@ -1,20 +1,25 @@
 package com.tamscrap.service.impl;
 
-import com.tamscrap.model.Cliente;
-import com.tamscrap.repository.ClienteRepo;
-import com.tamscrap.service.ClienteService;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import com.tamscrap.model.Cliente;
+import com.tamscrap.model.Producto;
+import com.tamscrap.repository.ClienteRepo;
+import com.tamscrap.repository.ProductoRepo;
+import com.tamscrap.service.ClienteService;
 
 @Service
 public class ClienteServiceImpl implements ClienteService {
 
     private final ClienteRepo clienteRepository;
+    private final ProductoRepo productoRepository;
 
-    public ClienteServiceImpl(ClienteRepo clienteRepository) {
+    public ClienteServiceImpl(ClienteRepo clienteRepository, ProductoRepo productoRepository) {
         this.clienteRepository = clienteRepository;
+        this.productoRepository = productoRepository;
     }
 
     @Override
@@ -43,5 +48,43 @@ public class ClienteServiceImpl implements ClienteService {
     @Override
     public Cliente obtenerPorUsername(String username) {
         return clienteRepository.findByUsername(username).orElse(null);
+    }
+
+    // --- Métodos para gestión de favoritos ---
+
+    @Override
+    @Transactional
+    public void agregarAFavoritos(Long clienteId, Long productoId) {
+        Cliente cliente = clienteRepository.findById(clienteId)
+                .orElseThrow(() -> new RuntimeException("Cliente no encontrado."));
+        Producto producto = productoRepository.findById(productoId)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado."));
+
+        if (!cliente.getFavoritos().contains(producto)) {
+            cliente.addFavorito(producto);
+            clienteRepository.save(cliente); // Guardar cambios
+        }
+    }
+
+    @Override
+    @Transactional
+    public void eliminarDeFavoritos(Long clienteId, Long productoId) {
+        Cliente cliente = clienteRepository.findById(clienteId)
+                .orElseThrow(() -> new RuntimeException("Cliente no encontrado."));
+        Producto producto = productoRepository.findById(productoId)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado."));
+
+        if (cliente.getFavoritos().contains(producto)) {
+            cliente.removeFavorito(producto);
+            clienteRepository.save(cliente); // Guardar cambios
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Producto> obtenerFavoritos(Long clienteId) {
+        Cliente cliente = clienteRepository.findById(clienteId)
+                .orElseThrow(() -> new RuntimeException("Cliente no encontrado."));
+        return List.copyOf(cliente.getFavoritos());
     }
 }

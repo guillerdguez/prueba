@@ -5,12 +5,24 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
+import jakarta.persistence.Column;
+
 public class PedidoDTO {
     private Long id;
     private double precio;
     private LocalDateTime fechaCreacion;
     private Long clienteId; // Referencia al id del cliente
     private Set<ProductoPedidoDTO> productos;
+ 
+	public String getEstado() {
+		return estado;
+	}
+
+	public void setEstado(String estado) {
+		this.estado = estado;
+	}
+
+	private String estado;
 
     public PedidoDTO() {
         productos = new HashSet<>();

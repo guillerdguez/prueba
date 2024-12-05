@@ -43,9 +43,7 @@ public class Producto {
 
 	@Column(name = "cantidad")
 	private int cantidad;
-
-	@Column(name = "favorito")
-	private boolean favorito;
+ 
 
 	@Column(name = "precio_original", nullable = true)
 	private Double precioOriginal; // Nuevo campo agregado
@@ -72,7 +70,7 @@ public class Producto {
 		this.oferta = oferta;
 		this.descuento = descuento;
 		this.cantidad = cantidad;
-		this.favorito = favorito;
+	 
 		this.precioOriginal = precioOriginal;
 	}
 
@@ -87,24 +85,17 @@ public class Producto {
 		this.scrapbooking = scrapbooking;
 		this.oferta = oferta;
 		this.descuento = descuento;
-		this.favorito = favorito;
+ 
 		this.precioOriginal = precioOriginal;
 		this.pedidos = pedidos;
 	}
 
-	public boolean isFavorito() {
-		return favorito;
-	}
-
-	public void setFavorito(boolean favorito) {
-		this.favorito = favorito;
-	}
-
+ 
 	@Override
 	public String toString() {
 		return "Producto [id=" + id + ", nombre=" + nombre + ", precio=" + precio + ", imagen=" + imagen
 				+ ", lettering=" + lettering + ", scrapbooking=" + scrapbooking + ", oferta=" + oferta + ", descuento="
-				+ descuento + ", cantidad=" + cantidad + ", favorito=" + favorito + ", precioOriginal=" + precioOriginal
+				+ descuento + ", cantidad=" + cantidad   + ", precioOriginal=" + precioOriginal
 				+ "]";
 	}
 
@@ -237,21 +228,26 @@ public class Producto {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, nombre, precio, imagen, lettering, scrapbooking, oferta, descuento, precioOriginal,
-				pedidos);
+		return Objects.hash(cantidad, descuento, id, imagen, lettering, nombre, oferta, precio, precioOriginal,
+				scrapbooking);
 	}
 
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-		if (obj == null || getClass() != obj.getClass())
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
 			return false;
 		Producto other = (Producto) obj;
-		return Objects.equals(id, other.id) && Objects.equals(nombre, other.nombre)
-				&& Double.compare(other.precio, precio) == 0 && Objects.equals(imagen, other.imagen)
-				&& lettering == other.lettering && scrapbooking == other.scrapbooking && oferta == other.oferta
-				&& Objects.equals(descuento, other.descuento) && Objects.equals(precioOriginal, other.precioOriginal)
-				&& Objects.equals(pedidos, other.pedidos);
+		return cantidad == other.cantidad && Objects.equals(descuento, other.descuento) && Objects.equals(id, other.id)
+				&& Objects.equals(imagen, other.imagen) && lettering == other.lettering
+				&& Objects.equals(nombre, other.nombre) && oferta == other.oferta
+				&& Double.doubleToLongBits(precio) == Double.doubleToLongBits(other.precio)
+				&& Objects.equals(precioOriginal, other.precioOriginal) && scrapbooking == other.scrapbooking;
 	}
+
+ 
+ 
 }
