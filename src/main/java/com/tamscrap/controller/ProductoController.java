@@ -39,15 +39,32 @@ public class ProductoController {
 
     // READ
     @GetMapping("/listar")
-    public ResponseEntity<List<ProductoDTO>> obtenerTodosLosProductos() {
-        List<ProductoDTO> productos = productoService.obtenerTodos()
-                .stream()
+    public ResponseEntity<List<ProductoDTO>> obtenerTodosLosProductos(
+            @RequestParam(value = "categoria", required = false) String categoria) {
+        List<Producto> productos;
+        if (categoria != null && !categoria.isEmpty()) {
+            productos = productoService.obtenerProductosPorCategoria(categoria);
+            logger.log(Level.INFO, "Obteniendo productos de la categoría: {0}", categoria);
+        } else {
+            productos = productoService.obtenerTodos();
+            logger.log(Level.INFO, "Obteniendo todos los productos");
+        }
+
+        List<ProductoDTO> productosDTO = productos.stream()
                 .map(this::convertirAProductoDTO)
                 .collect(Collectors.toList());
 
-        return new ResponseEntity<>(productos, HttpStatus.OK);
+        return new ResponseEntity<>(productosDTO, HttpStatus.OK);
     }
-
+    @GetMapping("/categoria/{categoria}")
+    public ResponseEntity<List<ProductoDTO>> obtenerProductosPorCategoria(@PathVariable String categoria) {
+        logger.log(Level.INFO, "Obteniendo productos de la categoría: {0}", categoria);
+        List<Producto> productos = productoService.obtenerProductosPorCategoria(categoria);
+        List<ProductoDTO> productosDTO = productos.stream()
+                .map(this::convertirAProductoDTO)
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(productosDTO, HttpStatus.OK);
+    }
     @GetMapping("/ver/{id}")
     public ResponseEntity<ProductoDTO> obtenerProductoPorId(@PathVariable Long id) {
         logger.log(Level.INFO, "Obteniendo producto con ID: {0}", id);
@@ -56,28 +73,6 @@ public class ProductoController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(convertirAProductoDTO(producto), HttpStatus.OK);
-    }
-
-    @GetMapping("/lettering")
-    public ResponseEntity<List<ProductoDTO>> obtenerProductosLettering() {
-        List<ProductoDTO> productos = productoService.ObtenerProductosLettering().stream()
-                .map(this::convertirAProductoDTO).collect(Collectors.toList());
-        return new ResponseEntity<>(productos, HttpStatus.OK);
-    }
-
-    @GetMapping("/scrapbooking")
-    public ResponseEntity<List<ProductoDTO>> obtenerProductosScrapbooking() {
-        List<ProductoDTO> productos = productoService.ObtenerProductosScrapbooking().stream()
-                .map(this::convertirAProductoDTO).collect(Collectors.toList());
-        return new ResponseEntity<>(productos, HttpStatus.OK);
-    }
-
-    @GetMapping("/ofertas")
-    public ResponseEntity<List<ProductoDTO>> obtenerProductosOferta() {
-        List<ProductoDTO> productos = productoService.ObtenerProductosOferta().stream()
-                .map(this::convertirAProductoDTO)
-                .collect(Collectors.toList());
-        return new ResponseEntity<>(productos, HttpStatus.OK);
     }
 
     // UPDATE

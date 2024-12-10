@@ -15,5 +15,5 @@ public interface ProductoService {
 	void eliminarProducto(Long id);
 
 	List<Producto> obtenerTodos();
-
+    List<Producto> obtenerProductosPorCategoria(String categoria);
 }

@@ -1,18 +1,14 @@
 package com.tamscrap.model;
- 
+
 import java.util.HashSet;
 import java.util.Set;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -28,25 +24,17 @@ public class Carrito {
     @Column(nullable = false)
     private String nombreCliente;
 
-//    @OneToMany(mappedBy = "carrito", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-//    private Set<Producto> productos = new HashSet<>();
-
     @Column
-    private String imagenUrl; 
-    @OneToOne(mappedBy = "carrito")
+    private String imagenUrl;
+
+    @OneToOne(mappedBy = "carrito", cascade = CascadeType.ALL, orphanRemoval = true)
     private Cliente cliente;
 
-    @ManyToMany
-    @JoinTable(
-        name = "carrito_productos",
-        joinColumns = @JoinColumn(name = "carrito_id"),
-        inverseJoinColumns = @JoinColumn(name = "producto_id")
-    )
-    private Set<Producto> productos = new HashSet<>();
-    public Carrito() {
-    }
+    @OneToMany(mappedBy = "carrito", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<CarritoProducto> productos = new HashSet<>();
 
-    // Constructor con imagen opcional
+    public Carrito() {}
+
     public Carrito(String nombreCliente, String imagenUrl) {
         this.nombreCliente = nombreCliente;
         this.imagenUrl = imagenUrl;
@@ -54,6 +42,15 @@ public class Carrito {
 
     public Carrito(String nombreCliente) {
         this.nombreCliente = nombreCliente;
+    }
+
+    // Constructor completo
+    public Carrito(Long id, String nombreCliente, String imagenUrl, Cliente cliente, Set<CarritoProducto> productos) {
+        this.id = id;
+        this.nombreCliente = nombreCliente;
+        this.imagenUrl = imagenUrl;
+        this.cliente = cliente;
+        this.productos = productos;
     }
 
     public Long getId() {
@@ -72,24 +69,6 @@ public class Carrito {
         this.nombreCliente = nombreCliente;
     }
 
-    public Set<Producto> getProductos() {
-        return productos;
-    }
-
-    public void setProductos(Set<Producto> productos) {
-        this.productos = productos;
-    }
-
-    public void addProducto(Producto producto) {
-        productos.add(producto);
-        producto.setCarrito(this);
-    }
-
-    public void removeProducto(Producto producto) {
-        productos.remove(producto);
-        producto.setCarrito(null);
-    }
-
     public String getImagenUrl() {
         return imagenUrl;
     }
@@ -98,8 +77,37 @@ public class Carrito {
         this.imagenUrl = imagenUrl;
     }
 
+    public Cliente getCliente() {
+        return cliente;
+    }
+
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
+    }
+
+    public Set<CarritoProducto> getProductos() {
+        return productos;
+    }
+
+    public void setProductos(Set<CarritoProducto> productos) {
+        this.productos = productos;
+    }
+
+    public void addProducto(Producto producto, int cantidad) {
+        CarritoProducto carritoProducto = new CarritoProducto();
+        carritoProducto.setProducto(producto);
+        carritoProducto.setCarrito(this);
+        carritoProducto.setCantidad(cantidad);
+        productos.add(carritoProducto);
+    }
+
+
+    public void removeProducto(Producto producto) {
+        productos.removeIf(carritoProducto -> carritoProducto.getProducto().equals(producto));
+    }
+
     @Override
     public String toString() {
-        return "Carrito [id=" + id + ", nombreCliente=" + nombreCliente + ", productos=" + productos + ", imagenUrl=" + imagenUrl + "]";
+        return "Carrito [id=" + id + ", nombreCliente=" + nombreCliente + ", imagenUrl=" + imagenUrl + "]";
     }
 }

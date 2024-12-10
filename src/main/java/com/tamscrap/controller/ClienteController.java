@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.tamscrap.dto.ClienteDTO;
 import com.tamscrap.model.Cliente;
+import com.tamscrap.model.Producto;
 import com.tamscrap.model.UserAuthority;
 import com.tamscrap.service.impl.ClienteServiceImpl;
 
@@ -93,6 +95,26 @@ public class ClienteController {
 		dto.setAuthorities(
 				cliente.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
 		return dto;
+	}
+	// Agregar producto a favoritos
+	@PostMapping("/{clienteId}/favorito/{productoId}")
+ 	public ResponseEntity<Void> agregarAFavoritos(@PathVariable Long clienteId, @PathVariable Long productoId) {
+	    clienteService.agregarAFavoritos(clienteId, productoId);
+	    return new ResponseEntity<>(HttpStatus.CREATED);
+	}
+
+	// Eliminar producto de favoritos
+	@DeleteMapping("/{clienteId}/favorito/{productoId}")
+ 	public ResponseEntity<Void> eliminarDeFavoritos(@PathVariable Long clienteId, @PathVariable Long productoId) {
+	    clienteService.eliminarDeFavoritos(clienteId, productoId);
+	    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+
+	// Obtener la lista de favoritos del cliente
+	@GetMapping("/{clienteId}/favoritos")
+ 	public ResponseEntity<List<Producto>> obtenerFavoritos(@PathVariable Long clienteId) {
+	    List<Producto> favoritos = clienteService.obtenerFavoritos(clienteId);
+	    return new ResponseEntity<>(favoritos, HttpStatus.OK);
 	}
 
 }

@@ -43,10 +43,9 @@ public class Producto {
 
 	@Column(name = "cantidad")
 	private int cantidad;
- 
 
 	@Column(name = "precio_original", nullable = true)
-	private Double precioOriginal; // Nuevo campo agregado
+	private Double precioOriginal;
 
 	@OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<ProductosPedidos> pedidos = new HashSet<>();
@@ -60,7 +59,7 @@ public class Producto {
 
 	public Producto(Long id, String nombre, double precio, String imagen, boolean lettering, boolean scrapbooking,
 			boolean oferta, Integer descuento, int cantidad, boolean favorito, Double precioOriginal) {
-		super();
+
 		this.id = id;
 		this.nombre = nombre;
 		this.precio = precio;
@@ -70,33 +69,30 @@ public class Producto {
 		this.oferta = oferta;
 		this.descuento = descuento;
 		this.cantidad = cantidad;
-	 
+
 		this.precioOriginal = precioOriginal;
 	}
 
 	public Producto(Long id, String nombre, double precio, String imagen, boolean lettering, boolean scrapbooking,
 			boolean oferta, Integer descuento, boolean favorito, Double precioOriginal, Set<ProductosPedidos> pedidos) {
-		super();
+
 		this.id = id;
-		this.nombre = nombre;
 		this.precio = precio;
 		this.imagen = imagen;
 		this.lettering = lettering;
 		this.scrapbooking = scrapbooking;
 		this.oferta = oferta;
 		this.descuento = descuento;
- 
+
 		this.precioOriginal = precioOriginal;
 		this.pedidos = pedidos;
 	}
 
- 
 	@Override
 	public String toString() {
 		return "Producto [id=" + id + ", nombre=" + nombre + ", precio=" + precio + ", imagen=" + imagen
 				+ ", lettering=" + lettering + ", scrapbooking=" + scrapbooking + ", oferta=" + oferta + ", descuento="
-				+ descuento + ", cantidad=" + cantidad   + ", precioOriginal=" + precioOriginal
-				+ "]";
+				+ descuento + ", cantidad=" + cantidad + ", precioOriginal=" + precioOriginal + "]";
 	}
 
 	// Getters y Setters para todos los campos, incluyendo precioOriginal
@@ -176,7 +172,7 @@ public class Producto {
 			return precioOriginal;
 		}
 		if (descuento == null || descuento <= 0) {
-			return null;  
+			return null;
 		}
 		return precio / (1 - (descuento / 100.0));
 	}
@@ -248,6 +244,4 @@ public class Producto {
 				&& Objects.equals(precioOriginal, other.precioOriginal) && scrapbooking == other.scrapbooking;
 	}
 
- 
- 
 }

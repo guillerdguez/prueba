@@ -76,7 +76,22 @@ public class Cliente implements UserDetails {
         this.authorities = authorities;
     }
 
-    // Métodos para gestionar los productos favoritos
+    public Cliente(Long id, String nombre, String username, String password, String email, Set<Producto> favoritos,
+			Set<UserAuthority> authorities) {
+ 		this.id = id;
+		this.nombre = nombre;
+		this.username = username;
+		this.password = password;
+		this.email = email;
+		this.favoritos = favoritos;
+		this.authorities = authorities;
+	} 
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	// Métodos para gestionar los productos favoritos
     public void addFavorito(Producto producto) {
         favoritos.add(producto);
     }

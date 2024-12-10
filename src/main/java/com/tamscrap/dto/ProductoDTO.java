@@ -13,7 +13,7 @@ public class ProductoDTO {
 	private boolean oferta;
 	private Integer descuento;
 	private Double precioOriginal;
-	private boolean favorito;
+//	private boolean favorito;
 	private Set<ProductoPedidoDTO> pedidos;
 	private int cantidad;
 
@@ -23,7 +23,7 @@ public class ProductoDTO {
 
 	// Constructor para inicializar desde Producto
 	public ProductoDTO(Long id, String nombre, double precio, String imagen, boolean lettering, boolean scrapbooking,
-			boolean oferta, Integer descuento, Double precioOriginal, int cantidad, boolean favorito,
+			boolean oferta, Integer descuento, Double precioOriginal, int cantidad, 
 			Set<ProductoPedidoDTO> pedidos) {
 		this.id = id;
 		this.nombre = nombre;
@@ -34,10 +34,10 @@ public class ProductoDTO {
 		this.oferta = oferta;
 		this.descuento = descuento;
 		this.precioOriginal = precioOriginal;
-		this.favorito = favorito;
+//		this.favorito = favorito;
 		this.cantidad = cantidad;
 		this.pedidos = pedidos;
-	}
+	} 
 
 	// Constructor desde una instancia de Producto para facilidad de uso
 	public ProductoDTO(com.tamscrap.model.Producto producto) {
@@ -140,13 +140,13 @@ public class ProductoDTO {
 		this.precioOriginal = precioOriginal;
 	}
 
-	public boolean isFavorito() {
-		return favorito;
-	}
-
-	public void setFavorito(boolean favorito) {
-		this.favorito = favorito;
-	}
+//	public boolean isFavorito() {
+//		return favorito;
+//	}
+//
+//	public void setFavorito(boolean favorito) {
+//		this.favorito = favorito;
+//	}
 
 	public Set<ProductoPedidoDTO> getPedidos() {
 		return pedidos;
@@ -160,7 +160,7 @@ public class ProductoDTO {
 	public String toString() {
 		return "ProductoDTO [id=" + id + ", nombre=" + nombre + ", precio=" + precio + ", imagen=" + imagen
 				+ ", lettering=" + lettering + ", scrapbooking=" + scrapbooking + ", oferta=" + oferta + ", descuento="
-				+ descuento + ", precioOriginal=" + precioOriginal + ", favorito=" + favorito + ", pedidos=" + pedidos
+				+ descuento + ", precioOriginal=" + precioOriginal  + ", pedidos=" + pedidos
 				+ ", cantidad=" + cantidad + "]";
 	}
 }
