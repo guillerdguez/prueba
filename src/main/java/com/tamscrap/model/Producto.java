@@ -1,13 +1,20 @@
 package com.tamscrap.model;
 
-import jakarta.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.NaturalIdCache;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "PRODUCTOS")
@@ -50,9 +57,13 @@ public class Producto {
 	@OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<ProductosPedidos> pedidos = new HashSet<>();
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "carrito_id")
-	private Carrito carrito;
+	@OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true)
+	private Set<CarritoProducto> carritoProductos = new HashSet<>();
+
+//	@ManyToOne(fetch = FetchType.LAZY)
+//	@JoinColumn(name = "carrito_id")
+//	@JsonBackReference
+//	private Carrito carrito;
 
 	public Producto() {
 	}
@@ -86,13 +97,6 @@ public class Producto {
 
 		this.precioOriginal = precioOriginal;
 		this.pedidos = pedidos;
-	}
-
-	@Override
-	public String toString() {
-		return "Producto [id=" + id + ", nombre=" + nombre + ", precio=" + precio + ", imagen=" + imagen
-				+ ", lettering=" + lettering + ", scrapbooking=" + scrapbooking + ", oferta=" + oferta + ", descuento="
-				+ descuento + ", cantidad=" + cantidad + ", precioOriginal=" + precioOriginal + "]";
 	}
 
 	// Getters y Setters para todos los campos, incluyendo precioOriginal
@@ -206,13 +210,13 @@ public class Producto {
 		this.pedidos = pedidos;
 	}
 
-	public Carrito getCarrito() {
-		return carrito;
-	}
-
-	public void setCarrito(Carrito carrito) {
-		this.carrito = carrito;
-	}
+//	public Carrito getCarrito() {
+//		return carrito;
+//	}
+//
+//	public void setCarrito(Carrito carrito) {
+//		this.carrito = carrito;
+//	}
 
 	// Método para calcular el precio final basado en el descuento
 	public double getPrecioFinal() {
@@ -221,27 +225,27 @@ public class Producto {
 		}
 		return precio;
 	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(cantidad, descuento, id, imagen, lettering, nombre, oferta, precio, precioOriginal,
-				scrapbooking);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Producto other = (Producto) obj;
-		return cantidad == other.cantidad && Objects.equals(descuento, other.descuento) && Objects.equals(id, other.id)
-				&& Objects.equals(imagen, other.imagen) && lettering == other.lettering
-				&& Objects.equals(nombre, other.nombre) && oferta == other.oferta
-				&& Double.doubleToLongBits(precio) == Double.doubleToLongBits(other.precio)
-				&& Objects.equals(precioOriginal, other.precioOriginal) && scrapbooking == other.scrapbooking;
-	}
+//
+//	@Override
+//	public int hashCode() {
+//		return Objects.hash(cantidad, descuento, id, imagen, lettering, nombre, oferta, precio, precioOriginal,
+//				scrapbooking);
+//	}
+//
+//	@Override
+//	public boolean equals(Object obj) {
+//		if (this == obj)
+//			return true;
+//		if (obj == null)
+//			return false;
+//		if (getClass() != obj.getClass())
+//			return false;
+//		Producto other = (Producto) obj;
+//		return cantidad == other.cantidad && Objects.equals(descuento, other.descuento) && Objects.equals(id, other.id)
+//				&& Objects.equals(imagen, other.imagen) && lettering == other.lettering
+//				&& Objects.equals(nombre, other.nombre) && oferta == other.oferta
+//				&& Double.doubleToLongBits(precio) == Double.doubleToLongBits(other.precio)
+//				&& Objects.equals(precioOriginal, other.precioOriginal) && scrapbooking == other.scrapbooking;
+//	}
 
 }

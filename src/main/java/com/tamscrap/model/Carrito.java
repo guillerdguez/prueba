@@ -3,6 +3,8 @@ package com.tamscrap.model;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,9 +33,10 @@ public class Carrito {
     private Cliente cliente;
 
     @OneToMany(mappedBy = "carrito", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<CarritoProducto> productos = new HashSet<>();
+     private Set<CarritoProducto> productos = new HashSet<>();
 
-    public Carrito() {}
+    public Carrito() {
+    }
 
     public Carrito(String nombreCliente, String imagenUrl) {
         this.nombreCliente = nombreCliente;
@@ -44,7 +47,6 @@ public class Carrito {
         this.nombreCliente = nombreCliente;
     }
 
-    // Constructor completo
     public Carrito(Long id, String nombreCliente, String imagenUrl, Cliente cliente, Set<CarritoProducto> productos) {
         this.id = id;
         this.nombreCliente = nombreCliente;
@@ -101,13 +103,7 @@ public class Carrito {
         productos.add(carritoProducto);
     }
 
-
     public void removeProducto(Producto producto) {
         productos.removeIf(carritoProducto -> carritoProducto.getProducto().equals(producto));
-    }
-
-    @Override
-    public String toString() {
-        return "Carrito [id=" + id + ", nombreCliente=" + nombreCliente + ", imagenUrl=" + imagenUrl + "]";
     }
 }

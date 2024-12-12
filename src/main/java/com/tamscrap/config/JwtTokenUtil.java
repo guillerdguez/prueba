@@ -21,7 +21,7 @@ public class JwtTokenUtil {
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
-    }
+    } 
 
     public boolean validateToken(String token, UserDetails userDetails) {
         String username = getUsernameFromToken(token);

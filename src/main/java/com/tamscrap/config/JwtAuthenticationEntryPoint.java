@@ -12,11 +12,22 @@ import java.io.IOException;
 @Component
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
-    @Override
-    public void commence(HttpServletRequest request,
-                         HttpServletResponse response,
-                         AuthenticationException authException)
-                         throws IOException {
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "No autorizado");
-    }
+//    @Override
+//    public void commence(HttpServletRequest request,
+//                         HttpServletResponse response,
+//                         AuthenticationException authException)
+//                         throws IOException {
+//        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "No autorizado");
+//    }
+
+	  @Override
+	    public void commence(HttpServletRequest request,
+	                         HttpServletResponse response,
+	                         AuthenticationException authException)
+	            throws IOException {
+	        response.setContentType("application/json");
+	        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+	        response.getWriter().write("{\"error\": \"No autorizado. Token inválido o expirado.\"}");
+	    }
 }
+ 

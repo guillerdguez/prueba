@@ -1,5 +1,7 @@
 package com.tamscrap.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -13,20 +15,21 @@ import jakarta.persistence.Table;
 @Table(name = "carrito_productos")
 public class CarritoProducto {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "carrito_id")
-    private Carrito carrito;
+	@ManyToOne
+	@JoinColumn(name = "carrito_id")
+ 
+	private Carrito carrito;
 
-    @ManyToOne
-    @JoinColumn(name = "producto_id")
-    private Producto producto;
+	@ManyToOne
+	@JoinColumn(name = "producto_id")
+	private Producto producto;
 
-    @Column(nullable = false)
-    private int cantidad;
+	@Column(nullable = false)
+	private int cantidad;
 
 	public Long getId() {
 		return id;
@@ -61,16 +64,15 @@ public class CarritoProducto {
 	}
 
 	public CarritoProducto() {
-	 
+
 	}
 
 	public CarritoProducto(Long id, Carrito carrito, Producto producto, int cantidad) {
-	 
+
 		this.id = id;
 		this.carrito = carrito;
 		this.producto = producto;
 		this.cantidad = cantidad;
 	}
 
- 
 }

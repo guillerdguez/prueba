@@ -49,6 +49,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody ClienteDTO clienteDTO) {
+    	System.err.println(clienteDTO+"Clienteaaaaa");
         try {
             // Autenticación del usuario
             Authentication authentication = authenticationManager.authenticate(

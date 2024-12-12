@@ -20,7 +20,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
-
+ 
     @Autowired
     private UserServiceImpl userService;
 
@@ -28,7 +28,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     private JwtTokenUtil jwtTokenUtil;
 
     private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(JwtRequestFilter.class);
-
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
@@ -50,6 +49,11 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             jwtToken = requestTokenHeader.substring(7); // Extraer el token eliminando 'Bearer '
             try {
                 username = jwtTokenUtil.getUsernameFromToken(jwtToken);
+
+                // Logs para depuración
+                logger.info("Token recibido: " + jwtToken);
+                logger.info("Usuario del token: " + username);
+
             } catch (IllegalArgumentException e) {
                 logger.error("No se pudo obtener el token JWT", e);
             } catch (ExpiredJwtException e) {
@@ -70,6 +74,9 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             UserDetails userDetails = this.userService.loadUserByUsername(username);
 
             if (jwtToken != null && jwtTokenUtil.validateToken(jwtToken, userDetails)) {
+                // Logs para depuración de validación
+                logger.info("Token válido: " + jwtTokenUtil.validateToken(jwtToken, userDetails));
+
                 UsernamePasswordAuthenticationToken authenticationToken =
                         new UsernamePasswordAuthenticationToken(
                                 userDetails, null, userDetails.getAuthorities());
@@ -82,4 +89,5 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         chain.doFilter(request, response);
     }
+
 }

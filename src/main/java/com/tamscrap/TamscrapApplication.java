@@ -40,14 +40,21 @@ public class TamscrapApplication {
         		Cliente user2 = new Cliente(
         		    "User Two",
         		    "user2",
-        		    encoder.encode("1234"),
+        		    encoder.encode("1234"),		
         		    "user2@localhost",
         		    new HashSet<>(Collections.singletonList(UserAuthority.USER))
         		);
+        		Cliente user3 = new Cliente(
+            		    "User tree",
+            		    "user3",
+            		    encoder.encode("1234"),		
+            		    "user3@localhost",
+            		    new HashSet<>(Collections.singletonList(UserAuthority.USER))
+            		);
 
         		clienteRepo.save(user1);
         		clienteRepo.save(user2);
-
+        		clienteRepo.save(user3);
 
             // Productos de Lettering con más variedad
             List<Producto> productosLettering = List.of(

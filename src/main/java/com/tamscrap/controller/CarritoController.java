@@ -73,9 +73,9 @@ public class CarritoController {
     }
 
     // Obtener productos del carrito
-    @GetMapping("/productos")
-    public ResponseEntity<Set<CarritoProducto>> mostrarProductosCarrito() {
-        logger.info("Obteniendo productos en el carrito");
+    @GetMapping("/productos/{userId}")
+    public ResponseEntity<Set<CarritoProducto>> mostrarProductosCarrito(@PathVariable Long userId) {
+        logger.info("Obteniendo productos en el carrito para el usuario con ID: " + userId);
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
@@ -86,17 +86,23 @@ public class CarritoController {
         String username = authentication.getName();
         Cliente cliente = clienteService.obtenerPorUsername(username);
         if (cliente == null) {
-            logger.warning("Cliente no encontrado para el usuario: " + username);
+            logger.warning("Cliente no encontrado para el usuario autenticado: " + username);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        Carrito carrito = obtenerOCrearCarrito(cliente);
+        // Verificar que el cliente autenticado coincide con el userId proporcionado
+        if (!cliente.getId().equals(userId)) {
+            logger.warning("El cliente autenticado no tiene acceso al carrito del usuario con ID: " + userId);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        Carrito carrito = cliente.getCarrito();
         if (carrito == null || carrito.getProductos() == null || carrito.getProductos().isEmpty()) {
             logger.info("El carrito está vacío para el cliente con ID: " + cliente.getId());
             return ResponseEntity.noContent().build();
         }
 
-        logger.info("Carrito obtenido con " + carrito.getProductos().size() + " productos");
+        logger.info("Carrito obtenido con " + carrito.getProductos().size() + " productos para el cliente con ID: " + userId);
         return ResponseEntity.ok(carrito.getProductos());
     }
 
@@ -157,4 +163,25 @@ public class CarritoController {
         logger.info("Total calculado: " + total);
         return new ResponseEntity<>(total, HttpStatus.OK);
     }
+ // Vaciar carrito
+    @DeleteMapping("/clear")
+    public ResponseEntity<Void> vaciarCarrito() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        String username = authentication.getName();
+        Cliente cliente = clienteService.obtenerPorUsername(username);
+        if (cliente == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        Carrito carrito = cliente.getCarrito();
+        carrito.getProductos().clear();
+        clienteService.insertarCliente(cliente);
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
 }

@@ -17,5 +17,5 @@ public class SwaggerConfig {
                 .apis(RequestHandlerSelectors.basePackage("com.tamscrap.controller"))
                 .paths(PathSelectors.any())
                 .build();
-    }
+    } 
 }

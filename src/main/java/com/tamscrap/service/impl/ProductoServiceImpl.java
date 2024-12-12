@@ -33,7 +33,7 @@ public class ProductoServiceImpl implements ProductoService {
 
     private void validarProducto(Producto producto) {
         if (producto.getNombre() == null || producto.getNombre().isEmpty()) {
-            throw new IllegalArgumentException("El nombre no puede ser nulo o vacío");
+            throw new IllegalArgumentException("El nombre no puede ser nulo o vacío"); 
         }
         if (producto.getPrecio() <= 0) {
             throw new IllegalArgumentException("El precio debe ser mayor que cero");
@@ -59,7 +59,7 @@ public class ProductoServiceImpl implements ProductoService {
         }
         return producto;
     }
-
+ 
     @Override
     public List<Producto> obtenerProductosPorCategoria(String categoria) {
         switch (categoria.toLowerCase()) {

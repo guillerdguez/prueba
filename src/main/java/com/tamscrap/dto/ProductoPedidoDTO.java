@@ -1,9 +1,9 @@
 package com.tamscrap.dto;
 
+import java.util.Objects;
+
 import com.tamscrap.model.ProductoPedidoId;
 import com.tamscrap.model.ProductosPedidos;
-
-import java.util.Objects;
 
 public class ProductoPedidoDTO {
     private Long productoId;  
