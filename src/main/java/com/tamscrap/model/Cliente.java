@@ -219,8 +219,8 @@ public class Cliente implements UserDetails {
         return Objects.equals(id, other.id) && Objects.equals(username, other.username);
     }
 //
-//    @Override
-//    public String toString() {
-//        return "Cliente [id=" + id + ", nombre=" + nombre + ", username=" + username + ", email=" + email + "]";
-//    }
+    @Override
+    public String toString() {
+        return "Cliente [id=" + id + ", nombre=" + nombre + ", username=" + username + ", email=" + email + "]";
+    }
 }

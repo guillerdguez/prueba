@@ -1,7 +1,5 @@
 package com.tamscrap.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -21,7 +19,7 @@ public class CarritoProducto {
 
 	@ManyToOne
 	@JoinColumn(name = "carrito_id")
- 
+
 	private Carrito carrito;
 
 	@ManyToOne

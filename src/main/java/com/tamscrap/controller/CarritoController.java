@@ -2,16 +2,25 @@ package com.tamscrap.controller;
 
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+import com.tamscrap.dto.CarritoDTO;
+import com.tamscrap.dto.CarritoProductoDTO;
+import com.tamscrap.dto.ProductoDTO;
 import com.tamscrap.model.Carrito;
-import com.tamscrap.model.CarritoProducto;
 import com.tamscrap.model.Cliente;
 import com.tamscrap.model.Producto;
 import com.tamscrap.service.impl.ClienteServiceImpl;
@@ -71,40 +80,80 @@ public class CarritoController {
         logger.info("Producto agregado al carrito exitosamente");
         return new ResponseEntity<>(HttpStatus.OK);
     }
+//    @GetMapping("/productos/{userId}")
+//    public ResponseEntity<Set<ProductoDTO>> mostrarProductosCarrito(@PathVariable Long userId) {
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        if (authentication == null || !authentication.isAuthenticated()) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+//        }
+//
+//        String username = authentication.getName();
+//        Cliente cliente = clienteService.obtenerPorUsername(username);
+//        if (cliente == null || !cliente.getId().equals(userId)) {
+//            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+//        }
+//
+//        Carrito carrito = cliente.getCarrito();
+//        if (carrito == null || carrito.getProductos().isEmpty()) {
+//            return ResponseEntity.noContent().build();
+//        }
+//
+//        Set<ProductoDTO> productos = carrito.getProductos().stream()
+//                .map(cp -> new ProductoDTO(cp.getProducto().getId(), cp.getProducto().getNombre(),
+//                                           cp.getProducto().getPrecio(), cp.getCantidad()))
+//                .collect(Collectors.toSet());
+//System.err.println(productos +" Productoooooo");
+//        return ResponseEntity.ok(productos);
+//    }
 
     // Obtener productos del carrito
     @GetMapping("/productos/{userId}")
-    public ResponseEntity<Set<CarritoProducto>> mostrarProductosCarrito(@PathVariable Long userId) {
-        logger.info("Obteniendo productos en el carrito para el usuario con ID: " + userId);
-
+    public ResponseEntity<CarritoDTO> mostrarProductosCarrito(@PathVariable Long userId) {
+        // Recuperar la autenticación del usuario
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
             logger.warning("Cliente no autenticado");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
+        // Obtener el nombre de usuario autenticado
         String username = authentication.getName();
         Cliente cliente = clienteService.obtenerPorUsername(username);
-        if (cliente == null) {
-            logger.warning("Cliente no encontrado para el usuario autenticado: " + username);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
 
-        // Verificar que el cliente autenticado coincide con el userId proporcionado
-        if (!cliente.getId().equals(userId)) {
-            logger.warning("El cliente autenticado no tiene acceso al carrito del usuario con ID: " + userId);
+        // Verificar si el cliente existe y si tiene acceso al carrito solicitado
+        if (cliente == null || !cliente.getId().equals(userId)) {
+            logger.warning("El cliente autenticado no tiene acceso al carrito solicitado o no existe.");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
+        // Obtener el carrito del cliente
         Carrito carrito = cliente.getCarrito();
-        if (carrito == null || carrito.getProductos() == null || carrito.getProductos().isEmpty()) {
-            logger.info("El carrito está vacío para el cliente con ID: " + cliente.getId());
+        if (carrito == null || carrito.getProductos().isEmpty()) {
             return ResponseEntity.noContent().build();
         }
 
-        logger.info("Carrito obtenido con " + carrito.getProductos().size() + " productos para el cliente con ID: " + userId);
-        return ResponseEntity.ok(carrito.getProductos());
+        // Convertir el carrito a CarritoDTO
+        Set<CarritoProductoDTO> productosDTO = carrito.getProductos().stream().map(cp -> {
+            Producto p = cp.getProducto();
+            ProductoDTO productoDTO = new ProductoDTO(
+                p.getId(),
+                p.getNombre(),
+                p.getPrecio(),
+                p.getImagen() // Suponiendo que el producto tiene un campo imagen
+            );
+            return new CarritoProductoDTO(cp.getId(), productoDTO, cp.getCantidad());
+        }).collect(Collectors.toSet());
+
+        CarritoDTO carritoDTO = new CarritoDTO(
+            carrito.getId(),
+            carrito.getNombreCliente(),
+        
+            productosDTO
+        );
+System.err.println(carritoDTO+"AAAAAAAAAAAAAAAAA");
+        return ResponseEntity.ok(carritoDTO);
     }
+
 
     // Eliminar producto del carrito
     @DeleteMapping("/removeProducto/{id}")

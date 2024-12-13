@@ -34,25 +34,5 @@ public class ProductoPedidoDTO {
         return productosPedidos;
     }
 
-    @Override
-    public String toString() {
-        return "ProductoPedidoDTO{" +
-                "productoId=" + productoId +
-                ", cantidad=" + cantidad +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ProductoPedidoDTO)) return false;
-        ProductoPedidoDTO that = (ProductoPedidoDTO) o;
-        return cantidad == that.cantidad &&
-                Objects.equals(productoId, that.productoId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(productoId, cantidad);
-    }
+  
 }

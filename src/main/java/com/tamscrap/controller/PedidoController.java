@@ -8,6 +8,8 @@ import java.util.logging.Logger;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.tamscrap.dto.PedidoRequest;
 import com.tamscrap.dto.PedidoUpdateRequest;
 import com.tamscrap.model.Cliente;
 import com.tamscrap.model.Pedido;
@@ -28,6 +29,7 @@ import com.tamscrap.model.ProductosPedidos;
 import com.tamscrap.service.impl.ClienteServiceImpl;
 import com.tamscrap.service.impl.PedidoServiceImpl;
 import com.tamscrap.service.impl.ProductoServiceImpl;
+import com.tamscrap.service.impl.UserServiceImpl;
 
 @RestController
 @RequestMapping("/api/pedidos")
@@ -46,57 +48,36 @@ public class PedidoController {
 		this.clienteService = clienteService;
 	}
 
-	// CREATE
-//	@PostMapping("/addPedido")
-//	public ResponseEntity<?> guardarPedido(@RequestBody PedidoRequest pedidoRequest) {
-//		logger.log(Level.INFO, "Pedido recibido: {0}", pedidoRequest);
-//
-//		Pedido pedido = pedidoRequest.getPedido();
-//
-//		if (pedido.getDireccionEnvio() == null || pedido.getDireccionEnvio().isEmpty()) {
-//			return ResponseEntity.badRequest().body("La dirección de envío es requerida.");
-//		}
-//		if (pedido.getMetodoPago() == null || pedido.getMetodoPago().isEmpty()) {
-//			return ResponseEntity.badRequest().body("El método de pago es requerido.");
-//		}
-//
-//		try {
-//			Pedido savedPedido = pedidoService.insertarPedido(pedido);
-//			return new ResponseEntity<>(savedPedido, HttpStatus.CREATED);
-//		} catch (IllegalArgumentException e) {
-//			return ResponseEntity.badRequest().body(e.getMessage());
-//		} catch (Exception e) {
-//			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno al crear el pedido.");
-//		}
-//	}
 	@PostMapping("/addPedido")
-	public ResponseEntity<?> guardarPedido(@RequestBody Pedido pedido) {
-	    logger.log(Level.INFO, "Pedido recibido: {0}", pedido);
-	    System.err.println("SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS       " + pedido);
+	public ResponseEntity<Void> guardarPedido(@RequestBody Pedido pedido, @AuthenticationPrincipal Cliente cliente) {
 
-	    // Validaciones básicas antes de delegar al servicio
-	    if (pedido.getDireccionEnvio() == null || pedido.getDireccionEnvio().trim().isEmpty()) {
-	        logger.log(Level.WARNING, "La dirección de envío es requerida.");
-	        return ResponseEntity.badRequest().body("La dirección de envío es requerida.");
-	    }
+		Long clienteId = cliente.getId();
 
-	    if (pedido.getMetodoPago() == null || pedido.getMetodoPago().trim().isEmpty()) {
-	        logger.log(Level.WARNING, "El método de pago es requerido.");
-	        return ResponseEntity.badRequest().body("El método de pago es requerido.");
-	    }
+		logger.log(Level.INFO, "Pedido recibido: {0}", pedido);
+		System.err.println(pedido.getCliente() + "Pedidodddddd");
+		// Validaciones básicas antes de delegar al servicio
+		if (pedido.getDireccionEnvio() == null || pedido.getDireccionEnvio().trim().isEmpty()) {
+			logger.log(Level.WARNING, "La dirección de envío es requerida.");
+			return ResponseEntity.badRequest().build();
+		}
 
-	    try {
-	        Pedido savedPedido = pedidoService.insertarPedido(pedido);
-	        return new ResponseEntity<>(savedPedido, HttpStatus.CREATED);
-	    } catch (IllegalArgumentException e) {
-	        logger.log(Level.WARNING, "Error al crear el pedido: {0}", e.getMessage());
-	        return ResponseEntity.badRequest().body(e.getMessage());
-	    } catch (Exception e) {
-	        logger.log(Level.SEVERE, "Error interno al crear el pedido", e);
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno al crear el pedido.");
-	    }
+		if (pedido.getMetodoPago() == null || pedido.getMetodoPago().trim().isEmpty()) {
+			logger.log(Level.WARNING, "El método de pago es requerido.");
+			return ResponseEntity.badRequest().build();
+		}
+
+		try {
+		 pedido.setCliente(clienteService.obtenerPorId(clienteId));
+			pedidoService.insertarPedido(pedido);
+			return ResponseEntity.status(HttpStatus.CREATED).build();
+		} catch (IllegalArgumentException e) {
+			logger.log(Level.WARNING, "Error al crear el pedido: {0}", e.getMessage());
+			return ResponseEntity.badRequest().build();
+		} catch (Exception e) {
+			logger.log(Level.SEVERE, "Error interno al crear el pedido", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
 	}
-
 
 	// READ
 	@GetMapping("/listar")
@@ -111,7 +92,7 @@ public class PedidoController {
 		logger.log(Level.INFO, "Obteniendo pedido con ID: {0}", id);
 		Pedido pedido = pedidoService.obtenerPorId(id);
 		if (pedido == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Pedido no encontrado.");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 		}
 		return ResponseEntity.ok(pedido);
 	}
@@ -126,12 +107,12 @@ public class PedidoController {
 
 		Pedido pedidoExistente = pedidoService.obtenerPorId(id);
 		if (pedidoExistente == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Pedido no encontrado.");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 		}
 
 		Cliente cliente = clienteService.obtenerPorId(pedido.getCliente().getId());
 		if (cliente == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cliente no encontrado.");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 		}
 
 		pedidoExistente.setCliente(cliente);
@@ -151,10 +132,11 @@ public class PedidoController {
 		}
 
 		try {
-			Pedido updatedPedido = pedidoService.insertarPedido(pedidoExistente);
-			return ResponseEntity.ok(updatedPedido);
-		} catch (IllegalArgumentException e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
+			pedidoService.insertarPedido(pedidoExistente);
+			return ResponseEntity.ok().build();
+		} catch (Exception e) {
+			logger.log(Level.SEVERE, "Error al actualizar el pedido", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}
 	}
 
@@ -166,12 +148,12 @@ public class PedidoController {
 
 		Pedido pedidoExistente = pedidoService.obtenerPorId(id);
 		if (pedidoExistente == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Pedido no encontrado.");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 		}
 
 		Producto producto = productoService.obtenerPorId(idProducto);
 		if (producto == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Producto no encontrado.");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 		}
 
 		pedidoExistente.addProducto2(producto, cantidad);
@@ -194,27 +176,27 @@ public class PedidoController {
 		logger.log(Level.INFO, "Eliminando producto con ID {0} del pedido con ID {1}",
 				new Object[] { productoId, pedidoId });
 
-		if (pedidoId == null || productoId == null) {
-			return ResponseEntity.badRequest().body("El ID del pedido y el producto son obligatorios.");
-		}
+//		if (pedidoId == null || productoId == null) {
+//			return ResponseEntity.badRequest().body("El ID del pedido y el producto son obligatorios.");
+//		}
 
 		Pedido pedido = pedidoService.obtenerPorId(pedidoId);
 		if (pedido == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Pedido no encontrado.");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 		}
 
 		Producto producto = productoService.obtenerPorId(productoId);
 		if (producto == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Producto no encontrado.");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 		}
 
 		pedido.removeProducto(producto);
-
 		try {
-			Pedido updatedPedido = pedidoService.insertarPedido(pedido);
-			return ResponseEntity.ok(updatedPedido);
-		} catch (IllegalArgumentException e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
+			pedidoService.insertarPedido(pedido);
+			return ResponseEntity.ok().build();
+		} catch (Exception e) {
+			logger.log(Level.SEVERE, "Error al eliminar producto del pedido", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}
 	}
 
@@ -223,6 +205,6 @@ public class PedidoController {
 	public ResponseEntity<?> eliminarPedido(@PathVariable Long id) {
 		logger.log(Level.INFO, "Eliminando pedido con ID: {0}", id);
 		pedidoService.eliminarPedido(id);
-		return ResponseEntity.noContent().build();
+		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 	}
 }

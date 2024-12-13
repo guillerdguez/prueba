@@ -7,6 +7,8 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.NaturalIdCache;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -58,6 +60,8 @@ public class Producto {
 	private Set<ProductosPedidos> pedidos = new HashSet<>();
 
 	@OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true)
+	@JsonIgnore
+
 	private Set<CarritoProducto> carritoProductos = new HashSet<>();
 
 //	@ManyToOne(fetch = FetchType.LAZY)

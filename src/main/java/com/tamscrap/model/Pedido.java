@@ -3,8 +3,9 @@ package com.tamscrap.model;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Objects;
 import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -39,6 +40,7 @@ public class Pedido {
 
     @ManyToOne
     @JoinColumn(name = "id_cliente", nullable = true)
+    @JsonIgnore
     private Cliente cliente;
 
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
@@ -220,6 +222,16 @@ public class Pedido {
 //				&& Double.doubleToLongBits(precio) == Double.doubleToLongBits(other.precio);
 //	}
 
- 
+    @Override
+    public String toString() {
+        return "Pedido{" +
+                "id=" + id +
+                ", direccionEnvio='" + direccionEnvio + '\'' +
+                ", metodoPago='" + metodoPago + '\'' +
+                ", cliente=" + (cliente != null ? cliente.getId() : null) +
+                ", productos=" + productos +
+               
+                '}';
+    }
     
 }

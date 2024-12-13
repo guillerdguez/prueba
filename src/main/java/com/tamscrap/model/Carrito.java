@@ -47,11 +47,11 @@ public class Carrito {
         this.nombreCliente = nombreCliente;
     }
 
-    public Carrito(Long id, String nombreCliente, String imagenUrl, Cliente cliente, Set<CarritoProducto> productos) {
+    public Carrito(Long id, String nombreCliente, String imagenUrl,   Set<CarritoProducto> productos) {
         this.id = id;
         this.nombreCliente = nombreCliente;
         this.imagenUrl = imagenUrl;
-        this.cliente = cliente;
+ 
         this.productos = productos;
     }
 

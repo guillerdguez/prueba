@@ -20,7 +20,12 @@ public class ProductoDTO {
 	// Constructor vacío
 	public ProductoDTO() {
 	}
-
+	  public ProductoDTO(Long id, String nombre, Double precio, String imagen) {
+	        this.id = id;
+	        this.nombre = nombre;
+	        this.precio = precio;
+	        this.imagen = imagen;
+	    }
 	// Constructor para inicializar desde Producto
 	public ProductoDTO(Long id, String nombre, double precio, String imagen, boolean lettering, boolean scrapbooking,
 			boolean oferta, Integer descuento, Double precioOriginal, int cantidad, 
@@ -52,6 +57,12 @@ public class ProductoDTO {
 		this.precioOriginal = producto.getPrecioOriginal();  
  
 		this.cantidad = producto.getCantidad(); 
+	}
+	public ProductoDTO(Long id, String nombre, double precio, int cantidad) {
+	    this.id = id;
+	    this.nombre = nombre;
+	    this.precio = precio;
+	    this.cantidad = cantidad;
 	}
 
 	// Getters y setters
@@ -156,11 +167,5 @@ public class ProductoDTO {
 		this.pedidos = pedidos;
 	}
 
-	@Override
-	public String toString() {
-		return "ProductoDTO [id=" + id + ", nombre=" + nombre + ", precio=" + precio + ", imagen=" + imagen
-				+ ", lettering=" + lettering + ", scrapbooking=" + scrapbooking + ", oferta=" + oferta + ", descuento="
-				+ descuento + ", precioOriginal=" + precioOriginal  + ", pedidos=" + pedidos
-				+ ", cantidad=" + cantidad + "]";
-	}
+ 
 }
