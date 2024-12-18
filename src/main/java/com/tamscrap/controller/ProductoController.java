@@ -65,6 +65,14 @@ public class ProductoController {
                 .collect(Collectors.toList());
         return new ResponseEntity<>(productosDTO, HttpStatus.OK);
     }
+    @GetMapping("/buscar")
+    public ResponseEntity<List<Producto>> searchProductos(@RequestParam(name = "name", required = false) String name) {
+        if (name == null || name.trim().isEmpty()) {
+            return ResponseEntity.ok().body(List.of());  
+        }
+        List<Producto> productos = productoService.buscarProductos(name);
+        return ResponseEntity.ok(productos);
+    }
     @GetMapping("/ver/{id}")
     public ResponseEntity<ProductoDTO> obtenerProductoPorId(@PathVariable Long id) {
         logger.log(Level.INFO, "Obteniendo producto con ID: {0}", id);

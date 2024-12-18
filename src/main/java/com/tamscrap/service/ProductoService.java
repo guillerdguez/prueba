@@ -16,4 +16,5 @@ public interface ProductoService {
 
 	List<Producto> obtenerTodos();
     List<Producto> obtenerProductosPorCategoria(String categoria);
+    List<Producto> buscarProductos(String term);
 }

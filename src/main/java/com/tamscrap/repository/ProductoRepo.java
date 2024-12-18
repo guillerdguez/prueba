@@ -16,4 +16,5 @@ public interface ProductoRepo extends JpaRepository<Producto, Long> {
 	List<Producto> findByScrapbooking(boolean scrapbooking);
 
 	List<Producto> findByOferta(boolean oferta);
+    List<Producto> findByNombreContainingIgnoreCase(String name);
 }

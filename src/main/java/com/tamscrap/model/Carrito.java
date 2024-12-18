@@ -96,12 +96,33 @@ public class Carrito {
     }
 
     public void addProducto(Producto producto, int cantidad) {
-        CarritoProducto carritoProducto = new CarritoProducto();
-        carritoProducto.setProducto(producto);
-        carritoProducto.setCarrito(this);
-        carritoProducto.setCantidad(cantidad);
-        productos.add(carritoProducto);
+     
+        CarritoProducto existente = productos.stream()
+            .filter(cp -> cp.getProducto().equals(producto))
+            .findFirst()
+            .orElse(null);
+
+        if (existente != null) {
+            int nuevaCantidad = existente.getCantidad() + cantidad;
+            // Validar stock total antes de actualizar
+            if (nuevaCantidad > producto.getCantidad()) {
+                throw new IllegalArgumentException("La cantidad total en el carrito excede el stock disponible.");
+            }
+            existente.setCantidad(nuevaCantidad);
+        } else {
+            // Validar stock antes de crear uno nuevo
+            if (cantidad > producto.getCantidad()) {
+                throw new IllegalArgumentException("La cantidad solicitada excede el stock disponible.");
+            }
+
+            CarritoProducto carritoProducto = new CarritoProducto();
+            carritoProducto.setProducto(producto);
+            carritoProducto.setCarrito(this);
+            carritoProducto.setCantidad(cantidad);
+            productos.add(carritoProducto);
+        }
     }
+
 
     public void removeProducto(Producto producto) {
         productos.removeIf(carritoProducto -> carritoProducto.getProducto().equals(producto));

@@ -5,11 +5,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,7 +22,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.tamscrap.dto.ClienteDTO;
+import com.tamscrap.dto.PedidoDTO;
 import com.tamscrap.dto.PedidoUpdateRequest;
+import com.tamscrap.dto.ProductoPedidoDTO;
 import com.tamscrap.model.Cliente;
 import com.tamscrap.model.Pedido;
 import com.tamscrap.model.Producto;
@@ -29,7 +33,6 @@ import com.tamscrap.model.ProductosPedidos;
 import com.tamscrap.service.impl.ClienteServiceImpl;
 import com.tamscrap.service.impl.PedidoServiceImpl;
 import com.tamscrap.service.impl.ProductoServiceImpl;
-import com.tamscrap.service.impl.UserServiceImpl;
 
 @RestController
 @RequestMapping("/api/pedidos")
@@ -54,7 +57,7 @@ public class PedidoController {
 		Long clienteId = cliente.getId();
 
 		logger.log(Level.INFO, "Pedido recibido: {0}", pedido);
-		System.err.println(pedido.getCliente() + "Pedidodddddd");
+		System.err.println(clienteId + "Pedidodddddd");
 		// Validaciones básicas antes de delegar al servicio
 		if (pedido.getDireccionEnvio() == null || pedido.getDireccionEnvio().trim().isEmpty()) {
 			logger.log(Level.WARNING, "La dirección de envío es requerida.");
@@ -67,7 +70,8 @@ public class PedidoController {
 		}
 
 		try {
-		 pedido.setCliente(clienteService.obtenerPorId(clienteId));
+			pedido.setCliente(clienteService.obtenerPorId(clienteId));
+			System.err.println(clienteService.obtenerPorId(clienteId) + "Pedidodddddd");
 			pedidoService.insertarPedido(pedido);
 			return ResponseEntity.status(HttpStatus.CREATED).build();
 		} catch (IllegalArgumentException e) {
@@ -81,11 +85,30 @@ public class PedidoController {
 
 	// READ
 	@GetMapping("/listar")
-	public ResponseEntity<List<Pedido>> mostrarPedidos() {
+	public ResponseEntity<List<PedidoDTO>> mostrarPedidos() {
 		logger.log(Level.INFO, "Obteniendo todos los pedidos");
-		List<Pedido> pedidos = pedidoService.obtenerTodos();
+		List<PedidoDTO> pedidos = pedidoService.obtenerTodos().stream().map(this::convertirAPedidoDTO)
+				.collect(Collectors.toList());
 		return new ResponseEntity<>(pedidos, HttpStatus.OK);
 	}
+	@GetMapping("/pedidosCliente")
+	public ResponseEntity<List<PedidoDTO>> mostrarPedidosPorCliente(@AuthenticationPrincipal Cliente cliente) {
+	    Long clienteId = cliente.getId();
+	    logger.log(Level.INFO, "Obteniendo los pedidos para el cliente con ID: " + clienteId);
+	    
+	    List<PedidoDTO> pedidos = pedidoService.obtenerPorClienteId(clienteId)
+	            .stream()
+	            .map(this::convertirAPedidoDTO)
+	            .collect(Collectors.toList());
+	    
+	    if (pedidos.isEmpty()) {
+	        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	    }
+	    
+	    return new ResponseEntity<>(pedidos, HttpStatus.OK);
+	}
+
+
 
 	@GetMapping("/ver/{id}")
 	public ResponseEntity<?> obtenerPedido(@PathVariable Long id) {
@@ -207,4 +230,48 @@ public class PedidoController {
 		pedidoService.eliminarPedido(id);
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 	}
+
+	private PedidoDTO convertirAPedidoDTO(Pedido pedido) {
+		PedidoDTO dto = new PedidoDTO();
+		dto.setId(pedido.getId());
+		dto.setPrecio(pedido.getPrecio());
+		dto.setFechaCreacion(pedido.getFechaCreacion());
+		dto.setDireccionEnvio(pedido.getDireccionEnvio());
+		dto.setMetodoPago(pedido.getMetodoPago());
+		dto.setEstado(pedido.getEstado());
+
+		// Convertir Cliente a ClienteDTO
+		Cliente cliente = pedido.getCliente();
+		if (cliente != null) {
+			ClienteDTO clienteDTO = convertirAClienteDTO(cliente);
+			dto.setCliente(clienteDTO);
+		}
+
+		// Convertir ProductosPedidos a ProductoPedidoDTO y recopilar en un Set
+		Set<ProductoPedidoDTO> productosDTO = pedido.getProductos().stream().map(this::convertirAProductoPedidoDTO)
+				.collect(Collectors.toSet()); // Usar Collectors.toSet()
+		dto.setProductos(productosDTO);
+
+		return dto;
+	}
+
+	private ProductoPedidoDTO convertirAProductoPedidoDTO(ProductosPedidos productosPedidos) {
+		ProductoPedidoDTO dto = new ProductoPedidoDTO();
+		dto.setProductoId(productosPedidos.getProducto().getId());
+		dto.setCantidad(productosPedidos.getCantidad());
+		return dto;
+	}
+
+	private ClienteDTO convertirAClienteDTO(Cliente cliente) {
+		ClienteDTO dto = new ClienteDTO();
+		dto.setId(cliente.getId());
+		dto.setUsername(cliente.getUsername());
+		dto.setNombre(cliente.getNombre());
+		dto.setEmail(cliente.getEmail());
+		dto.setFavoritos(cliente.getFavoritos());
+		dto.setAuthorities(
+				cliente.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
+		return dto;
+	}
+
 }

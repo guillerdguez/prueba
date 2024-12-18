@@ -1,93 +1,86 @@
-
 package com.tamscrap.dto;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
-import jakarta.persistence.Column;
-
 public class PedidoDTO {
-	private Long id;
-	private double precio;
-	private LocalDateTime fechaCreacion;
-	private Long clienteId;
-	private Set<ProductoPedidoDTO> productos;
-	private String direccionEnvio;
-	private String metodoPago;
+    private Long id;
+    private double precio;
+    private LocalDateTime fechaCreacion;
+    private ClienteDTO cliente; // Agregado
+    private Set<ProductoPedidoDTO> productos;
+    private String direccionEnvio;
+    private String metodoPago;
+    private String estado;
 
-	
-	
-	
-	
-	
-	public String getDireccionEnvio() {
-		return direccionEnvio;
-	}
+    public PedidoDTO() {
+        productos = new HashSet<>();
+    }
 
-	public void setDireccionEnvio(String direccionEnvio) {
-		this.direccionEnvio = direccionEnvio;
-	}
+    // Getters y Setters
 
-	public String getMetodoPago() {
-		return metodoPago;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public void setMetodoPago(String metodoPago) {
-		this.metodoPago = metodoPago;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public String getEstado() {
-		return estado;
-	}
+    public double getPrecio() {
+        return precio;
+    }
 
-	public void setEstado(String estado) {
-		this.estado = estado;
-	}
+    public void setPrecio(double precio) {
+        this.precio = precio;
+    }
 
-	private String estado;
+    public LocalDateTime getFechaCreacion() {
+        return fechaCreacion;
+    }
 
-	public PedidoDTO() {
-		productos = new HashSet<>();
-	}
+    public void setFechaCreacion(LocalDateTime fechaCreacion) {
+        this.fechaCreacion = fechaCreacion;
+    }
 
-	public Long getId() {
-		return id;
-	}
+    public ClienteDTO getCliente() {
+        return cliente;
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public void setCliente(ClienteDTO cliente) {
+        this.cliente = cliente;
+    }
 
-	public double getPrecio() {
-		return precio;
-	}
+    public Set<ProductoPedidoDTO> getProductos() {
+        return productos;
+    }
 
-	public void setPrecio(double precio) {
-		this.precio = precio;
-	}
+    public void setProductos(Set<ProductoPedidoDTO> productos) {
+        this.productos = productos;
+    }
 
-	public LocalDateTime getFechaCreacion() {
-		return fechaCreacion;
-	}
+    public String getDireccionEnvio() {
+        return direccionEnvio;
+    }
 
-	public void setFechaCreacion(LocalDateTime fechaCreacion) {
-		this.fechaCreacion = fechaCreacion;
-	}
+    public void setDireccionEnvio(String direccionEnvio) {
+        this.direccionEnvio = direccionEnvio;
+    }
 
-	public Long getClienteId() {
-		return clienteId;
-	}
+    public String getMetodoPago() {
+        return metodoPago;
+    }
 
-	public void setClienteId(Long clienteId) {
-		this.clienteId = clienteId;
-	}
+    public void setMetodoPago(String metodoPago) {
+        this.metodoPago = metodoPago;
+    }
 
-	public Set<ProductoPedidoDTO> getProductos() {
-		return productos;
-	}
+    public String getEstado() {
+        return estado;
+    }
 
-	public void setProductos(Set<ProductoPedidoDTO> productos) {
-		this.productos = productos;
-	}
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
 }

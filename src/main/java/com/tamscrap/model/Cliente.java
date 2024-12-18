@@ -45,7 +45,7 @@ public class Cliente implements UserDetails {
     @Column(unique = true, nullable = false)
     private String email;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "cliente_favoritos",
         joinColumns = @JoinColumn(name = "cliente_id"),

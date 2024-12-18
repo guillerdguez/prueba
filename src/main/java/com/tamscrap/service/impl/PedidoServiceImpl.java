@@ -38,6 +38,9 @@ public class PedidoServiceImpl implements PedidoService {
 	public List<Pedido> obtenerTodos() {
 		return pedidoRepository.findAll();
 	}
+	public List<Pedido> obtenerPorClienteId(Long clienteId) {
+	    return pedidoRepository.findByClienteId(clienteId);
+	}
 
 	@Override
 	public Pedido obtenerPorId(Long id) {

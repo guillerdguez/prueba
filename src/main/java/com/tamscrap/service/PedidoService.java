@@ -13,5 +13,5 @@ public interface PedidoService {
 	void eliminarPedido(Long id);
 
 	List<Pedido> obtenerTodos();
-
+	 List<Pedido> obtenerPorClienteId(Long clienteId) ;
 }

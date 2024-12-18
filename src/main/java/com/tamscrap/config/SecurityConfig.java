@@ -43,25 +43,36 @@ public class SecurityConfig {
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		http.csrf(csrf -> csrf.disable()).authorizeHttpRequests(auth -> auth
-				// Rutas públicas accesibles para todos
-				.requestMatchers("/api/producto/listar", "/api/producto/ver/**", "/api/producto/categoria/**",
-						"/api/auth/**", "/home", "/carrito","/api/pedidos/addPedido", "/")
-				.permitAll()
-				// Rutas restringidas a usuarios autenticados
-				.requestMatchers("/api/pedidos/**", "/profile/**").authenticated()
-				// Rutas restringidas a administradores
-				.requestMatchers("/api/producto/addProducto", "/api/producto/editar/**", "/api/producto/borrar/**")
-				.hasAuthority("ADMIN")
-				// Cualquier otra ruta requiere autenticación
-				.anyRequest().authenticated())
-				.exceptionHandling(exception -> exception.authenticationEntryPoint(jwtAuthenticationEntryPoint))
-				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+	    http.csrf(csrf -> csrf.disable()).authorizeHttpRequests(auth -> auth
+	            // Rutas públicas accesibles para todos
+	            .requestMatchers(
+	                "/api/producto/listar",  "/api/producto/buscar/**", 
+	                "/api/producto/ver/**", 
+	                "/api/producto/categoria/**",
+	                "/api/auth/**", 
+	                "/home", 
+	                "/carrito",
+	                "/api/pedidos/addPedido", 
+	                "/", 
+	                "/api/clientes/addCliente"  
+	            ).permitAll()
+	            // Rutas restringidas a usuarios autenticados
+	            .requestMatchers("/api/pedidos/**", "/profile/**").authenticated()
+	            // Rutas restringidas a administradores
+	            .requestMatchers(
+	                "/api/producto/addProducto", 
+	                "/api/producto/editar/**", 
+	                "/api/producto/borrar/**"
+	            ).hasAuthority("ADMIN")
+	            // Cualquier otra ruta requiere autenticación
+	            .anyRequest().authenticated())
+	        .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtAuthenticationEntryPoint))
+	        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-		// Agregar el filtro JWT antes del filtro de autenticación
-		http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+	    // Agregar el filtro JWT antes del filtro de autenticación
+	    http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 
-		return http.build();
+	    return http.build();
 	}
 
 //	@Bean
