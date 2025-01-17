@@ -28,7 +28,7 @@ import com.tamscrap.service.impl.ProductoServiceImpl;
 
 @RestController
 @RequestMapping("/api/carrito")
-@CrossOrigin(origins = "http://localhost:4200/")
+@CrossOrigin(origins = "http://localhost:4200")
 public class CarritoController {
 
     private static final Logger logger = Logger.getLogger(CarritoController.class.getName());
@@ -80,31 +80,6 @@ public class CarritoController {
         logger.info("Producto agregado al carrito exitosamente");
         return new ResponseEntity<>(HttpStatus.OK);
     }
-//    @GetMapping("/productos/{userId}")
-//    public ResponseEntity<Set<ProductoDTO>> mostrarProductosCarrito(@PathVariable Long userId) {
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        if (authentication == null || !authentication.isAuthenticated()) {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-//        }
-//
-//        String username = authentication.getName();
-//        Cliente cliente = clienteService.obtenerPorUsername(username);
-//        if (cliente == null || !cliente.getId().equals(userId)) {
-//            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-//        }
-//
-//        Carrito carrito = cliente.getCarrito();
-//        if (carrito == null || carrito.getProductos().isEmpty()) {
-//            return ResponseEntity.noContent().build();
-//        }
-//
-//        Set<ProductoDTO> productos = carrito.getProductos().stream()
-//                .map(cp -> new ProductoDTO(cp.getProducto().getId(), cp.getProducto().getNombre(),
-//                                           cp.getProducto().getPrecio(), cp.getCantidad()))
-//                .collect(Collectors.toSet());
-//System.err.println(productos +" Productoooooo");
-//        return ResponseEntity.ok(productos);
-//    }
 
     // Obtener productos del carrito
     @GetMapping("/productos/{userId}")
@@ -125,7 +100,9 @@ public class CarritoController {
             logger.warning("El cliente autenticado no tiene acceso al carrito solicitado o no existe.");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-
+      
+        
+        
         // Obtener el carrito del cliente
         Carrito carrito = cliente.getCarrito();
         if (carrito == null || carrito.getProductos().isEmpty()) {
@@ -139,7 +116,7 @@ public class CarritoController {
                 p.getId(),
                 p.getNombre(),
                 p.getPrecio(),
-                p.getImagen() // Suponiendo que el producto tiene un campo imagen
+                p.getImagen() ,p.getCantidad()
             );
             return new CarritoProductoDTO(cp.getId(), productoDTO, cp.getCantidad());
         }).collect(Collectors.toSet());
@@ -149,8 +126,7 @@ public class CarritoController {
             carrito.getNombreCliente(),
         
             productosDTO
-        );
-System.err.println(carritoDTO+"AAAAAAAAAAAAAAAAA");
+        ); 
         return ResponseEntity.ok(carritoDTO);
     }
 
@@ -212,6 +188,7 @@ System.err.println(carritoDTO+"AAAAAAAAAAAAAAAAA");
         logger.info("Total calculado: " + total);
         return new ResponseEntity<>(total, HttpStatus.OK);
     }
+     
  // Vaciar carrito
     @DeleteMapping("/clear")
     public ResponseEntity<Void> vaciarCarrito() {

@@ -3,7 +3,6 @@ package com.tamscrap.service.impl;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.tamscrap.model.Cliente;
 import com.tamscrap.model.Producto;
@@ -32,7 +31,7 @@ public class ClienteServiceImpl implements ClienteService {
 
 	@Override
 	public List<Cliente> obtenerTodos() {
-		return clienteRepository.findAll(); 
+		return clienteRepository.findAll();
 	}
 
 	@Override
@@ -54,32 +53,21 @@ public class ClienteServiceImpl implements ClienteService {
 
 	@Override
 //    @Transactional
-	public void agregarAFavoritos(Long clienteId, Long productoId) {
+	public Cliente agregarAFavoritos(Long clienteId, Long productoId) {
 		Cliente cliente = clienteRepository.findById(clienteId)
 				.orElseThrow(() -> new RuntimeException("Cliente no encontrado."));
 		Producto producto = productoRepository.findById(productoId)
 				.orElseThrow(() -> new RuntimeException("Producto no encontrado."));
-
 		if (!cliente.getFavoritos().contains(producto)) {
 			cliente.addFavorito(producto);
-			clienteRepository.save(cliente); // Guardar cambios
-		}
-	}
-
-	@Override
-//    @Transactional
-	public void eliminarDeFavoritos(Long clienteId, Long productoId) {
-		Cliente cliente = clienteRepository.findById(clienteId)
-				.orElseThrow(() -> new RuntimeException("Cliente no encontrado."));
-		Producto producto = productoRepository.findById(productoId)
-				.orElseThrow(() -> new RuntimeException("Producto no encontrado."));
-
-		if (cliente.getFavoritos().contains(producto)) {
+		}else {
 			cliente.removeFavorito(producto);
-			System.out.println("favoritoss"+"   "+cliente.getFavoritos());
-			clienteRepository.save(cliente); // Guardar cambios
 		}
+		return clienteRepository.save(cliente);
+
 	}
+
+ 
 
 	@Override
 //    @Transactional(readOnly = true)

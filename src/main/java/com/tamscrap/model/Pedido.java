@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -34,24 +35,26 @@ public class Pedido {
 
     @Column(name = "fecha")
     private LocalDateTime fechaCreacion;
-
+//cambiar a enum?
     @Column(name = "estado")
     private String estado;
 
     @ManyToOne
     @JoinColumn(name = "id_cliente", nullable = true)
-    @JsonIgnore
+   @JsonIgnore
     private Cliente cliente;
 
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonManagedReference
     private Set<ProductosPedidos> productos;
-  
+    
      @Column(name = "direccion_envio")
     private String direccionEnvio;
 //mirar como seria una forma profesinal de pagar
     @Column(name = "metodo_pago")
     private String metodoPago;
-
+    @Column(name = "nombre_comprador")
+    private String nombreComprador;
     public Pedido() {
         productos = new HashSet<>();
     }
@@ -61,8 +64,16 @@ public class Pedido {
         productos = new HashSet<>();
     }
 
-    public Pedido(Long id, double precio, LocalDateTime fechaCreacion, String estado, Cliente cliente, 
-                  Set<ProductosPedidos> productos, String direccionEnvio, String metodoPago) {
+    public String getNombreComprador() {
+		return nombreComprador;
+	}
+
+	public void setNombreComprador(String nombreComprador) {
+		this.nombreComprador = nombreComprador;
+	}
+
+	public Pedido(Long id, double precio, LocalDateTime fechaCreacion, String estado, Cliente cliente, 
+                  Set<ProductosPedidos> productos, String direccionEnvio, String metodoPago,String nombreComprador) {
         this.id = id;
         this.precio = precio;
         this.fechaCreacion = fechaCreacion;
@@ -71,6 +82,7 @@ public class Pedido {
         this.productos = productos;
         this.direccionEnvio = direccionEnvio;
         this.metodoPago = metodoPago;
+        this.nombreComprador= nombreComprador;
     }
 
     public Pedido(LocalDateTime fechaCreacion, Cliente cliente) {
@@ -179,10 +191,13 @@ public class Pedido {
     }
 
     public void calcularPrecio() {
-        precio = productos.stream()
-                          .mapToDouble(p -> p.getProducto().getPrecio() * p.getCantidad())
-                          .sum();
+        precio = Math.round(
+            productos.stream()
+                     .mapToDouble(p -> p.getProducto().getPrecio() * p.getCantidad())
+                     .sum() * 100.0
+        ) / 100.0;
     }
+
 
     public String imprimirProductos() {
         StringBuilder resultado = new StringBuilder("Productos del pedido " + id + "\n");

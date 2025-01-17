@@ -98,15 +98,17 @@ public class ClienteController {
 	}
 	// Agregar producto a favoritos
 	@PostMapping("/{clienteId}/favorito/{productoId}")
- 	public ResponseEntity<Void> agregarAFavoritos(@PathVariable Long clienteId, @PathVariable Long productoId) {
-	    clienteService.agregarAFavoritos(clienteId, productoId);
-	    return new ResponseEntity<>(HttpStatus.CREATED);
+ 	public ResponseEntity<ClienteDTO> agregarAFavoritos(@PathVariable Long clienteId, @PathVariable Long productoId) {
+	Cliente  cliente=  clienteService.agregarAFavoritos(clienteId, productoId);
+	    
+//	    return new ResponseEntity<>(HttpStatus.CREATED).bo;añadir url del get del producto
+	    return ResponseEntity.created(null).body(convertirAClienteDTO(cliente));
 	}
 
 	// Eliminar producto de favoritos
 	@DeleteMapping("/{clienteId}/favorito/{productoId}")
  	public ResponseEntity<Void> eliminarDeFavoritos(@PathVariable Long clienteId, @PathVariable Long productoId) {
-	    clienteService.eliminarDeFavoritos(clienteId, productoId);
+	    clienteService.agregarAFavoritos(clienteId, productoId);
 	    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 

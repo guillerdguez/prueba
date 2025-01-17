@@ -3,8 +3,6 @@ package com.tamscrap.model;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,112 +17,111 @@ import jakarta.persistence.Table;
 @Table(name = "CARRITOS")
 public class Carrito {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @Column(nullable = false)
-    private String nombreCliente;
+	@Column(nullable = false)
+	private String nombreCliente;
 
-    @Column
-    private String imagenUrl;
+	@Column
+	private String imagenUrl;
 
-    @OneToOne(mappedBy = "carrito", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Cliente cliente;
+	@OneToOne(mappedBy = "carrito", cascade = CascadeType.ALL, orphanRemoval = true)
+	private Cliente cliente;
 
-    @OneToMany(mappedBy = "carrito", cascade = CascadeType.ALL, orphanRemoval = true)
-     private Set<CarritoProducto> productos = new HashSet<>();
+	@OneToMany(mappedBy = "carrito", cascade = CascadeType.ALL, orphanRemoval = true)
+	private Set<CarritoProducto> productos = new HashSet<>();
 
-    public Carrito() {
-    }
+	public Carrito() {
+	}
 
-    public Carrito(String nombreCliente, String imagenUrl) {
-        this.nombreCliente = nombreCliente;
-        this.imagenUrl = imagenUrl;
-    }
+	public Carrito(String nombreCliente, String imagenUrl) {
+		this.nombreCliente = nombreCliente;
+		this.imagenUrl = imagenUrl;
+	}
 
-    public Carrito(String nombreCliente) {
-        this.nombreCliente = nombreCliente;
-    }
+	public Carrito(String nombreCliente) {
+		this.nombreCliente = nombreCliente;
+	}
 
-    public Carrito(Long id, String nombreCliente, String imagenUrl,   Set<CarritoProducto> productos) {
-        this.id = id;
-        this.nombreCliente = nombreCliente;
-        this.imagenUrl = imagenUrl;
- 
-        this.productos = productos;
-    }
+	public Carrito(Long id, String nombreCliente, String imagenUrl, Set<CarritoProducto> productos) {
+		this.id = id;
+		this.nombreCliente = nombreCliente;
+		this.imagenUrl = imagenUrl;
 
-    public Long getId() {
-        return id;
-    }
+		this.productos = productos;
+	}
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+	public Long getId() {
+		return id;
+	}
 
-    public String getNombreCliente() {
-        return nombreCliente;
-    }
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-    public void setNombreCliente(String nombreCliente) {
-        this.nombreCliente = nombreCliente;
-    }
+	public String getNombreCliente() {
+		return nombreCliente;
+	}
 
-    public String getImagenUrl() {
-        return imagenUrl;
-    }
+	public void setNombreCliente(String nombreCliente) {
+		this.nombreCliente = nombreCliente;
+	}
 
-    public void setImagenUrl(String imagenUrl) {
-        this.imagenUrl = imagenUrl;
-    }
+	public String getImagenUrl() {
+		return imagenUrl;
+	}
 
-    public Cliente getCliente() {
-        return cliente;
-    }
+	public void setImagenUrl(String imagenUrl) {
+		this.imagenUrl = imagenUrl;
+	}
 
-    public void setCliente(Cliente cliente) {
-        this.cliente = cliente;
-    }
+	public Cliente getCliente() {
+		return cliente;
+	}
 
-    public Set<CarritoProducto> getProductos() {
-        return productos;
-    }
+	public void setCliente(Cliente cliente) {
+		this.cliente = cliente;
+	}
 
-    public void setProductos(Set<CarritoProducto> productos) {
-        this.productos = productos;
-    }
+	public Set<CarritoProducto> getProductos() {
+		return productos;
+	}
 
-    public void addProducto(Producto producto, int cantidad) {
-     
-        CarritoProducto existente = productos.stream()
-            .filter(cp -> cp.getProducto().equals(producto))
-            .findFirst()
-            .orElse(null);
+	public void setProductos(Set<CarritoProducto> productos) {
+		this.productos = productos;
+	}
 
-        if (existente != null) {
-            int nuevaCantidad = existente.getCantidad() + cantidad;
-            // Validar stock total antes de actualizar
-            if (nuevaCantidad > producto.getCantidad()) {
-                throw new IllegalArgumentException("La cantidad total en el carrito excede el stock disponible.");
-            }
-            existente.setCantidad(nuevaCantidad);
-        } else {
-            // Validar stock antes de crear uno nuevo
-            if (cantidad > producto.getCantidad()) {
-                throw new IllegalArgumentException("La cantidad solicitada excede el stock disponible.");
-            }
+	public void addProducto(Producto producto, int cantidad) {
 
-            CarritoProducto carritoProducto = new CarritoProducto();
-            carritoProducto.setProducto(producto);
-            carritoProducto.setCarrito(this);
-            carritoProducto.setCantidad(cantidad);
-            productos.add(carritoProducto);
-        }
-    }
+		CarritoProducto existente = productos.stream().filter(cp -> cp.getProducto().equals(producto)).findFirst()
+				.orElse(null);
 
+		if (existente != null) {
 
-    public void removeProducto(Producto producto) {
-        productos.removeIf(carritoProducto -> carritoProducto.getProducto().equals(producto));
-    }
+			if (cantidad == 1) {
+				cantidad = existente.getCantidad() + 1;
+			}
+
+			if (cantidad > producto.getCantidad()) {
+				cantidad = producto.getCantidad();
+			}
+			existente.setCantidad(cantidad);
+		} else {
+			if (cantidad > producto.getCantidad()) {
+				throw new IllegalArgumentException("La cantidad solicitada excede el stock disponible.");
+			}
+
+			CarritoProducto carritoProducto = new CarritoProducto();
+			carritoProducto.setProducto(producto);
+			carritoProducto.setCarrito(this);
+			carritoProducto.setCantidad(cantidad);
+			productos.add(carritoProducto);
+		}
+	}
+
+	public void removeProducto(Producto producto) {
+		productos.removeIf(carritoProducto -> carritoProducto.getProducto().equals(producto));
+	}
 }

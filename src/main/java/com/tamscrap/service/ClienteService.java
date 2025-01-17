@@ -17,9 +17,8 @@ public interface ClienteService {
 
     Cliente obtenerPorUsername(String username);
  
-    void agregarAFavoritos(Long clienteId, Long productoId);
+    Cliente agregarAFavoritos(Long clienteId, Long productoId);
 
-    void eliminarDeFavoritos(Long clienteId, Long productoId);
-
+ 
     List<Producto> obtenerFavoritos(Long clienteId);
 }

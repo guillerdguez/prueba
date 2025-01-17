@@ -17,18 +17,24 @@ public class ProductoDTO {
 	private Set<ProductoPedidoDTO> pedidos;
 	private int cantidad;
 
+	private String descripcion;
+
 	// Constructor vacío
 	public ProductoDTO() {
 	}
-	  public ProductoDTO(Long id, String nombre, Double precio, String imagen) {
-	        this.id = id;
-	        this.nombre = nombre;
-	        this.precio = precio;
-	        this.imagen = imagen;
-	    }
+
+	public ProductoDTO(Long id, String nombre, Double precio, String imagen, int cantidad) {
+		this.id = id;
+		this.nombre = nombre;
+		this.precio = precio;
+		this.imagen = imagen;
+		this.cantidad = cantidad;
+	}
+
 	// Constructor para inicializar desde Producto
 	public ProductoDTO(Long id, String nombre, double precio, String imagen, boolean lettering, boolean scrapbooking,
-			boolean oferta, Integer descuento, Double precioOriginal, int cantidad, 
+			boolean oferta, Integer descuento, Double precioOriginal, int cantidad, String descripcion,
+
 			Set<ProductoPedidoDTO> pedidos) {
 		this.id = id;
 		this.nombre = nombre;
@@ -42,7 +48,8 @@ public class ProductoDTO {
 //		this.favorito = favorito;
 		this.cantidad = cantidad;
 		this.pedidos = pedidos;
-	} 
+		this.descripcion = descripcion;
+	}
 
 	// Constructor desde una instancia de Producto para facilidad de uso
 	public ProductoDTO(com.tamscrap.model.Producto producto) {
@@ -54,22 +61,32 @@ public class ProductoDTO {
 		this.scrapbooking = producto.isScrapbooking();
 		this.oferta = producto.isOferta();
 		this.descuento = producto.getDescuento();
-		this.precioOriginal = producto.getPrecioOriginal();  
- 
-		this.cantidad = producto.getCantidad(); 
+		this.precioOriginal = producto.getPrecioOriginal();
+
+		this.cantidad = producto.getCantidad();
 	}
+
 	public ProductoDTO(Long id, String nombre, double precio, int cantidad) {
-	    this.id = id;
-	    this.nombre = nombre;
-	    this.precio = precio;
-	    this.cantidad = cantidad;
+		this.id = id;
+		this.nombre = nombre;
+		this.precio = precio;
+		this.cantidad = cantidad;
 	}
 
 	// Getters y setters
+
 	public Long getId() {
 		return id;
 	}
-	
+
+	public String getDescripcion() {
+		return descripcion;
+	}
+
+	public void setDescripcion(String descripcion) {
+		this.descripcion = descripcion;
+	}
+
 	public int getCantidad() {
 		return cantidad;
 	}
@@ -137,14 +154,15 @@ public class ProductoDTO {
 	public void setDescuento(Integer descuento) {
 		this.descuento = descuento;
 	}
-
 	public Double getPrecioOriginal() {
 	    if (this.oferta && this.descuento != null && this.descuento > 0) {
-	        return this.precio / (1 - this.descuento / 100.0);
+	        double precioOriginal = this.precio / (1 - this.descuento / 100.0);
+	        // Redondear a dos decimales
+	        precioOriginal = Math.round(precioOriginal * 100.0) / 100.0;
+	        return precioOriginal;
 	    }
 	    return null; // No está en oferta o descuento no es válido
 	}
-
 
 
 	public void setPrecioOriginal(Double precioOriginal) {
@@ -167,5 +185,4 @@ public class ProductoDTO {
 		this.pedidos = pedidos;
 	}
 
- 
 }

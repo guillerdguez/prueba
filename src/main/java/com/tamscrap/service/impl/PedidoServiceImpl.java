@@ -50,79 +50,92 @@ public class PedidoServiceImpl implements PedidoService {
 	@Override
 	@Transactional
 	public Pedido insertarPedido(Pedido pedido) {
-		if (pedido.getCliente() == null || pedido.getCliente().getId() == null) {
-			throw new IllegalArgumentException("El cliente asociado al pedido es inválido.");
-		}
+	    // Validaciones básicas del pedido
+	    if (pedido.getCliente() == null || pedido.getCliente().getId() == null ||
+	        pedido.getDireccionEnvio() == null || pedido.getDireccionEnvio().trim().isEmpty() ||
+	        pedido.getMetodoPago() == null || pedido.getMetodoPago().trim().isEmpty()) {
+	        throw new IllegalArgumentException("Datos del pedido inválidos (cliente, dirección o método de pago).");
+	    }
 
-		if (pedido.getDireccionEnvio() == null || pedido.getDireccionEnvio().trim().isEmpty()) {
-			throw new IllegalArgumentException("La dirección de envío es requerida.");
-		}
+	    // Cargar cliente
+	    Cliente cliente = clienteService.obtenerPorId(pedido.getCliente().getId());
+	    if (cliente == null) {
+	        throw new IllegalArgumentException("El cliente no existe en la base de datos.");
+	    }
+	    pedido.setCliente(cliente);
 
-		if (pedido.getMetodoPago() == null || pedido.getMetodoPago().trim().isEmpty()) {
-			throw new IllegalArgumentException("El método de pago es requerido.");
-		}
+	    // Guardar pedido sin productos para obtener su ID
+	    Set<ProductosPedidos> productosOriginales = new HashSet<>(pedido.getProductos());
+	    pedido.getProductos().clear();
+	    pedido = pedidoRepository.save(pedido);
 
-		// Para evitar problemas, cargamos el cliente completo desde BD (si no lo tienes
-		// ya)
-		Cliente cliente = clienteService.obtenerPorId(pedido.getCliente().getId());
-		if (cliente == null) {
-			throw new IllegalArgumentException("El cliente no existe en la base de datos.");
-		}
-		pedido.setCliente(cliente);
+	    Set<ProductosPedidos> productosFinales = new HashSet<>();
 
-		// Guardamos el pedido sin productos primero para obtener su ID
-		Set<ProductosPedidos> productosOriginales = new HashSet<>(pedido.getProductos());
-		pedido.getProductos().clear(); // Limpia temporalmente la lista de productos
-		pedido = pedidoRepository.save(pedido); // Ahora pedido tiene un ID
+	    // Validar stock y procesar productos
+	    for (ProductosPedidos ppOriginal : productosOriginales) {
+	        if (ppOriginal.getProducto() == null || ppOriginal.getProducto().getId() == null) {
+	            throw new IllegalArgumentException("Uno o más productos asociados al pedido son inválidos.");
+	        }
 
-		Set<ProductosPedidos> productosFinales = new HashSet<>();
+	        Producto productoBD = productoService.obtenerPorId(ppOriginal.getProducto().getId());
+	        if (productoBD == null) {
+	            throw new IllegalArgumentException(
+	                "El producto con ID " + ppOriginal.getProducto().getId() + " no existe en la base de datos."
+	            );
+	        }
 
-		for (ProductosPedidos ppOriginal : productosOriginales) {
-			if (ppOriginal.getProducto() == null || ppOriginal.getProducto().getId() == null) {
-				throw new IllegalArgumentException("Uno o más productos asociados al pedido son inválidos.");
-			}
+	        int cantidadSolicitada = ppOriginal.getCantidad();
+	        if (productoBD.getCantidad() < cantidadSolicitada) {
+	            throw new IllegalArgumentException(
+	                "Stock insuficiente para el producto: " + productoBD.getNombre()
+	            );
+	        }
 
-			// Cargar el producto completo
-			Producto productoBD = productoService.obtenerPorId(ppOriginal.getProducto().getId());
-			if (productoBD == null) {
-				throw new IllegalArgumentException(
-						"El producto con ID " + ppOriginal.getProducto().getId() + " no existe en la base de datos.");
-			}
+	        // Ajustar stock
+	        productoBD.setCantidad(productoBD.getCantidad() - cantidadSolicitada);
+	        productoService.insertarProducto(productoBD);
 
-			int cantidadSolicitada = ppOriginal.getCantidad();
-			if (productoBD.getCantidad() < cantidadSolicitada) {
-				throw new IllegalArgumentException("Stock insuficiente para el producto: " + productoBD.getNombre());
-			}
+	        // Crear ProductosPedidos con la clave compuesta
+	        ProductosPedidos nuevoPP = new ProductosPedidos();
+	        nuevoPP.setPedido(pedido);
+	        nuevoPP.setProducto(productoBD);
+	        nuevoPP.setCantidad(cantidadSolicitada);
+	        nuevoPP.setNombre(productoBD.getNombre());
+	        nuevoPP.setId(new ProductoPedidoId(pedido.getId(), productoBD.getId()));
 
-			// Ajustar stock
-			productoBD.setCantidad(productoBD.getCantidad() - cantidadSolicitada);
-			productoService.insertarProducto(productoBD);
+	        productosFinales.add(nuevoPP);
+	    }
 
-			// Crear un nuevo ProductosPedidos con IDs establecidos
-			ProductosPedidos nuevoPP = new ProductosPedidos();
-			nuevoPP.setPedido(pedido);
-			nuevoPP.setProducto(productoBD);
-			nuevoPP.setCantidad(cantidadSolicitada);
-			nuevoPP.setNombre(productoBD.getNombre());
-
-			// Crear la clave compuesta manualmente ahora que ya tenemos pedido.getId() y
-			// productoBD.getId()
-			ProductoPedidoId ppId = new ProductoPedidoId(pedido.getId(), productoBD.getId());
-			nuevoPP.setId(ppId);
-
-			productosFinales.add(nuevoPP);
-		}
-
-		// Asignar la nueva lista de productos al pedido y recalcular precio
-		pedido.setProductos(productosFinales);
-		pedido.calcularPrecio();
-
-		// Guardar el pedido con sus productos
-		return pedidoRepository.save(pedido);
+	    // Asociar productos, recalcular precio y guardar
+	    pedido.setProductos(productosFinales);
+	    pedido.calcularPrecio();
+	    return pedidoRepository.save(pedido);
 	}
 
 	@Override
+	@Transactional
 	public void eliminarPedido(Long id) {
-		pedidoRepository.deleteById(id);
+	    // Buscar el pedido en la base de datos
+	    Pedido pedido = pedidoRepository.findById(id)
+	            .orElseThrow(() -> new IllegalArgumentException("Pedido no encontrado con el ID: " + id));
+
+	    // Limpiar referencias en el cliente
+	    if (pedido.getCliente() != null) {
+	        pedido.getCliente().getPedidos().remove(pedido);
+	    }
+
+	    // Limpiar referencias en productos
+	    for (ProductosPedidos productoPedido : pedido.getProductos()) {
+	        Producto producto = productoPedido.getProducto();
+	        if (producto != null) {
+	            // Restaurar el stock del producto
+	            producto.setCantidad(producto.getCantidad() + productoPedido.getCantidad());
+	            producto.getPedidos().remove(productoPedido); // Limpiar la relación inversa
+	        }
+	    }
+
+	    // Eliminar el pedido
+	    pedidoRepository.delete(pedido);
 	}
+
 }

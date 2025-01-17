@@ -19,148 +19,153 @@ import com.tamscrap.service.impl.ProductoServiceImpl;
 @CrossOrigin(origins = "http://localhost:4200/")
 public class ProductoController {
 
-    private final ProductoServiceImpl productoService;
-    private final ClienteService clienteService;
-    private static final Logger logger = Logger.getLogger(ProductoController.class.getName());
+	private final ProductoServiceImpl productoService;
+	private final ClienteService clienteService;
+	private static final Logger logger = Logger.getLogger(ProductoController.class.getName());
 
-    public ProductoController(ProductoServiceImpl productoService, ClienteService clienteService) {
-        this.productoService = productoService;
-        this.clienteService = clienteService;
-    }
+	public ProductoController(ProductoServiceImpl productoService, ClienteService clienteService) {
+		this.productoService = productoService;
+		this.clienteService = clienteService;
+	}
 
-    // CREATE
-    @PostMapping("/addProducto")
-    public ResponseEntity<ProductoDTO> guardarProducto(@RequestBody ProductoDTO productoDTO) {
-        logger.log(Level.INFO, "Producto recibido: {0}", productoDTO);
-        Producto producto = convertirADto(productoDTO);
-        Producto savedProducto = productoService.insertarProducto(producto);
-        return new ResponseEntity<>(convertirAProductoDTO(savedProducto), HttpStatus.CREATED);
-    }
+	// CREATE
+	@PostMapping("/addProducto")
+	public ResponseEntity<ProductoDTO> guardarProducto(@RequestBody ProductoDTO productoDTO) {
+		logger.log(Level.INFO, "Producto recibido: {0}", productoDTO);
+		Producto producto = convertirADto(productoDTO);
+		Producto savedProducto = productoService.insertarProducto(producto);
+		return new ResponseEntity<>(convertirAProductoDTO(savedProducto), HttpStatus.CREATED);
+	}
 
-    // READ
-    @GetMapping("/listar")
-    public ResponseEntity<List<ProductoDTO>> obtenerTodosLosProductos(
-            @RequestParam(value = "categoria", required = false) String categoria) {
-        List<Producto> productos;
-        if (categoria != null && !categoria.isEmpty()) {
-            productos = productoService.obtenerProductosPorCategoria(categoria);
-            logger.log(Level.INFO, "Obteniendo productos de la categoría: {0}", categoria);
-        } else {
-            productos = productoService.obtenerTodos();
-            logger.log(Level.INFO, "Obteniendo todos los productos");
-        }
+	// READ
+	@GetMapping("/listar")
+	public ResponseEntity<List<ProductoDTO>> obtenerTodosLosProductos(
+			@RequestParam(value = "categoria", required = false) String categoria) {
+		List<Producto> productos;
+		if (categoria != null && !categoria.isEmpty()) {
+			productos = productoService.obtenerProductosPorCategoria(categoria);
+			logger.log(Level.INFO, "Obteniendo productos de la categoría: {0}", categoria);
+		} else {
+			productos = productoService.obtenerTodos();
+			logger.log(Level.INFO, "Obteniendo todos los productos");
+		}
 
-        List<ProductoDTO> productosDTO = productos.stream()
-                .map(this::convertirAProductoDTO)
-                .collect(Collectors.toList());
+		List<ProductoDTO> productosDTO = productos.stream().map(this::convertirAProductoDTO)
+				.collect(Collectors.toList());
 
-        return new ResponseEntity<>(productosDTO, HttpStatus.OK);
-    }
-    @GetMapping("/categoria/{categoria}")
-    public ResponseEntity<List<ProductoDTO>> obtenerProductosPorCategoria(@PathVariable String categoria) {
-        logger.log(Level.INFO, "Obteniendo productos de la categoría: {0}", categoria);
-        List<Producto> productos = productoService.obtenerProductosPorCategoria(categoria);
-        List<ProductoDTO> productosDTO = productos.stream()
-                .map(this::convertirAProductoDTO)
-                .collect(Collectors.toList());
-        return new ResponseEntity<>(productosDTO, HttpStatus.OK);
-    }
-    @GetMapping("/buscar")
-    public ResponseEntity<List<Producto>> searchProductos(@RequestParam(name = "name", required = false) String name) {
-        if (name == null || name.trim().isEmpty()) {
-            return ResponseEntity.ok().body(List.of());  
-        }
-        List<Producto> productos = productoService.buscarProductos(name);
-        return ResponseEntity.ok(productos);
-    }
-    @GetMapping("/ver/{id}")
-    public ResponseEntity<ProductoDTO> obtenerProductoPorId(@PathVariable Long id) {
-        logger.log(Level.INFO, "Obteniendo producto con ID: {0}", id);
-        Producto producto = productoService.obtenerPorId(id);
-        if (producto == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(convertirAProductoDTO(producto), HttpStatus.OK);
-    }
+		return new ResponseEntity<>(productosDTO, HttpStatus.OK);
+	}
 
-    // UPDATE
-    @PutMapping("/editar/{id}")
-    public ResponseEntity<ProductoDTO> editarProducto(@PathVariable Long id, @RequestBody ProductoDTO productoDTO) {
-        Producto productoExistente = productoService.obtenerPorId(id);
-        if (productoExistente == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+	@GetMapping("/categoria/{categoria}")
+	public ResponseEntity<List<ProductoDTO>> obtenerProductosPorCategoria(@PathVariable String categoria) {
+		logger.log(Level.INFO, "Obteniendo productos de la categoría: {0}", categoria);
+		List<Producto> productos = productoService.obtenerProductosPorCategoria(categoria);
+		List<ProductoDTO> productosDTO = productos.stream().map(this::convertirAProductoDTO)
+				.collect(Collectors.toList());
+		return new ResponseEntity<>(productosDTO, HttpStatus.OK);
+	}
 
-        productoExistente.setNombre(productoDTO.getNombre());
-        productoExistente.setPrecio(productoDTO.getPrecio());
-        productoExistente.setImagen(productoDTO.getImagen());
-        productoExistente.setLettering(productoDTO.isLettering());
-        productoExistente.setScrapbooking(productoDTO.isScrapbooking());
-        productoExistente.setOferta(productoDTO.isOferta());
-        productoExistente.setDescuento(productoDTO.getDescuento());
-        productoExistente.setPrecioOriginal(productoDTO.getPrecioOriginal());
-        productoExistente.setCantidad(productoDTO.getCantidad());
+	@GetMapping("/buscar")
+	public ResponseEntity<List<Producto>> searchProductos(@RequestParam(name = "name", required = false) String name) {
+		if (name == null || name.trim().isEmpty()) {
+			return ResponseEntity.ok().body(List.of());
+		}
+		List<Producto> productos = productoService.buscarProductos(name);
+		return ResponseEntity.ok(productos);
+	}
 
-        Producto updatedProducto = productoService.insertarProducto(productoExistente);
-        return new ResponseEntity<>(convertirAProductoDTO(updatedProducto), HttpStatus.OK);
-    }
+	@GetMapping("/ver/{id}")
+	public ResponseEntity<ProductoDTO> obtenerProductoPorId(@PathVariable Long id) {
+		logger.log(Level.INFO, "Obteniendo producto con ID: {0}", id);
+		Producto producto = productoService.obtenerPorId(id);
+		if (producto == null) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		return new ResponseEntity<>(convertirAProductoDTO(producto), HttpStatus.OK);
+	}
 
-    // DELETE
-    @DeleteMapping("/borrar/{id}")
-    public ResponseEntity<String> eliminarProducto(@PathVariable Long id) {
-        productoService.eliminarProducto(id);
-        logger.log(Level.INFO, "Producto con ID {0} eliminado", id);
-        return new ResponseEntity<>("Producto eliminado con éxito", HttpStatus.NO_CONTENT);
-    }
+	// UPDATE
+	@PutMapping("/editar/{id}")
+	public ResponseEntity<ProductoDTO> editarProducto(@PathVariable Long id, @RequestBody ProductoDTO productoDTO) {
+		Producto productoExistente = productoService.obtenerPorId(id);
+		if (productoExistente == null) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
 
-    // FAVORITOS
-    @PostMapping("/{clienteId}/favorito/{productoId}")
-    public ResponseEntity<String> agregarAFavoritos(@PathVariable Long clienteId, @PathVariable Long productoId) {
-        clienteService.agregarAFavoritos(clienteId, productoId);
-        return new ResponseEntity<>("Producto agregado a favoritos", HttpStatus.OK);
-    }
+		productoExistente.setNombre(productoDTO.getNombre());
+		productoExistente.setPrecio(productoDTO.getPrecio());
+		productoExistente.setImagen(productoDTO.getImagen());
+		productoExistente.setLettering(productoDTO.isLettering());
+		productoExistente.setScrapbooking(productoDTO.isScrapbooking());
+		productoExistente.setOferta(productoDTO.isOferta());
+		productoExistente.setDescuento(productoDTO.getDescuento());
+		productoExistente.setPrecioOriginal(productoDTO.getPrecioOriginal());
+		productoExistente.setCantidad(productoDTO.getCantidad());
+		productoExistente.setDescripcion(productoDTO.getDescripcion());
 
-    @DeleteMapping("/{clienteId}/favorito/{productoId}")
-    public ResponseEntity<String> eliminarDeFavoritos(@PathVariable Long clienteId, @PathVariable Long productoId) {
-        clienteService.eliminarDeFavoritos(clienteId, productoId);
-        return new ResponseEntity<>("Producto eliminado de favoritos", HttpStatus.OK);
-    }
+		Producto updatedProducto = productoService.insertarProducto(productoExistente);
+		return new ResponseEntity<>(convertirAProductoDTO(updatedProducto), HttpStatus.OK);
+	}
 
-    @GetMapping("/{clienteId}/favoritos")
-    public ResponseEntity<List<ProductoDTO>> obtenerFavoritos(@PathVariable Long clienteId) {
-        List<ProductoDTO> favoritos = clienteService.obtenerFavoritos(clienteId).stream()
-                .map(this::convertirAProductoDTO)
-                .collect(Collectors.toList());
-        return new ResponseEntity<>(favoritos, HttpStatus.OK);
-    }
+	// DELETE
+	@DeleteMapping("/borrar/{id}")
+	public ResponseEntity<String> eliminarProducto(@PathVariable Long id) {
+		productoService.eliminarProducto(id);
+		logger.log(Level.INFO, "Producto con ID {0} eliminado", id);
+		return new ResponseEntity<>("Producto eliminado con éxito", HttpStatus.NO_CONTENT);
+	}
 
-    // Métodos de conversión
-    private ProductoDTO convertirAProductoDTO(Producto producto) {
-        ProductoDTO dto = new ProductoDTO();
-        dto.setId(producto.getId());
-        dto.setNombre(producto.getNombre());
-        dto.setPrecio(producto.getPrecio());
-        dto.setImagen(producto.getImagen());
-        dto.setLettering(producto.isLettering());
-        dto.setScrapbooking(producto.isScrapbooking());
-        dto.setOferta(producto.isOferta());
-        dto.setDescuento(producto.getDescuento());
-        dto.setPrecioOriginal(producto.getPrecioOriginal());
-        dto.setCantidad(producto.getCantidad());
-        return dto;
-    }
+	// FAVORITOS
+	@PostMapping("/{clienteId}/favorito/{productoId}")
+	public ResponseEntity<String> agregarAFavoritos(@PathVariable Long clienteId, @PathVariable Long productoId) {
+		clienteService.agregarAFavoritos(clienteId, productoId);
+		return new ResponseEntity<>("Producto agregado a favoritos", HttpStatus.OK);
+	}
 
-    private Producto convertirADto(ProductoDTO dto) {
-        Producto producto = new Producto();
-        producto.setNombre(dto.getNombre());
-        producto.setPrecio(dto.getPrecio());
-        producto.setImagen(dto.getImagen());
-        producto.setLettering(dto.isLettering());
-        producto.setScrapbooking(dto.isScrapbooking());
-        producto.setOferta(dto.isOferta());
-        producto.setDescuento(dto.getDescuento());
-        producto.setPrecioOriginal(dto.getPrecioOriginal());
-        producto.setCantidad(dto.getCantidad());
-        return producto;
-    }
+	@DeleteMapping("/{clienteId}/favorito/{productoId}")
+	public ResponseEntity<String> eliminarDeFavoritos(@PathVariable Long clienteId, @PathVariable Long productoId) {
+		clienteService.agregarAFavoritos(clienteId, productoId);
+		return new ResponseEntity<>("Producto eliminado de favoritos", HttpStatus.OK);
+	}
+
+	@GetMapping("/{clienteId}/favoritos")
+	public ResponseEntity<List<ProductoDTO>> obtenerFavoritos(@PathVariable Long clienteId) {
+		List<ProductoDTO> favoritos = clienteService.obtenerFavoritos(clienteId).stream()
+				.map(this::convertirAProductoDTO).collect(Collectors.toList());
+		return new ResponseEntity<>(favoritos, HttpStatus.OK);
+	}
+
+	// Métodos de conversión
+	private ProductoDTO convertirAProductoDTO(Producto producto) {
+		ProductoDTO dto = new ProductoDTO();
+		dto.setId(producto.getId());
+		dto.setNombre(producto.getNombre());
+		dto.setPrecio(producto.getPrecio());
+		dto.setImagen(producto.getImagen());
+		dto.setLettering(producto.isLettering());
+		dto.setScrapbooking(producto.isScrapbooking());
+		dto.setOferta(producto.isOferta());
+		dto.setDescuento(producto.getDescuento());
+		dto.setPrecioOriginal(producto.getPrecioOriginal());
+		dto.setCantidad(producto.getCantidad());
+		dto.setDescripcion(producto.getDescripcion());
+
+		return dto;
+	}
+
+	private Producto convertirADto(ProductoDTO dto) {
+		Producto producto = new Producto();
+		producto.setNombre(dto.getNombre());
+		producto.setPrecio(dto.getPrecio());
+		producto.setImagen(dto.getImagen());
+		producto.setLettering(dto.isLettering());
+		producto.setScrapbooking(dto.isScrapbooking());
+		producto.setOferta(dto.isOferta());
+		producto.setDescripcion(dto.getDescripcion());
+
+		producto.setDescuento(dto.getDescuento());
+		producto.setPrecioOriginal(dto.getPrecioOriginal());
+		producto.setCantidad(dto.getCantidad());
+		return producto;
+	}
 }

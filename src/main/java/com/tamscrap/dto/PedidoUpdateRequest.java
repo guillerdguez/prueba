@@ -7,7 +7,7 @@ import java.util.List;
 public class PedidoUpdateRequest {
     private Pedido pedido;
     private List<Integer> cantidades;
-
+ private int clienteId;
     // Getters y setters
     public Pedido getPedido() {
         return pedido;
@@ -21,7 +21,15 @@ public class PedidoUpdateRequest {
         return cantidades;
     }
 
-    public void setCantidades(List<Integer> cantidades) {
+    public int getClienteId() {
+		return clienteId;
+	}
+
+	public void setClienteId(int clienteId) {
+		this.clienteId = clienteId;
+	}
+
+	public void setCantidades(List<Integer> cantidades) {
         this.cantidades = cantidades;
     }
 }

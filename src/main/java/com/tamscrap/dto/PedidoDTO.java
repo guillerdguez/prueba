@@ -13,6 +13,7 @@ public class PedidoDTO {
     private String direccionEnvio;
     private String metodoPago;
     private String estado;
+    private String nombreComprador;
 
     public PedidoDTO() {
         productos = new HashSet<>();
@@ -20,7 +21,15 @@ public class PedidoDTO {
 
     // Getters y Setters
 
-    public Long getId() {
+    public String getNombreComprador() {
+		return nombreComprador;
+	}
+
+	public void setNombreComprador(String nombreComprador) {
+		this.nombreComprador = nombreComprador;
+	}
+
+	public Long getId() {
         return id;
     }
 

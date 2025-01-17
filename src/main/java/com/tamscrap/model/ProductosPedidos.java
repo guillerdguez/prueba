@@ -2,6 +2,8 @@ package com.tamscrap.model;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
@@ -16,9 +18,9 @@ public class ProductosPedidos {
 
     @EmbeddedId
     private ProductoPedidoId id;
-
     @ManyToOne(fetch = FetchType.EAGER)
     @MapsId("pedidoId")
+	@JsonBackReference
     private Pedido pedido;
 
     @ManyToOne(fetch = FetchType.EAGER)

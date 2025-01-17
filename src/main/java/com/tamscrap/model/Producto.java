@@ -31,6 +31,8 @@ public class Producto {
 
 	@Column(name = "nombre", unique = true, nullable = true)
 	private String nombre;
+	@Column(name = "descripcion" , nullable = true)
+	private String descripcion;
 
 	@Column(name = "precio")
 	private double precio;
@@ -72,7 +74,7 @@ public class Producto {
 	public Producto() {
 	}
 
-	public Producto(Long id, String nombre, double precio, String imagen, boolean lettering, boolean scrapbooking,
+	public Producto(Long id, String nombre,   String descripcion, double precio, String imagen, boolean lettering, boolean scrapbooking,
 			boolean oferta, Integer descuento, int cantidad, boolean favorito, Double precioOriginal) {
 
 		this.id = id;
@@ -82,13 +84,14 @@ public class Producto {
 		this.lettering = lettering;
 		this.scrapbooking = scrapbooking;
 		this.oferta = oferta;
-		this.descuento = descuento;
+		this.descuento = descuento;		this.descripcion = descripcion;
+
 		this.cantidad = cantidad;
 
 		this.precioOriginal = precioOriginal;
 	}
 
-	public Producto(Long id, String nombre, double precio, String imagen, boolean lettering, boolean scrapbooking,
+	public Producto(Long id, String nombre,  String descripcion,double precio, String imagen, boolean lettering, boolean scrapbooking,
 			boolean oferta, Integer descuento, boolean favorito, Double precioOriginal, Set<ProductosPedidos> pedidos) {
 
 		this.id = id;
@@ -98,12 +101,37 @@ public class Producto {
 		this.scrapbooking = scrapbooking;
 		this.oferta = oferta;
 		this.descuento = descuento;
+		this.descripcion = descripcion;
 
 		this.precioOriginal = precioOriginal;
 		this.pedidos = pedidos;
 	}
 
 	// Getters y Setters para todos los campos, incluyendo precioOriginal
+
+	public Producto(Long id, String nombre, String descripcion, double precio, String imagen, boolean lettering,
+			boolean scrapbooking, boolean oferta, Integer descuento, int cantidad, Double precioOriginal) {
+		super();
+		this.id = id;
+		this.nombre = nombre;
+		this.descripcion = descripcion;
+		this.precio = precio;
+		this.imagen = imagen;
+		this.lettering = lettering;
+		this.scrapbooking = scrapbooking;
+		this.oferta = oferta;
+		this.descuento = descuento;
+		this.cantidad = cantidad;
+		this.precioOriginal = precioOriginal;
+	}
+
+	public String getDescripcion() {
+		return descripcion;
+	}
+
+	public void setDescripcion(String descripcion) {
+		this.descripcion = descripcion;
+	}
 
 	public Long getId() {
 		return id;

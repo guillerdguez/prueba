@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -24,7 +25,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.tamscrap.dto.ClienteDTO;
 import com.tamscrap.dto.PedidoDTO;
-import com.tamscrap.dto.PedidoUpdateRequest;
 import com.tamscrap.dto.ProductoPedidoDTO;
 import com.tamscrap.model.Cliente;
 import com.tamscrap.model.Pedido;
@@ -101,9 +101,9 @@ public class PedidoController {
 	            .map(this::convertirAPedidoDTO)
 	            .collect(Collectors.toList());
 	    
-	    if (pedidos.isEmpty()) {
-	        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-	    }
+//	    if (pedidos.isEmpty()) {
+// 	        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+//	    }
 	    
 	    return new ResponseEntity<>(pedidos, HttpStatus.OK);
 	}
@@ -114,53 +114,27 @@ public class PedidoController {
 	public ResponseEntity<?> obtenerPedido(@PathVariable Long id) {
 		logger.log(Level.INFO, "Obteniendo pedido con ID: {0}", id);
 		Pedido pedido = pedidoService.obtenerPorId(id);
-		if (pedido == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-		}
-		return ResponseEntity.ok(pedido);
+//		if (pedido == null) {
+//			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+//		}
+	    return new ResponseEntity<>(pedido, HttpStatus.OK);
 	}
 
 	// UPDATE
+
 	@PutMapping("/editar/{id}")
-	public ResponseEntity<?> actualizarPedido(@PathVariable Long id, @RequestBody PedidoUpdateRequest pedidoUpdate) {
-		logger.log(Level.INFO, "Actualizando pedido con ID: {0}", id);
-
-		Pedido pedido = pedidoUpdate.getPedido();
-		List<Integer> cantidades = pedidoUpdate.getCantidades();
-
-		Pedido pedidoExistente = pedidoService.obtenerPorId(id);
-		if (pedidoExistente == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-		}
-
-		Cliente cliente = clienteService.obtenerPorId(pedido.getCliente().getId());
-		if (cliente == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-		}
-
-		pedidoExistente.setCliente(cliente);
-		pedidoExistente.setDireccionEnvio(pedido.getDireccionEnvio());
-		pedidoExistente.setMetodoPago(pedido.getMetodoPago());
-
-		Set<ProductosPedidos> productosPedidos = pedidoExistente.getProductos();
-		ProductosPedidos[] productosArray = productosPedidos.toArray(new ProductosPedidos[0]);
-
-		for (int i = 0; i < Math.min(productosArray.length, cantidades.size()); i++) {
-			ProductosPedidos productoPedido = productosArray[i];
-			if (cantidades.get(i) > 0) {
-				productoPedido.setCantidad(cantidades.get(i));
-			} else {
-				pedidoExistente.removeProducto(productoPedido.getProducto());
-			}
-		}
-
-		try {
-			pedidoService.insertarPedido(pedidoExistente);
-			return ResponseEntity.ok().build();
-		} catch (Exception e) {
-			logger.log(Level.SEVERE, "Error al actualizar el pedido", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-		}
+    public ResponseEntity<Pedido> actualizarPedido(@PathVariable Long id, @RequestBody Pedido pedido) {
+//	    Pedido pedidoExistente = pedidoService.obtenerPorId(id);
+	    System.err.println("DDDDDDDDDDD"+pedido.getCliente().getId());
+//	    pedidoExistente.setCliente(clienteService.obtenerPorId(pedido.getCliente().getId()));
+//	    pedidoExistente.setDireccionEnvio(pedido.getDireccionEnvio());
+//	    pedidoExistente.setMetodoPago(pedido.getMetodoPago());
+//	    pedidoExistente.setNombreComprador(pedido.getNombreComprador());
+//	    pedidoExistente.setEstado(pedido.getEstado());
+////	    pedidoExistente.setProductos(pedido.getProductos());
+     Pedido updatedPedido = pedidoService.insertarPedido(pedido);
+//	    PedidoDTO updatedPedidoDTO = convertirAPedidoDTO(pedido);
+	    return new ResponseEntity<>(pedido, HttpStatus.OK);
 	}
 
 	// ADD PRODUCT
@@ -226,10 +200,20 @@ public class PedidoController {
 	// DELETE
 	@DeleteMapping("/delete/{id}")
 	public ResponseEntity<?> eliminarPedido(@PathVariable Long id) {
-		logger.log(Level.INFO, "Eliminando pedido con ID: {0}", id);
-		pedidoService.eliminarPedido(id);
-		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+	    logger.log(Level.INFO, "Eliminando pedido con ID: {0}", id);
+
+	    try {
+	        pedidoService.eliminarPedido(id);
+			return new ResponseEntity<>("Pedido eliminado con éxito", HttpStatus.NO_CONTENT);
+	    } catch (IllegalArgumentException e) {
+	        logger.log(Level.WARNING, "Error al eliminar pedido: {0}", e.getMessage());
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+	    } catch (Exception e) {
+	        logger.log(Level.SEVERE, "Error interno al eliminar pedido", e);
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+	    }
 	}
+
 
 	private PedidoDTO convertirAPedidoDTO(Pedido pedido) {
 		PedidoDTO dto = new PedidoDTO();
@@ -239,6 +223,7 @@ public class PedidoController {
 		dto.setDireccionEnvio(pedido.getDireccionEnvio());
 		dto.setMetodoPago(pedido.getMetodoPago());
 		dto.setEstado(pedido.getEstado());
+		dto.setNombreComprador(pedido.getNombreComprador());
 
 		// Convertir Cliente a ClienteDTO
 		Cliente cliente = pedido.getCliente();
@@ -269,6 +254,7 @@ public class PedidoController {
 		dto.setNombre(cliente.getNombre());
 		dto.setEmail(cliente.getEmail());
 		dto.setFavoritos(cliente.getFavoritos());
+ 
 		dto.setAuthorities(
 				cliente.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
 		return dto;
