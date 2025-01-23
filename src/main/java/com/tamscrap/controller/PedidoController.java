@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -23,8 +22,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.tamscrap.dto.ClienteDTO;
-import com.tamscrap.dto.PedidoDTO;
+import com.tamscrap.dto.ClienteDTOListarPedidos;
+import com.tamscrap.dto.PedidoDTOListar; 
 import com.tamscrap.dto.ProductoPedidoDTO;
 import com.tamscrap.model.Cliente;
 import com.tamscrap.model.Pedido;
@@ -85,18 +84,18 @@ public class PedidoController {
 
 	// READ
 	@GetMapping("/listar")
-	public ResponseEntity<List<PedidoDTO>> mostrarPedidos() {
+	public ResponseEntity<List<PedidoDTOListar>> mostrarPedidos() {
 		logger.log(Level.INFO, "Obteniendo todos los pedidos");
-		List<PedidoDTO> pedidos = pedidoService.obtenerTodos().stream().map(this::convertirAPedidoDTO)
+		List<PedidoDTOListar> pedidos = pedidoService.obtenerTodos().stream().map(this::convertirAPedidoDTO)
 				.collect(Collectors.toList());
 		return new ResponseEntity<>(pedidos, HttpStatus.OK);
 	}
 	@GetMapping("/pedidosCliente")
-	public ResponseEntity<List<PedidoDTO>> mostrarPedidosPorCliente(@AuthenticationPrincipal Cliente cliente) {
+	public ResponseEntity<List<PedidoDTOListar>> mostrarPedidosPorCliente(@AuthenticationPrincipal Cliente cliente) {
 	    Long clienteId = cliente.getId();
 	    logger.log(Level.INFO, "Obteniendo los pedidos para el cliente con ID: " + clienteId);
 	    
-	    List<PedidoDTO> pedidos = pedidoService.obtenerPorClienteId(clienteId)
+	    List<PedidoDTOListar> pedidos = pedidoService.obtenerPorClienteId(clienteId)
 	            .stream()
 	            .map(this::convertirAPedidoDTO)
 	            .collect(Collectors.toList());
@@ -109,15 +108,17 @@ public class PedidoController {
 	}
 
 
-
+//aaaaa
 	@GetMapping("/ver/{id}")
 	public ResponseEntity<?> obtenerPedido(@PathVariable Long id) {
 		logger.log(Level.INFO, "Obteniendo pedido con ID: {0}", id);
 		Pedido pedido = pedidoService.obtenerPorId(id);
+		 PedidoDTOListar pedidoDTO=convertirAPedidoDTO(pedido);
+ 
 //		if (pedido == null) {
 //			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 //		}
-	    return new ResponseEntity<>(pedido, HttpStatus.OK);
+	    return new ResponseEntity<>(pedidoDTO, HttpStatus.OK);
 	}
 
 	// UPDATE
@@ -133,7 +134,7 @@ public class PedidoController {
 //	    pedidoExistente.setEstado(pedido.getEstado());
 ////	    pedidoExistente.setProductos(pedido.getProductos());
      Pedido updatedPedido = pedidoService.insertarPedido(pedido);
-//	    PedidoDTO updatedPedidoDTO = convertirAPedidoDTO(pedido);
+//	    PedidoDTOListar updatedPedidoDTO = convertirAPedidoDTO(pedido);
 	    return new ResponseEntity<>(pedido, HttpStatus.OK);
 	}
 
@@ -215,8 +216,8 @@ public class PedidoController {
 	}
 
 
-	private PedidoDTO convertirAPedidoDTO(Pedido pedido) {
-		PedidoDTO dto = new PedidoDTO();
+	private PedidoDTOListar convertirAPedidoDTO(Pedido pedido) {
+		PedidoDTOListar dto = new PedidoDTOListar();
 		dto.setId(pedido.getId());
 		dto.setPrecio(pedido.getPrecio());
 		dto.setFechaCreacion(pedido.getFechaCreacion());
@@ -225,11 +226,11 @@ public class PedidoController {
 		dto.setEstado(pedido.getEstado());
 		dto.setNombreComprador(pedido.getNombreComprador());
 
-		// Convertir Cliente a ClienteDTO
+		// Convertir Cliente a ClienteDTOListarPedidos
 		Cliente cliente = pedido.getCliente();
 		if (cliente != null) {
-			ClienteDTO clienteDTO = convertirAClienteDTO(cliente);
-			dto.setCliente(clienteDTO);
+			ClienteDTOListarPedidos ClienteDTOListarPedidos = convertirAClienteDTOListarPedidos(cliente);
+			dto.setCliente(ClienteDTOListarPedidos);
 		}
 
 		// Convertir ProductosPedidos a ProductoPedidoDTO y recopilar en un Set
@@ -247,14 +248,13 @@ public class PedidoController {
 		return dto;
 	}
 
-	private ClienteDTO convertirAClienteDTO(Cliente cliente) {
-		ClienteDTO dto = new ClienteDTO();
+	private ClienteDTOListarPedidos convertirAClienteDTOListarPedidos(Cliente cliente) {
+		ClienteDTOListarPedidos dto = new ClienteDTOListarPedidos();
 		dto.setId(cliente.getId());
 		dto.setUsername(cliente.getUsername());
 		dto.setNombre(cliente.getNombre());
 		dto.setEmail(cliente.getEmail());
-		dto.setFavoritos(cliente.getFavoritos());
- 
+  
 		dto.setAuthorities(
 				cliente.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
 		return dto;

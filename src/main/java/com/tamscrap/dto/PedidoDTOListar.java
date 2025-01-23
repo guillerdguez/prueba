@@ -4,18 +4,18 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
-public class PedidoDTO {
+public class PedidoDTOListar {
     private Long id;
     private double precio;
     private LocalDateTime fechaCreacion;
-    private ClienteDTO cliente;  
+    private ClienteDTOListarPedidos cliente;  
     private Set<ProductoPedidoDTO> productos;
     private String direccionEnvio;
     private String metodoPago;
     private String estado;
     private String nombreComprador;
 
-    public PedidoDTO() {
+    public PedidoDTOListar() {
         productos = new HashSet<>();
     }
 
@@ -53,11 +53,11 @@ public class PedidoDTO {
         this.fechaCreacion = fechaCreacion;
     }
 
-    public ClienteDTO getCliente() {
+    public ClienteDTOListarPedidos getCliente() {
         return cliente;
     }
 
-    public void setCliente(ClienteDTO cliente) {
+    public void setCliente(ClienteDTOListarPedidos cliente) {
         this.cliente = cliente;
     }
 

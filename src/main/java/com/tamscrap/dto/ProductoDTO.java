@@ -14,7 +14,7 @@ public class ProductoDTO {
 	private Integer descuento;
 	private Double precioOriginal;
 //	private boolean favorito;
-	private Set<ProductoPedidoDTO> pedidos;
+//	private Set<ProductoPedidoDTO> pedidos;
 	private int cantidad;
 
 	private String descripcion;
@@ -47,7 +47,7 @@ public class ProductoDTO {
 		this.precioOriginal = precioOriginal;
 //		this.favorito = favorito;
 		this.cantidad = cantidad;
-		this.pedidos = pedidos;
+//		this.pedidos = pedidos;
 		this.descripcion = descripcion;
 	}
 
@@ -177,12 +177,12 @@ public class ProductoDTO {
 //		this.favorito = favorito;
 //	}
 
-	public Set<ProductoPedidoDTO> getPedidos() {
-		return pedidos;
-	}
-
-	public void setPedidos(Set<ProductoPedidoDTO> pedidos) {
-		this.pedidos = pedidos;
-	}
+//	public Set<ProductoPedidoDTO> getPedidos() {
+//		return pedidos;
+//	}
+//
+//	public void setPedidos(Set<ProductoPedidoDTO> pedidos) {
+//		this.pedidos = pedidos;
+//	}
 
 }
