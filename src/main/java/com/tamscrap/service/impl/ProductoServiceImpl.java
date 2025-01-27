@@ -2,7 +2,6 @@ package com.tamscrap.service.impl;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -29,18 +28,14 @@ public class ProductoServiceImpl implements ProductoService {
 
 	@Override
 	public List<ProductoDTO> obtenerTodos() {
-		// Llama a la consulta que retorna DTOs
 		return productoRepo.findAllAsDTO();
 	};
 
 	@Override
 	public Producto insertarProducto(Producto producto) {
-		// Convertir de DTO a Entidad
 
 		validarProducto(producto);
-		// Guardar la entidad en la BD
 		Producto savedProducto = productoRepo.save(producto);
-		// Convertir de nuevo a DTO para retornar
 		return savedProducto;
 	}
 
@@ -145,22 +140,22 @@ public class ProductoServiceImpl implements ProductoService {
 		if (producto.getPrecio() <= 0) {
 			throw new IllegalArgumentException("El precio debe ser mayor que cero");
 		}
-	}
-
-	private Producto convertirADominio(ProductoDTO productoDTO) {
-		Producto producto = new Producto();
-		producto.setId(productoDTO.getId());
-		producto.setNombre(productoDTO.getNombre());
-		producto.setPrecio(productoDTO.getPrecio());
-		producto.setImagen(productoDTO.getImagen());
-		producto.setLettering(productoDTO.isLettering());
-		producto.setScrapbooking(productoDTO.isScrapbooking());
-		producto.setOferta(productoDTO.isOferta());
-		producto.setDescuento(productoDTO.getDescuento());
-		producto.setCantidad(productoDTO.getCantidad());
-		producto.setDescripcion(productoDTO.getDescripcion());
-		// Si hay lógica adicional para precioOriginal, puedes manejarla aquí o en
-		// setOferta...
-		return producto;
-	}
+//	}
+//
+//	private Producto convertirADominio(ProductoDTO productoDTO) {
+//		Producto producto = new Producto();
+//		producto.setId(productoDTO.getId());
+//		producto.setNombre(productoDTO.getNombre());
+//		producto.setPrecio(productoDTO.getPrecio());
+//		producto.setImagen(productoDTO.getImagen());
+//		producto.setLettering(productoDTO.isLettering());
+//		producto.setScrapbooking(productoDTO.isScrapbooking());
+//		producto.setOferta(productoDTO.isOferta());
+//		producto.setDescuento(productoDTO.getDescuento());
+//		producto.setCantidad(productoDTO.getCantidad());
+//		producto.setDescripcion(productoDTO.getDescripcion());
+//		// Si hay lógica adicional para precioOriginal, puedes manejarla aquí o en
+//		// setOferta...
+//		return producto;
+ 	}
 }
