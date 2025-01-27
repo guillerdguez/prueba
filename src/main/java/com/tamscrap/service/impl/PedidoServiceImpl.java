@@ -7,6 +7,7 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.tamscrap.dto.ProductoDTO;
 import com.tamscrap.model.Cliente;
 import com.tamscrap.model.Pedido;
 import com.tamscrap.model.Producto;
@@ -76,8 +77,10 @@ public class PedidoServiceImpl implements PedidoService {
 	        if (ppOriginal.getProducto() == null || ppOriginal.getProducto().getId() == null) {
 	            throw new IllegalArgumentException("Uno o más productos asociados al pedido son inválidos.");
 	        }
-
-	        Producto productoBD = productoService.obtenerPorId(ppOriginal.getProducto().getId());
+	        Producto productoBD = productoService.obtenerPorId(ppOriginal.getProducto().getId())
+	        	    .orElseThrow(() -> new IllegalArgumentException(
+	        	        "El producto con ID " + ppOriginal.getProducto().getId() + " no existe en la base de datos."
+	        	    ));
 	        if (productoBD == null) {
 	            throw new IllegalArgumentException(
 	                "El producto con ID " + ppOriginal.getProducto().getId() + " no existe en la base de datos."

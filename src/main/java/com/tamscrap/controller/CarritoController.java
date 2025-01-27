@@ -31,183 +31,176 @@ import com.tamscrap.service.impl.ProductoServiceImpl;
 @CrossOrigin(origins = "http://localhost:4200")
 public class CarritoController {
 
-    private static final Logger logger = Logger.getLogger(CarritoController.class.getName());
+	private static final Logger logger = Logger.getLogger(CarritoController.class.getName());
 
-    @Autowired
-    private ProductoServiceImpl productoService;
+	@Autowired
+	private ProductoServiceImpl productoService;
 
-    @Autowired
-    private ClienteServiceImpl clienteService;
+	@Autowired
+	private ClienteServiceImpl clienteService;
 
-    // Obtener o crear carrito para un cliente
-    private Carrito obtenerOCrearCarrito(Cliente cliente) {
-        if (cliente.getCarrito() == null) {
-            Carrito nuevoCarrito = new Carrito(cliente.getNombre());
-            cliente.setCarrito(nuevoCarrito);
-            clienteService.insertarCliente(cliente);
-        }
-        return cliente.getCarrito();
-    }
+	// Obtener o crear carrito para un cliente
+	private Carrito obtenerOCrearCarrito(Cliente cliente) {
+		if (cliente.getCarrito() == null) {
+			Carrito nuevoCarrito = new Carrito(cliente.getNombre());
+			cliente.setCarrito(nuevoCarrito);
+			clienteService.insertarCliente(cliente);
+		}
+		return cliente.getCarrito();
+	}
 
-    // Agregar producto al carrito
-    @PostMapping("/addProducto/{id}/{cantidad}")
-    public ResponseEntity<Void> agregarProductoAlCarrito(@PathVariable Long id, @PathVariable int cantidad) {
-        logger.info("Agregando producto al carrito con ID: " + id + " y cantidad: " + cantidad);
+	// Agregar producto al carrito
+	@PostMapping("/addProducto/{id}/{cantidad}")
+	public ResponseEntity<Void> agregarProductoAlCarrito(@PathVariable Long id, @PathVariable int cantidad) {
+		logger.info("Agregando producto al carrito con ID: " + id + " y cantidad: " + cantidad);
 
-        // Obtener el usuario autenticado desde el contexto de seguridad
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
-            logger.warning("Cliente no autenticado");
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
+		// Obtener el usuario autenticado desde el contexto de seguridad
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication == null || !authentication.isAuthenticated()
+				|| authentication.getPrincipal().equals("anonymousUser")) {
+			logger.warning("Cliente no autenticado");
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+		}
 
-        String username = authentication.getName();
-        Cliente cliente = clienteService.obtenerPorUsername(username);
-        if (cliente == null) {
-            logger.warning("Cliente no encontrado para el usuario: " + username);
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
+		String username = authentication.getName();
+		Cliente cliente = clienteService.obtenerPorUsername(username);
+		if (cliente == null) {
+			logger.warning("Cliente no encontrado para el usuario: " + username);
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+		}
 
-        Producto producto = productoService.obtenerPorId(id);
-        if (producto == null) {
-            logger.warning("Producto no encontrado con ID: " + id);
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+		Producto producto = productoService.obtenerPorId(id).orElseThrow();
+		if (producto == null) {
+			logger.warning("Producto no encontrado con ID: " + id);
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
 
-        Carrito carrito = obtenerOCrearCarrito(cliente);
-        carrito.addProducto(producto, cantidad);
-        clienteService.insertarCliente(cliente);
-        logger.info("Producto agregado al carrito exitosamente");
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
+		Carrito carrito = obtenerOCrearCarrito(cliente);
+		carrito.addProducto(producto, cantidad);
+		clienteService.insertarCliente(cliente);
+		logger.info("Producto agregado al carrito exitosamente");
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
 
-    // Obtener productos del carrito
-    @GetMapping("/productos/{userId}")
-    public ResponseEntity<CarritoDTO> mostrarProductosCarrito(@PathVariable Long userId) {
-        // Recuperar la autenticación del usuario
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
-            logger.warning("Cliente no autenticado");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+	// Obtener productos del carrito
+	@GetMapping("/productos/{userId}")
+	public ResponseEntity<CarritoDTO> mostrarProductosCarrito(@PathVariable Long userId) {
+		// Recuperar la autenticación del usuario
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication == null || !authentication.isAuthenticated()
+				|| authentication.getPrincipal().equals("anonymousUser")) {
+			logger.warning("Cliente no autenticado");
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+		}
 
-        // Obtener el nombre de usuario autenticado
-        String username = authentication.getName();
-        Cliente cliente = clienteService.obtenerPorUsername(username);
+		// Obtener el nombre de usuario autenticado
+		String username = authentication.getName();
+		Cliente cliente = clienteService.obtenerPorUsername(username);
 
-        // Verificar si el cliente existe y si tiene acceso al carrito solicitado
-        if (cliente == null || !cliente.getId().equals(userId)) {
-            logger.warning("El cliente autenticado no tiene acceso al carrito solicitado o no existe.");
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-      
-        
-        
-        // Obtener el carrito del cliente
-        Carrito carrito = cliente.getCarrito();
-        if (carrito == null || carrito.getProductos().isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
+		// Verificar si el cliente existe y si tiene acceso al carrito solicitado
+		if (cliente == null || !cliente.getId().equals(userId)) {
+			logger.warning("El cliente autenticado no tiene acceso al carrito solicitado o no existe.");
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+		}
 
-        // Convertir el carrito a CarritoDTO
-        Set<CarritoProductoDTO> productosDTO = carrito.getProductos().stream().map(cp -> {
-            Producto p = cp.getProducto();
-            ProductoDTO productoDTO = new ProductoDTO(
-                p.getId(),
-                p.getNombre(),
-                p.getPrecio(),
-                p.getImagen() ,p.getCantidad()
-            );
-            return new CarritoProductoDTO(cp.getId(), productoDTO, cp.getCantidad());
-        }).collect(Collectors.toSet());
+		// Obtener el carrito del cliente
+		Carrito carrito = cliente.getCarrito();
+		if (carrito == null || carrito.getProductos().isEmpty()) {
+			return ResponseEntity.noContent().build();
+		}
 
-        CarritoDTO carritoDTO = new CarritoDTO(
-            carrito.getId(),
-            carrito.getNombreCliente(),
-        
-            productosDTO
-        ); 
-        return ResponseEntity.ok(carritoDTO);
-    }
+		// Convertir el carrito a CarritoDTO
+		Set<CarritoProductoDTO> productosDTO = carrito.getProductos().stream().map(cp -> {
+			Producto p = cp.getProducto();
+			ProductoDTO productoDTO = new ProductoDTO(p.getId(), p.getNombre(), p.getPrecio(), p.getImagen(),
+					p.getCantidad());
+			return new CarritoProductoDTO(cp.getId(), productoDTO, cp.getCantidad());
+		}).collect(Collectors.toSet());
 
+		CarritoDTO carritoDTO = new CarritoDTO(carrito.getId(), carrito.getNombreCliente(),
 
-    // Eliminar producto del carrito
-    @DeleteMapping("/removeProducto/{id}")
-    public ResponseEntity<Void> eliminarProductoDelCarrito(@PathVariable Long id) {
-        logger.info("Eliminando producto del carrito con ID: " + id);
+				productosDTO);
+		return ResponseEntity.ok(carritoDTO);
+	}
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
-            logger.warning("Cliente no autenticado");
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
+	// Eliminar producto del carrito
+	@DeleteMapping("/removeProducto/{id}")
+	public ResponseEntity<Void> eliminarProductoDelCarrito(@PathVariable Long id) {
+		logger.info("Eliminando producto del carrito con ID: " + id);
 
-        String username = authentication.getName();
-        Cliente cliente = clienteService.obtenerPorUsername(username);
-        if (cliente == null) {
-            logger.warning("Cliente no encontrado para el usuario: " + username);
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication == null || !authentication.isAuthenticated()
+				|| authentication.getPrincipal().equals("anonymousUser")) {
+			logger.warning("Cliente no autenticado");
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+		}
 
-        Producto producto = productoService.obtenerPorId(id);
-        if (producto == null) {
-            logger.warning("Producto no encontrado con ID: " + id);
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+		String username = authentication.getName();
+		Cliente cliente = clienteService.obtenerPorUsername(username);
+		if (cliente == null) {
+			logger.warning("Cliente no encontrado para el usuario: " + username);
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+		}
 
-        Carrito carrito = obtenerOCrearCarrito(cliente);
-        carrito.removeProducto(producto);
-        clienteService.insertarCliente(cliente);
-        logger.info("Producto eliminado del carrito exitosamente");
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
+		Producto producto = productoService.obtenerPorId(id).orElseThrow();
+		if (producto == null) {
+			logger.warning("Producto no encontrado con ID: " + id);
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
 
-    // Calcular el total del carrito
-    @GetMapping("/checkout/total")
-    public ResponseEntity<Double> calcularTotalCarrito() {
-        logger.info("Calculando el total del carrito");
+		Carrito carrito = obtenerOCrearCarrito(cliente);
+		carrito.removeProducto(producto);
+		clienteService.insertarCliente(cliente);
+		logger.info("Producto eliminado del carrito exitosamente");
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
-            logger.warning("Cliente no autenticado");
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
+	// Calcular el total del carrito
+	@GetMapping("/checkout/total")
+	public ResponseEntity<Double> calcularTotalCarrito() {
+		logger.info("Calculando el total del carrito");
 
-        String username = authentication.getName();
-        Cliente cliente = clienteService.obtenerPorUsername(username);
-        if (cliente == null) {
-            logger.warning("Cliente no encontrado para el usuario: " + username);
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication == null || !authentication.isAuthenticated()
+				|| authentication.getPrincipal().equals("anonymousUser")) {
+			logger.warning("Cliente no autenticado");
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+		}
 
-        Carrito carrito = obtenerOCrearCarrito(cliente);
-        double total = carrito.getProductos().stream()
-                .mapToDouble(cp -> cp.getProducto().getPrecio() * cp.getCantidad())
-                .sum();
+		String username = authentication.getName();
+		Cliente cliente = clienteService.obtenerPorUsername(username);
+		if (cliente == null) {
+			logger.warning("Cliente no encontrado para el usuario: " + username);
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+		}
 
-        logger.info("Total calculado: " + total);
-        return new ResponseEntity<>(total, HttpStatus.OK);
-    }
-     
- // Vaciar carrito
-    @DeleteMapping("/clear")
-    public ResponseEntity<Void> vaciarCarrito() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
+		Carrito carrito = obtenerOCrearCarrito(cliente);
+		double total = carrito.getProductos().stream()
+				.mapToDouble(cp -> cp.getProducto().getPrecio() * cp.getCantidad()).sum();
 
-        String username = authentication.getName();
-        Cliente cliente = clienteService.obtenerPorUsername(username);
-        if (cliente == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+		logger.info("Total calculado: " + total);
+		return new ResponseEntity<>(total, HttpStatus.OK);
+	}
 
-        Carrito carrito = cliente.getCarrito();
-        carrito.getProductos().clear();
-        clienteService.insertarCliente(cliente);
+	// Vaciar carrito
+	@DeleteMapping("/clear")
+	public ResponseEntity<Void> vaciarCarrito() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication == null || !authentication.isAuthenticated()) {
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+		}
 
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
+		String username = authentication.getName();
+		Cliente cliente = clienteService.obtenerPorUsername(username);
+		if (cliente == null) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+
+		Carrito carrito = cliente.getCarrito();
+		carrito.getProductos().clear();
+		clienteService.insertarCliente(cliente);
+
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
 
 }

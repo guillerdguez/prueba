@@ -23,7 +23,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tamscrap.dto.ClienteDTOListarPedidos;
-import com.tamscrap.dto.PedidoDTOListar; 
+import com.tamscrap.dto.PedidoDTOListar;
+import com.tamscrap.dto.ProductoDTO;
 import com.tamscrap.dto.ProductoPedidoDTO;
 import com.tamscrap.model.Cliente;
 import com.tamscrap.model.Pedido;
@@ -149,7 +150,8 @@ public class PedidoController {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 		}
 
-		Producto producto = productoService.obtenerPorId(idProducto);
+		Producto  producto = productoService.obtenerPorId(idProducto)
+			    .orElseThrow();
 		if (producto == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 		}
@@ -183,7 +185,7 @@ public class PedidoController {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 		}
 
-		Producto producto = productoService.obtenerPorId(productoId);
+		Producto  producto = productoService.obtenerPorId(productoId).orElseThrow();
 		if (producto == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 		}

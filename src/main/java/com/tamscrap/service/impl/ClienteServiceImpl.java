@@ -1,22 +1,25 @@
 package com.tamscrap.service.impl;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.tamscrap.dto.ProductoDTO;
 import com.tamscrap.model.Cliente;
 import com.tamscrap.model.Producto;
 import com.tamscrap.repository.ClienteRepo;
 import com.tamscrap.repository.ProductoRepo;
 import com.tamscrap.service.ClienteService;
+import com.tamscrap.service.ProductoService;
 
 @Service
 public class ClienteServiceImpl implements ClienteService {
 
 	private final ClienteRepo clienteRepository;
-	private final ProductoRepo productoRepository;
+	private final ProductoService productoRepository;
 
-	public ClienteServiceImpl(ClienteRepo clienteRepository, ProductoRepo productoRepository) {
+	public ClienteServiceImpl(ClienteRepo clienteRepository, ProductoService productoRepository) {
 		this.clienteRepository = clienteRepository;
 		this.productoRepository = productoRepository;
 	}
@@ -56,24 +59,26 @@ public class ClienteServiceImpl implements ClienteService {
 	public Cliente agregarAFavoritos(Long clienteId, Long productoId) {
 		Cliente cliente = clienteRepository.findById(clienteId)
 				.orElseThrow(() -> new RuntimeException("Cliente no encontrado."));
-		Producto producto = productoRepository.findById(productoId)
+		Producto producto = productoRepository.obtenerPorId(productoId)
 				.orElseThrow(() -> new RuntimeException("Producto no encontrado."));
 		if (!cliente.getFavoritos().contains(producto)) {
 			cliente.addFavorito(producto);
-		}else {
+		} else {
 			cliente.removeFavorito(producto);
 		}
 		return clienteRepository.save(cliente);
 
 	}
 
- 
-
 	@Override
-//    @Transactional(readOnly = true)
-	public List<Producto> obtenerFavoritos(Long clienteId) {
+	public List<ProductoDTO> obtenerFavoritos(Long clienteId) {
 		Cliente cliente = clienteRepository.findById(clienteId)
 				.orElseThrow(() -> new RuntimeException("Cliente no encontrado."));
-		return List.copyOf(cliente.getFavoritos());
+
+		return cliente.getFavoritos().stream().map(producto -> new ProductoDTO(producto)) // Asegúrate de tener un
+																							// constructor o método
+																							// adecuado en ProductoDTO
+				.collect(Collectors.toList());
 	}
+
 }

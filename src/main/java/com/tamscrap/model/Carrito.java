@@ -3,6 +3,8 @@ package com.tamscrap.model;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.tamscrap.dto.ProductoDTO;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -93,7 +95,7 @@ public class Carrito {
 		this.productos = productos;
 	}
 
-	public void addProducto(Producto producto, int cantidad) {
+	public void addProducto(Producto  producto, int cantidad) {
 
 		CarritoProducto existente = productos.stream().filter(cp -> cp.getProducto().equals(producto)).findFirst()
 				.orElse(null);
@@ -121,7 +123,7 @@ public class Carrito {
 		}
 	}
 
-	public void removeProducto(Producto producto) {
+	public void removeProducto(Producto  producto) {
 		productos.removeIf(carritoProducto -> carritoProducto.getProducto().equals(producto));
 	}
 }

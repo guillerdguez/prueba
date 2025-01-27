@@ -3,6 +3,7 @@ package com.tamscrap.model;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.tamscrap.dto.ProductoDTO;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
@@ -25,7 +26,7 @@ public class ProductosPedidos {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @MapsId("productoId")
-    private Producto producto;
+    private Producto  producto;
 
     @Column(name = "CANTIDAD")
     private int cantidad = 0;
@@ -36,7 +37,7 @@ public class ProductosPedidos {
     public ProductosPedidos() {
     }
 
-    public ProductosPedidos(Producto producto, Pedido pedido, int cantidad) {
+    public ProductosPedidos(Producto  producto, Pedido pedido, int cantidad) {
         this.producto = producto;
         this.pedido = pedido;
         this.cantidad = cantidad;
@@ -70,11 +71,11 @@ public class ProductosPedidos {
         this.id = id;
     }
 
-    public Producto getProducto() {
+    public Producto  getProducto() {
         return producto;
     }
 
-    public void setProducto(Producto producto) {
+    public void setProducto(Producto  producto) {
         this.producto = producto;
     }
 

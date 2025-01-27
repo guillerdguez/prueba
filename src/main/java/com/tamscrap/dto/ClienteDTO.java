@@ -1,10 +1,8 @@
 package com.tamscrap.dto;
 
 import java.util.List;
-import java.util.Set;
 
 import com.tamscrap.model.Carrito;
-import com.tamscrap.model.Producto;
 
 public class ClienteDTO {
 	private Long id;
@@ -13,7 +11,7 @@ public class ClienteDTO {
 	private String email;
 	private String password; // Agregado para registro y autenticación
 	private List<String> authorities;
-	private Set<Producto> favoritos;
+//	private Set<Producto> favoritos;
 	private Carrito carrito;
 	// Getters y Setters
 
@@ -21,13 +19,13 @@ public class ClienteDTO {
 		return id;
 	}
 
-	public Set<Producto> getFavoritos() {
-		return favoritos;
-	}
-
-	public void setFavoritos(Set<Producto> favoritos) {
-		this.favoritos = favoritos;
-	}
+//	public Set<Producto> getFavoritos() {
+//		return favoritos;
+//	}
+//
+//	public void setFavoritos(Set<Producto> favoritos) {
+//		this.favoritos = favoritos;
+//	}
 
 	public String getUsername() {
 		return username;

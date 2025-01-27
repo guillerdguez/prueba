@@ -2,8 +2,8 @@ package com.tamscrap.service;
 
  import java.util.List;
 
+import com.tamscrap.dto.ProductoDTO;
 import com.tamscrap.model.Cliente;
-import com.tamscrap.model.Producto;
 
 public interface ClienteService {
 
@@ -20,5 +20,5 @@ public interface ClienteService {
     Cliente agregarAFavoritos(Long clienteId, Long productoId);
 
  
-    List<Producto> obtenerFavoritos(Long clienteId);
+    List<ProductoDTO> obtenerFavoritos(Long clienteId);
 }

@@ -7,6 +7,7 @@ import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.tamscrap.dto.ProductoDTO;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -155,7 +156,7 @@ public class Pedido {
         this.metodoPago = metodoPago;
     }
 
-    public void addProducto(Producto producto, int cantidad) {
+    public void addProducto(Producto  producto, int cantidad) {
         ProductosPedidos productoPedido = new ProductosPedidos(producto, this, cantidad);
         if (productos.contains(productoPedido)) {
             productos.remove(productoPedido);
@@ -166,7 +167,7 @@ public class Pedido {
         producto.getPedidos().add(productoPedido);
     }
 
-    public void addProducto2(Producto producto, int cantidad) {
+    public void addProducto2(Producto  producto, int cantidad) {
         ProductosPedidos productoPedido = new ProductosPedidos(producto, this, cantidad);
         if (productos.contains(productoPedido)) {
             productos.remove(productoPedido);
@@ -176,7 +177,7 @@ public class Pedido {
         }
     }
 
-    public void removeProducto(Producto producto) {
+    public void removeProducto(Producto   producto) {
         Iterator<ProductosPedidos> iterator = productos.iterator();
         while (iterator.hasNext()) {
             ProductosPedidos productoPedido = iterator.next();
@@ -205,7 +206,7 @@ public class Pedido {
             resultado.append("No hay productos en este pedido.");
         } else {
             for (ProductosPedidos productoPedido : productos) {
-                Producto producto = productoPedido.getProducto();
+                Producto  producto = productoPedido.getProducto();
                 int cantidad = productoPedido.getCantidad();
                 resultado.append(producto.getNombre())
                          .append(" ---> Cantidad: ").append(cantidad)

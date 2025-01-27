@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tamscrap.dto.ClienteDTO;
+import com.tamscrap.dto.ProductoDTO;
 import com.tamscrap.model.Cliente;
-import com.tamscrap.model.Producto;
 import com.tamscrap.model.UserAuthority;
 import com.tamscrap.service.impl.ClienteServiceImpl;
 
@@ -66,7 +66,7 @@ public class ClienteController {
 		clienteExistente.setUsername(clienteDTO.getUsername());
 		clienteExistente.setEmail(clienteDTO.getEmail());
 		clienteExistente.setNombre(clienteDTO.getNombre());
-		clienteExistente.setFavoritos(clienteDTO.getFavoritos());
+//		clienteExistente.setFavoritos(clienteDTO.getFavoritos());
 		// Si es ADMIN, puede cambiar los roles
 		if (clienteDTO.getAuthorities() != null && !clienteDTO.getAuthorities().isEmpty()) {
 			clienteExistente.setAuthorities(
@@ -91,7 +91,7 @@ public class ClienteController {
 		dto.setUsername(cliente.getUsername());
 		dto.setNombre(cliente.getNombre());
 		dto.setEmail(cliente.getEmail());
-		dto.setFavoritos(cliente.getFavoritos());
+//		dto.setFavoritos(cliente.getFavoritos());
 		dto.setAuthorities(
 				cliente.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
 		return dto;
@@ -114,8 +114,8 @@ public class ClienteController {
 
 	// Obtener la lista de favoritos del cliente
 	@GetMapping("/{clienteId}/favoritos")
- 	public ResponseEntity<List<Producto>> obtenerFavoritos(@PathVariable Long clienteId) {
-	    List<Producto> favoritos = clienteService.obtenerFavoritos(clienteId);
+ 	public ResponseEntity<List<ProductoDTO>> obtenerFavoritos(@PathVariable Long clienteId) {
+	    List<ProductoDTO> favoritos = clienteService.obtenerFavoritos(clienteId);
 	    return new ResponseEntity<>(favoritos, HttpStatus.OK);
 	}
 
