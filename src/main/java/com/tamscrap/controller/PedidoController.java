@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.tamscrap.dto.ClienteDTOListarPedidos;
 import com.tamscrap.dto.PedidoDTOListar;
-import com.tamscrap.dto.ProductoDTO;
 import com.tamscrap.dto.ProductoPedidoDTO;
 import com.tamscrap.model.Cliente;
 import com.tamscrap.model.Pedido;
