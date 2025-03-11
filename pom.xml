@@ -15,7 +15,9 @@
 	<name>tamscrap</name>
 	<description>tamscrap</description>
 	<properties>
-		<java.version>19</java.version>
+		<java.version>17</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -31,8 +33,8 @@
 		</dependency>
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
-			<artifactId>jjwt-jackson</artifactId> <!-- para usar Jackson como
-			serializer -->
+			<artifactId>jjwt-jackson</artifactId>
+			<!-- para usar Jackson como serializer -->
 			<version>0.11.5</version>
 			<scope>runtime</scope>
 		</dependency>
@@ -74,11 +76,13 @@
 			<artifactId>mysql-connector-j</artifactId>
 			<scope>runtime</scope>
 		</dependency>
-		<!--<dependency>
+		<!--
+		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 			<scope>runtime</scope>
-		</dependency>-->
+		</dependency>
+		-->
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
