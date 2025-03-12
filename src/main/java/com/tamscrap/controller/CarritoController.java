@@ -28,7 +28,7 @@ import com.tamscrap.service.impl.ProductoServiceImpl;
 
 @RestController
 @RequestMapping("/api/carrito")
-@CrossOrigin(origins = {"http://localhost:4200", "https://tamscraptpostreunion-production.up.railway.app"})
+@CrossOrigin(origins = {"http://localhost:4200", "https://tamscrapt.up.railway.app"})
 public class CarritoController {
 
 	private static final Logger logger = Logger.getLogger(CarritoController.class.getName());

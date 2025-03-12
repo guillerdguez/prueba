@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.tamscrap.service.impl.StorageServiceImpl;
 
 @Controller
-@CrossOrigin(origins = {"http://localhost:4200", "https://tamscraptpostreunion-production.up.railway.app"})
+@CrossOrigin(origins = {"http://localhost:4200", "https://tamscrapt.up.railway.app"})
 
 public class FileController {
 

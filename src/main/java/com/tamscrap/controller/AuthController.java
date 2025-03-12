@@ -29,7 +29,7 @@ import com.tamscrap.service.impl.UserServiceImpl;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = {"http://localhost:4200", "https://tamscraptpostreunion-production.up.railway.app"})
+@CrossOrigin(origins = {"http://localhost:4200", "https://tamscrapt.up.railway.app"})
 public class AuthController {
 
 	@Autowired

@@ -35,7 +35,7 @@ import com.tamscrap.service.impl.ProductoServiceImpl;
 
 @RestController
 @RequestMapping("/api/pedidos")
-@CrossOrigin(origins = {"http://localhost:4200", "https://tamscraptpostreunion-production.up.railway.app"})
+@CrossOrigin(origins = {"http://localhost:4200", "https://tamscrapt.up.railway.app"})
 public class PedidoController {
 
 	private final ProductoServiceImpl productoService;
