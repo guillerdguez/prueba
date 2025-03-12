@@ -25,7 +25,7 @@ import com.tamscrap.service.impl.ClienteServiceImpl;
 
 @RestController
 @RequestMapping("/api/clientes")
-@CrossOrigin(origins = "http://localhost:4200/")
+@CrossOrigin(origins = {"http://localhost:4200", "https://tamscraptpostreunion-production.up.railway.app"})
 public class ClienteController {
 
 	private final ClienteServiceImpl clienteService;
