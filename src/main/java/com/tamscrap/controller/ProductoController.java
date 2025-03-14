@@ -24,7 +24,6 @@ import com.tamscrap.service.ProductoService;
 
 @RestController
 @RequestMapping("/api/producto")
-//@CrossOrigin(origins = "http://localhost:4200/")
 @CrossOrigin(origins = {"http://localhost:4200", "https://tamscrapt.up.railway.app"})
 public class ProductoController {
 
