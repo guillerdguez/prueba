@@ -3,7 +3,6 @@ package com.tamscrap.model;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.tamscrap.dto.ProductoDTO;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;

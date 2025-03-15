@@ -7,7 +7,6 @@ import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.tamscrap.dto.ProductoDTO;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;

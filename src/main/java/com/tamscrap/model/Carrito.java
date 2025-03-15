@@ -3,8 +3,6 @@ package com.tamscrap.model;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.tamscrap.dto.ProductoDTO;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
