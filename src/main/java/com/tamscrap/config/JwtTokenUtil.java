@@ -1,6 +1,6 @@
 package com.tamscrap.config;
 
-import java.security.Key; // Importamos Key desde java.security
+import java.security.Key;  
 import java.util.Date;
 
 import org.springframework.security.core.userdetails.UserDetails;
