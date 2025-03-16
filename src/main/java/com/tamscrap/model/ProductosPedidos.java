@@ -16,95 +16,76 @@ import jakarta.persistence.Table;
 @Table(name = "PRODUCTOS_PEDIDOS")
 public class ProductosPedidos {
 
-    @EmbeddedId
-    private ProductoPedidoId id;
-    @ManyToOne(fetch = FetchType.EAGER)
-    @MapsId("pedidoId")
+	@EmbeddedId
+	private ProductoPedidoId id;
+	@ManyToOne(fetch = FetchType.EAGER)
+	@MapsId("pedidoId")
 	@JsonBackReference
-    private Pedido pedido;
+	private Pedido pedido;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @MapsId("productoId")
-    private Producto  producto;
+	@ManyToOne(fetch = FetchType.EAGER)
+	@MapsId("productoId")
+	private Producto producto;
 
-    @Column(name = "CANTIDAD")
-    private int cantidad = 0;
+	@Column(name = "CANTIDAD")
+	private int cantidad = 0;
 
-    @Column(name = "NOMBRE")
-    private String nombre;
+	@Column(name = "NOMBRE")
+	private String nombre;
 
-    public ProductosPedidos() {
-    }
+	public ProductosPedidos() {
+	}
 
-    public ProductosPedidos(Producto  producto, Pedido pedido, int cantidad) {
-        this.producto = producto;
-        this.pedido = pedido;
-        this.cantidad = cantidad;
-        this.nombre = producto.getNombre();
-        // Importante: No asignar id manualmente. Con @MapsId, se generará a partir de pedido y producto.
-        //this.id = new ProductoPedidoId(pedido.getId(), producto.getId());
-    }
-//
-//    @Override
-//    public boolean equals(Object obj) {
-//        if (this == obj)
-//            return true;
-//        if (obj == null)
-//            return false;
-//        if (getClass() != obj.getClass())
-//            return false;
-//        ProductosPedidos other = (ProductosPedidos) obj;
-//        return cantidad == other.cantidad && Objects.equals(id, other.id) && Objects.equals(nombre, other.nombre);
-//    }
+	public ProductosPedidos(Producto producto, Pedido pedido, int cantidad) {
+		this.producto = producto;
+		this.pedido = pedido;
+		this.cantidad = cantidad;
+		this.nombre = producto.getNombre();
+	}
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(cantidad, id, nombre);
-    }
+	@Override
+	public int hashCode() {
+		return Objects.hash(cantidad, id, nombre);
+	}
 
-    public ProductoPedidoId getId() {
-        return id;
-    }
+	public ProductoPedidoId getId() {
+		return id;
+	}
 
-    public void setId(ProductoPedidoId id) {
-        this.id = id;
-    }
+	public void setId(ProductoPedidoId id) {
+		this.id = id;
+	}
 
-    public Producto  getProducto() {
-        return producto;
-    }
+	public Producto getProducto() {
+		return producto;
+	}
 
-    public void setProducto(Producto  producto) {
-        this.producto = producto;
-    }
+	public void setProducto(Producto producto) {
+		this.producto = producto;
+	}
 
-    public Pedido getPedido() {
-        return pedido;
-    }
+	public Pedido getPedido() {
+		return pedido;
+	}
 
-    public void setPedido(Pedido pedido) {
-        this.pedido = pedido;
-    }
+	public void setPedido(Pedido pedido) {
+		this.pedido = pedido;
+	}
 
-    public int getCantidad() {
-        return cantidad;
-    }
+	public int getCantidad() {
+		return cantidad;
+	}
 
-    public void setCantidad(int cantidad) {
-        this.cantidad = cantidad;
-    }
+	public void setCantidad(int cantidad) {
+		this.cantidad = cantidad;
+	}
 
-    public String getNombre() {
-        return nombre;
-    }
+	public String getNombre() {
+		return nombre;
+	}
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
+	public void setNombre(String nombre) {
+		this.nombre = nombre;
+	}
 
-//    @Override
-//    public String toString() {
-//        return "ProductosPedidos [id=" + id + ", pedido=" + pedido + ", producto=" + producto + ", cantidad=" + cantidad
-//                + ", nombre=" + nombre + "]";
-//    }
 }

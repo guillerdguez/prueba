@@ -29,198 +29,193 @@ import jakarta.persistence.Table;
 @Table(name = "CLIENTES")
 public class Cliente implements UserDetails {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @Column(nullable = false)
-    private String nombre;
+	@Column(nullable = false)
+	private String nombre;
 
-    @Column(unique = true, nullable = false)
-    private String username;
+	@Column(unique = true, nullable = false)
+	private String username;
 
-    @Column(nullable = false)
-    private String password;
+	@Column(nullable = false)
+	private String password;
 
-    @Column(unique = true, nullable = false)
-    private String email;
+	@Column(unique = true, nullable = false)
+	private String email;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-        name = "cliente_favoritos",
-        joinColumns = @JoinColumn(name = "cliente_id"),
-        inverseJoinColumns = @JoinColumn(name = "producto_id")
-    )
-    private Set<Producto> favoritos = new HashSet<>();
+	@ManyToMany(fetch = FetchType.EAGER)
+	@JoinTable(name = "cliente_favoritos", joinColumns = @JoinColumn(name = "cliente_id"), inverseJoinColumns = @JoinColumn(name = "producto_id"))
+	private Set<Producto> favoritos = new HashSet<>();
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Enumerated(EnumType.STRING)
-    private Set<UserAuthority> authorities = new HashSet<>();
+	@ElementCollection(fetch = FetchType.EAGER)
+	@Enumerated(EnumType.STRING)
+	private Set<UserAuthority> authorities = new HashSet<>();
 
-    @OneToMany(mappedBy = "cliente", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Pedido> pedidos = new HashSet<>();
+	@OneToMany(mappedBy = "cliente", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+	private Set<Pedido> pedidos = new HashSet<>();
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JoinColumn(name = "carrito_id", referencedColumnName = "id")
-    private Carrito carrito;
+	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+	@JoinColumn(name = "carrito_id", referencedColumnName = "id")
+	private Carrito carrito;
 
-    // Constructores
-    public Cliente() {
-    }
+	// Constructores
+	public Cliente() {
+	}
 
-    public Cliente(String nombre, String username, String password, String email, Set<UserAuthority> authorities) {
-        this.nombre = nombre;
-        this.username = username;
-        this.password = password;
-        this.email = email;
-        this.authorities = authorities;
-    }
+	public Cliente(String nombre, String username, String password, String email, Set<UserAuthority> authorities) {
+		this.nombre = nombre;
+		this.username = username;
+		this.password = password;
+		this.email = email;
+		this.authorities = authorities;
+	}
 
-    public Cliente(Long id, String nombre, String username, String password, String email, Set<Producto> favoritos,
+	public Cliente(Long id, String nombre, String username, String password, String email, Set<Producto> favoritos,
 			Set<UserAuthority> authorities) {
- 		this.id = id;
+		this.id = id;
 		this.nombre = nombre;
 		this.username = username;
 		this.password = password;
 		this.email = email;
 		this.favoritos = favoritos;
 		this.authorities = authorities;
-	} 
+	}
 
 	public void setId(Long id) {
 		this.id = id;
 	}
 
 	// Métodos para gestionar los productos favoritos
-    public void addFavorito(Producto producto) {
-        favoritos.add(producto);
-    }
+	public void addFavorito(Producto producto) {
+		favoritos.add(producto);
+	}
 
-    public void removeFavorito(Producto producto) {
-        favoritos.remove(producto);
-    }
+	public void removeFavorito(Producto producto) {
+		favoritos.remove(producto);
+	}
 
-    public Set<Producto> getFavoritos() {
-        return favoritos;
-    }
+	public Set<Producto> getFavoritos() {
+		return favoritos;
+	}
 
-    public void setFavoritos(Set<Producto> favoritos) {
-        this.favoritos = favoritos;
-    }
+	public void setFavoritos(Set<Producto> favoritos) {
+		this.favoritos = favoritos;
+	}
 
-    // Override de métodos para UserDetails
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return authorities;
-    }
+	// Override de métodos para UserDetails
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		return authorities;
+	}
 
-    public void setAuthorities(Set<UserAuthority> authorities) {
-        this.authorities = authorities;
-    }
+	public void setAuthorities(Set<UserAuthority> authorities) {
+		this.authorities = authorities;
+	}
 
-    @Override
-    public String getPassword() {
-        return password;
-    }
+	@Override
+	public String getPassword() {
+		return password;
+	}
 
-    // Encriptar la contraseña antes de asignarla en el servicio
-    public void setPassword(String password) {
-        this.password = password;
-    }
+	public void setPassword(String password) {
+		this.password = password;
+	}
 
-    @Override
-    public String getUsername() {
-        return username;
-    }
+	@Override
+	public String getUsername() {
+		return username;
+	}
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
+	public void setUsername(String username) {
+		this.username = username;
+	}
 
-    public String getNombre() {
-        return nombre;
-    }
+	public String getNombre() {
+		return nombre;
+	}
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
+	public void setNombre(String nombre) {
+		this.nombre = nombre;
+	}
 
-    public String getEmail() {
-        return email;
-    }
+	public String getEmail() {
+		return email;
+	}
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-    
-    public Set<Pedido> getPedidos() {
-        return pedidos;
-    }
+	public void setEmail(String email) {
+		this.email = email;
+	}
 
-    public void setPedidos(Set<Pedido> pedidos) {
-        this.pedidos = pedidos;
-    }
+	public Set<Pedido> getPedidos() {
+		return pedidos;
+	}
 
-    public void addPedido(Pedido pedido) {
-        pedidos.add(pedido);
-        pedido.setCliente(this);
-    }
+	public void setPedidos(Set<Pedido> pedidos) {
+		this.pedidos = pedidos;
+	}
 
-    public void removePedido(Pedido pedido) {
-        pedidos.remove(pedido);
-        pedido.setCliente(null);
-    }
+	public void addPedido(Pedido pedido) {
+		pedidos.add(pedido);
+		pedido.setCliente(this);
+	}
 
-    public Carrito getCarrito() {
-        return carrito;
-    }
+	public void removePedido(Pedido pedido) {
+		pedidos.remove(pedido);
+		pedido.setCliente(null);
+	}
 
-    public void setCarrito(Carrito carrito) {
-        this.carrito = carrito;
-    }
+	public Carrito getCarrito() {
+		return carrito;
+	}
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return true; // Cambia según tu lógica
-    }
+	public void setCarrito(Carrito carrito) {
+		this.carrito = carrito;
+	}
 
-    @Override
-    public boolean isAccountNonLocked() {
-        return true; // Cambia según tu lógica
-    }
+	@Override
+	public boolean isAccountNonExpired() {
+		return true;
+	}
 
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true; // Cambia según tu lógica
-    }
+	@Override
+	public boolean isAccountNonLocked() {
+		return true;
+	}
 
-    @Override
-    public boolean isEnabled() {
-        return true; // Cambia según tu lógica
-    }
+	@Override
+	public boolean isCredentialsNonExpired() {
+		return true;
+	}
 
-    public Long getId() {
-        return id;
-    }
+	@Override
+	public boolean isEnabled() {
+		return true;
+	}
 
-    // hashCode y equals basados en id y username
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, username);
-    }
+	public Long getId() {
+		return id;
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null || getClass() != obj.getClass())
-            return false;
-        Cliente other = (Cliente) obj;
-        return Objects.equals(id, other.id) && Objects.equals(username, other.username);
-    }
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, username);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null || getClass() != obj.getClass())
+			return false;
+		Cliente other = (Cliente) obj;
+		return Objects.equals(id, other.id) && Objects.equals(username, other.username);
+	}
+
 //
-    @Override
-    public String toString() {
-        return "Cliente [id=" + id + ", nombre=" + nombre + ", username=" + username + ", email=" + email + "]";
-    }
+	@Override
+	public String toString() {
+		return "Cliente [id=" + id + ", nombre=" + nombre + ", username=" + username + ", email=" + email + "]";
+	}
 }

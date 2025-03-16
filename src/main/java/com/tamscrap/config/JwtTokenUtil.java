@@ -12,11 +12,11 @@ import io.jsonwebtoken.security.Keys;
 public class JwtTokenUtil {
 
     private static final String SECRET_KEY = "your-256-bit-secret-key-must-be-long-enough-to-work";
-    private final Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes()); // Usamos Key en lugar de SecretKey
+    private final Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());  
 
     public String getUsernameFromToken(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(key) // Utilizamos la clave Key
+                .setSigningKey(key)  
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
@@ -30,7 +30,7 @@ public class JwtTokenUtil {
 
     private boolean isTokenExpired(String token) {
         Date expiration = Jwts.parserBuilder()
-                .setSigningKey(key) // Utilizamos la clave Key
+                .setSigningKey(key) 
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
@@ -38,13 +38,14 @@ public class JwtTokenUtil {
         return expiration.before(new Date());
     }
 
-    // Agregamos el método para generar tokens si es necesario
+     
     public String generateToken(UserDetails userDetails) {
         return Jwts.builder()
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 3600000)) // Token válido por 1 hora
-                .signWith(key) // Firmamos con la clave Key
+                .setExpiration(new Date(System.currentTimeMillis() + 172800000)) // Token válido por 2 días
+                .signWith(key)
                 .compact();
     }
+
 }

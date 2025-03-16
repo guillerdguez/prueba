@@ -31,7 +31,7 @@ public class Producto {
 
 	@Column(name = "nombre", unique = true, nullable = true)
 	private String nombre;
-	@Column(name = "descripcion" , nullable = true)
+	@Column(name = "descripcion", nullable = true)
 	private String descripcion;
 
 	@Column(name = "precio")
@@ -66,16 +66,12 @@ public class Producto {
 
 	private Set<CarritoProducto> carritoProductos = new HashSet<>();
 
-//	@ManyToOne(fetch = FetchType.LAZY)
-//	@JoinColumn(name = "carrito_id")
-//	@JsonBackReference
-//	private Carrito carrito;
-
 	public Producto() {
 	}
 
-	public Producto(Long id, String nombre,   String descripcion, double precio, String imagen, boolean lettering, boolean scrapbooking,
-			boolean oferta, Integer descuento, int cantidad, boolean favorito, Double precioOriginal) {
+	public Producto(Long id, String nombre, String descripcion, double precio, String imagen, boolean lettering,
+			boolean scrapbooking, boolean oferta, Integer descuento, int cantidad, boolean favorito,
+			Double precioOriginal) {
 
 		this.id = id;
 		this.nombre = nombre;
@@ -84,15 +80,17 @@ public class Producto {
 		this.lettering = lettering;
 		this.scrapbooking = scrapbooking;
 		this.oferta = oferta;
-		this.descuento = descuento;		this.descripcion = descripcion;
+		this.descuento = descuento;
+		this.descripcion = descripcion;
 
 		this.cantidad = cantidad;
 
 		this.precioOriginal = precioOriginal;
 	}
 
-	public Producto(Long id, String nombre,  String descripcion,double precio, String imagen, boolean lettering, boolean scrapbooking,
-			boolean oferta, Integer descuento, boolean favorito, Double precioOriginal, Set<ProductosPedidos> pedidos) {
+	public Producto(Long id, String nombre, String descripcion, double precio, String imagen, boolean lettering,
+			boolean scrapbooking, boolean oferta, Integer descuento, boolean favorito, Double precioOriginal,
+			Set<ProductosPedidos> pedidos) {
 
 		this.id = id;
 		this.precio = precio;
@@ -106,8 +104,6 @@ public class Producto {
 		this.precioOriginal = precioOriginal;
 		this.pedidos = pedidos;
 	}
-
-	// Getters y Setters para todos los campos, incluyendo precioOriginal
 
 	public Producto(Long id, String nombre, String descripcion, double precio, String imagen, boolean lettering,
 			boolean scrapbooking, boolean oferta, Integer descuento, int cantidad, Double precioOriginal) {
@@ -197,12 +193,6 @@ public class Producto {
 		this.descuento = descuento;
 	}
 
-//    public Double getPrecioOriginal() {
-//        if (this.oferta && this.descuento != null && this.descuento > 0) {
-//            return this.precio / (1 - this.descuento / 100.0);
-//        }
-//        return null; // No está en oferta, no hay precio original
-//    }
 	public Double getPrecioOriginal() {
 		if (precioOriginal != null) {
 			return precioOriginal;
@@ -223,7 +213,7 @@ public class Producto {
 
 	public void desactivarOferta() {
 		if (oferta) {
-			precio = precioOriginal; // Restablece el precio original
+			precio = precioOriginal;
 			descuento = null;
 			oferta = false;
 			precioOriginal = null;
@@ -242,42 +232,11 @@ public class Producto {
 		this.pedidos = pedidos;
 	}
 
-//	public Carrito getCarrito() {
-//		return carrito;
-//	}
-//
-//	public void setCarrito(Carrito carrito) {
-//		this.carrito = carrito;
-//	}
-
-	// Método para calcular el precio final basado en el descuento
 	public double getPrecioFinal() {
 		if (oferta && descuento != null && descuento > 0) {
 			return precio - (precio * descuento / 100.0);
 		}
 		return precio;
 	}
-//
-//	@Override
-//	public int hashCode() {
-//		return Objects.hash(cantidad, descuento, id, imagen, lettering, nombre, oferta, precio, precioOriginal,
-//				scrapbooking);
-//	}
-//
-//	@Override
-//	public boolean equals(Object obj) {
-//		if (this == obj)
-//			return true;
-//		if (obj == null)
-//			return false;
-//		if (getClass() != obj.getClass())
-//			return false;
-//		Producto other = (Producto) obj;
-//		return cantidad == other.cantidad && Objects.equals(descuento, other.descuento) && Objects.equals(id, other.id)
-//				&& Objects.equals(imagen, other.imagen) && lettering == other.lettering
-//				&& Objects.equals(nombre, other.nombre) && oferta == other.oferta
-//				&& Double.doubleToLongBits(precio) == Double.doubleToLongBits(other.precio)
-//				&& Objects.equals(precioOriginal, other.precioOriginal) && scrapbooking == other.scrapbooking;
-//	}
 
 }

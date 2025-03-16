@@ -7,13 +7,13 @@ import com.tamscrap.dto.ProductoDTO;
 import com.tamscrap.model.Producto;
 
 public interface ProductoService {
-	 Producto   obtenerEntidadPorId(Long id);
+	Producto obtenerEntidadPorId(Long id);
 
 	ProductoDTO obtenerDtoPorId(Long id);
 
 	ProductoDTO obtenerPorNombre(String nombre);
 
-	Producto  insertarProducto(Producto producto);
+	Producto insertarProducto(Producto producto);
 
 	ProductoDTO editarProducto(Long id, ProductoDTO productoDTO);
 

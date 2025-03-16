@@ -55,8 +55,7 @@ public class TamscrapApplication {
 //            productoRepo.saveAll(productos);
 //        };
 //    }
-
-    // Método auxiliar unificado para crear productos
+ 
 //    private Producto crearProducto(String nombre, double precio, String imagen,
 //                                   boolean lettering, boolean scrapbooking, boolean oferta,
 //                                   Integer descuento, int cantidad, String descripcion, boolean favorito) {
@@ -67,7 +66,6 @@ public class TamscrapApplication {
 //        return new Producto(null, nombre, descripcion, precio, imagen, lettering, scrapbooking,
 //                            oferta, descuento, cantidad, favorito, precioOriginal);
 //    }
-
-    // Sobrecarga del método crearProducto para productos no favoritos
+ 
  
 }

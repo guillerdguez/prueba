@@ -59,14 +59,12 @@ public class ProductoServiceImpl implements ProductoService {
 	@Override
 	@Transactional
 	public void eliminarProducto(Long id) {
-		// Buscar el producto por su ID
 		Producto producto = productoRepo.findById(id)
 				.orElseThrow(() -> new IllegalArgumentException("Producto no encontrado con ID: " + id));
 
-		// Eliminar referencias del producto en los pedidos
 		for (ProductosPedidos productosPedidos : producto.getPedidos()) {
 			Pedido pedido = productosPedidos.getPedido();
-			pedido.removeProducto(producto); // Eliminar el producto del pedido
+			pedido.removeProducto(producto);
 
 			if (pedido.getProductos().isEmpty()) {
 				pedidoRepo.delete(pedido);
@@ -75,14 +73,13 @@ public class ProductoServiceImpl implements ProductoService {
 			}
 		}
 
-		// Finalmente, eliminar el producto de la base de datos
 		productoRepo.deleteById(id);
 	}
 
 	@Override
 	public ProductoDTO obtenerPorNombre(String nombre) {
 		ProductoDTO productoDTO = productoRepo.findByNombre(nombre);
-		return productoDTO; // Puede retornar null si no existe
+		return productoDTO;
 	}
 
 	@Override
@@ -106,11 +103,9 @@ public class ProductoServiceImpl implements ProductoService {
 
 	@Override
 	public ProductoDTO editarProducto(Long id, ProductoDTO productoDTO) {
-		// Verificamos si existe el producto en la BD
 		Producto productoExistente = productoRepo.findById(id)
 				.orElseThrow(() -> new IllegalArgumentException("No se encontró el producto con ID: " + id));
 
-		// Actualizamos los campos necesarios
 		productoExistente.setNombre(productoDTO.getNombre());
 		productoExistente.setPrecio(productoDTO.getPrecio());
 		productoExistente.setImagen(productoDTO.getImagen());
@@ -120,18 +115,12 @@ public class ProductoServiceImpl implements ProductoService {
 		productoExistente.setDescuento(productoDTO.getDescuento());
 		productoExistente.setCantidad(productoDTO.getCantidad());
 		productoExistente.setDescripcion(productoDTO.getDescripcion());
-		// Podríamos recalcular precioOriginal si es oferta y descuento > 0, etc.
 
 		validarProducto(productoExistente);
 
-		// Guardamos los cambios
 		Producto productoGuardado = productoRepo.save(productoExistente);
 		return new ProductoDTO(productoGuardado);
 	}
-
-	// ---------------------------------------------------
-	// Métodos auxiliares
-	// ---------------------------------------------------
 
 	private void validarProducto(Producto producto) {
 		if (producto.getNombre() == null || producto.getNombre().isEmpty()) {
@@ -140,22 +129,6 @@ public class ProductoServiceImpl implements ProductoService {
 		if (producto.getPrecio() <= 0) {
 			throw new IllegalArgumentException("El precio debe ser mayor que cero");
 		}
-//	}
-//
-//	private Producto convertirADominio(ProductoDTO productoDTO) {
-//		Producto producto = new Producto();
-//		producto.setId(productoDTO.getId());
-//		producto.setNombre(productoDTO.getNombre());
-//		producto.setPrecio(productoDTO.getPrecio());
-//		producto.setImagen(productoDTO.getImagen());
-//		producto.setLettering(productoDTO.isLettering());
-//		producto.setScrapbooking(productoDTO.isScrapbooking());
-//		producto.setOferta(productoDTO.isOferta());
-//		producto.setDescuento(productoDTO.getDescuento());
-//		producto.setCantidad(productoDTO.getCantidad());
-//		producto.setDescripcion(productoDTO.getDescripcion());
-//		// Si hay lógica adicional para precioOriginal, puedes manejarla aquí o en
-//		// setOferta...
-//		return producto;
- 	}
+
+	}
 }

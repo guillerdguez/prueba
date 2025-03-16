@@ -24,7 +24,7 @@ import com.tamscrap.service.ProductoService;
 
 @RestController
 @RequestMapping("/api/producto")
-@CrossOrigin(origins = {"http://localhost:4200", "https://tamscrapt.up.railway.app"})
+@CrossOrigin(origins = { "http://localhost:4200", "https://tamscrapt.up.railway.app" })
 public class ProductoController {
 
 	private final ProductoService productoService;
@@ -36,33 +36,30 @@ public class ProductoController {
 		this.clienteService = clienteService;
 	}
 
-	// CREATE
 	@PostMapping("/addProducto")
-	public ResponseEntity<Producto> guardarProducto(@RequestBody Producto  producto ) {
-		logger.log(Level.INFO, "Producto recibido: {0}", producto );
-		Producto savedProducto = productoService.insertarProducto(producto) ;
+	public ResponseEntity<Producto> guardarProducto(@RequestBody Producto producto) {
+		logger.log(Level.INFO, "Producto recibido: {0}", producto);
+		Producto savedProducto = productoService.insertarProducto(producto);
 		return new ResponseEntity<>(savedProducto, HttpStatus.CREATED);
 	}
 
-	// READ
 	@GetMapping("/listar")
-    public ResponseEntity<List<ProductoDTO>> obtenerTodosLosProductos(
-            @RequestParam(value = "categoria", required = false) String categoria) {
+	public ResponseEntity<List<ProductoDTO>> obtenerTodosLosProductos(
+			@RequestParam(value = "categoria", required = false) String categoria) {
 
-        List<ProductoDTO> productos = (categoria != null && !categoria.isEmpty())
-                ? productoService.obtenerProductosPorCategoria(categoria)
-                : productoService.obtenerTodos();
+		List<ProductoDTO> productos = (categoria != null && !categoria.isEmpty())
+				? productoService.obtenerProductosPorCategoria(categoria)
+				: productoService.obtenerTodos();
 
-        return new ResponseEntity<>(productos, HttpStatus.OK);
-    }
+		return new ResponseEntity<>(productos, HttpStatus.OK);
+	}
 
-    @GetMapping("/categoria/{categoria}")
-    public ResponseEntity<List<ProductoDTO>> obtenerProductosPorCategoria(@PathVariable String categoria) {
-        logger.log(Level.INFO, "Obteniendo productos de la categoría: {0}", categoria);
-        List<ProductoDTO> productos = productoService.obtenerProductosPorCategoria(categoria);
-        return new ResponseEntity<>(productos, HttpStatus.OK);
-    }
-
+	@GetMapping("/categoria/{categoria}")
+	public ResponseEntity<List<ProductoDTO>> obtenerProductosPorCategoria(@PathVariable String categoria) {
+		logger.log(Level.INFO, "Obteniendo productos de la categoría: {0}", categoria);
+		List<ProductoDTO> productos = productoService.obtenerProductosPorCategoria(categoria);
+		return new ResponseEntity<>(productos, HttpStatus.OK);
+	}
 
 	@GetMapping("/buscar")
 	public ResponseEntity<List<ProductoDTO>> buscarProductos(
@@ -77,12 +74,11 @@ public class ProductoController {
 	@GetMapping("/ver/{id}")
 	public ResponseEntity<ProductoDTO> obtenerProductoPorId(@PathVariable Long id) {
 		logger.log(Level.INFO, "Obteniendo producto con ID: {0}", id);
-		ProductoDTO  producto = productoService.obtenerDtoPorId(id)  ;
+		ProductoDTO producto = productoService.obtenerDtoPorId(id);
 		return (producto != null) ? new ResponseEntity<>(producto, HttpStatus.OK)
 				: new ResponseEntity<>(HttpStatus.NOT_FOUND);
 	}
 
-	// UPDATE
 	@PutMapping("/editar/{id}")
 	public ResponseEntity<ProductoDTO> editarProducto(@PathVariable Long id, @RequestBody ProductoDTO productoDTO) {
 		ProductoDTO updatedProducto = productoService.editarProducto(id, productoDTO);
@@ -90,7 +86,6 @@ public class ProductoController {
 				: new ResponseEntity<>(HttpStatus.NOT_FOUND);
 	}
 
-	// DELETE
 	@DeleteMapping("/borrar/{id}")
 	public ResponseEntity<String> eliminarProducto(@PathVariable Long id) {
 		productoService.eliminarProducto(id);
@@ -98,7 +93,6 @@ public class ProductoController {
 		return new ResponseEntity<>("Producto eliminado con éxito", HttpStatus.NO_CONTENT);
 	}
 
-	// FAVORITOS
 	@PostMapping("/{clienteId}/favorito/{productoId}")
 	public ResponseEntity<String> agregarAFavoritos(@PathVariable Long clienteId, @PathVariable Long productoId) {
 		clienteService.agregarAFavoritos(clienteId, productoId);
@@ -113,7 +107,6 @@ public class ProductoController {
 
 	@GetMapping("/{clienteId}/favoritos")
 	public ResponseEntity<List<ProductoDTO>> obtenerFavoritos(@PathVariable Long clienteId) {
-		// Se obtiene la lista de favoritos como objetos ProductoDTO directamente
 		List<ProductoDTO> favoritos = clienteService.obtenerFavoritos(clienteId);
 		return new ResponseEntity<>(favoritos, HttpStatus.OK);
 	}

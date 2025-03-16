@@ -9,7 +9,6 @@ import com.tamscrap.dto.ProductoDTO;
 import com.tamscrap.model.Cliente;
 import com.tamscrap.model.Producto;
 import com.tamscrap.repository.ClienteRepo;
-import com.tamscrap.repository.ProductoRepo;
 import com.tamscrap.service.ClienteService;
 import com.tamscrap.service.ProductoService;
 
@@ -52,10 +51,7 @@ public class ClienteServiceImpl implements ClienteService {
 		return clienteRepository.findByUsername(username).orElse(null);
 	}
 
-	// --- Métodos para gestión de favoritos ---
-
 	@Override
-//    @Transactional
 	public Cliente agregarAFavoritos(Long clienteId, Long productoId) {
 		Cliente cliente = clienteRepository.findById(clienteId)
 				.orElseThrow(() -> new RuntimeException("Cliente no encontrado."));
@@ -75,9 +71,8 @@ public class ClienteServiceImpl implements ClienteService {
 		Cliente cliente = clienteRepository.findById(clienteId)
 				.orElseThrow(() -> new RuntimeException("Cliente no encontrado."));
 
-		return cliente.getFavoritos().stream().map(producto -> new ProductoDTO(producto)) // Asegúrate de tener un
-																							// constructor o método
-																							// adecuado en ProductoDTO
+		return cliente.getFavoritos().stream().map(producto -> new ProductoDTO(producto))
+
 				.collect(Collectors.toList());
 	}
 

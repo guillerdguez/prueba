@@ -13,17 +13,17 @@ import jakarta.transaction.Transactional;
 @Service
 public class UserServiceImpl implements UserDetailsService {
 
-    private final ClienteRepo clienteRepo;
+	private final ClienteRepo clienteRepo;
 
-    public UserServiceImpl(ClienteRepo clienteRepo) {
-        this.clienteRepo = clienteRepo;
-    }
+	public UserServiceImpl(ClienteRepo clienteRepo) {
+		this.clienteRepo = clienteRepo;
+	}
 
-    @Override
-    @Transactional
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Cliente cliente = clienteRepo.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
-        return cliente;
-    }
+	@Override
+	@Transactional
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		Cliente cliente = clienteRepo.findByUsername(username)
+				.orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
+		return cliente;
+	}
 }

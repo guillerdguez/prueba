@@ -25,7 +25,7 @@ import com.tamscrap.service.impl.ClienteServiceImpl;
 
 @RestController
 @RequestMapping("/api/clientes")
-@CrossOrigin(origins = {"http://localhost:4200", "https://tamscrapt.up.railway.app"})
+@CrossOrigin(origins = { "http://localhost:4200", "https://tamscrapt.up.railway.app" })
 public class ClienteController {
 
 	private final ClienteServiceImpl clienteService;
@@ -34,7 +34,6 @@ public class ClienteController {
 		this.clienteService = clienteService;
 	}
 
-	// Obtener todos los clientes (solo ADMIN)
 	@GetMapping("/listar")
 	@PreAuthorize("hasAuthority('ADMIN')")
 	public ResponseEntity<List<ClienteDTO>> obtenerTodosLosClientes() {
@@ -43,7 +42,6 @@ public class ClienteController {
 		return new ResponseEntity<>(clientes, HttpStatus.OK);
 	}
 
-	// Obtener cliente por ID (solo ADMIN o el propio usuario)
 	@GetMapping("/ver/{id}")
 	@PreAuthorize("hasAuthority('ADMIN') or #id == principal.id")
 	public ResponseEntity<ClienteDTO> obtenerClientePorId(@PathVariable Long id) {
@@ -54,7 +52,6 @@ public class ClienteController {
 		return new ResponseEntity<>(convertirAClienteDTO(cliente), HttpStatus.OK);
 	}
 
-	// Actualizar cliente (solo ADMIN o el propio usuario)
 	@PutMapping("/editar/{id}")
 	@PreAuthorize("hasAuthority('ADMIN') or #id == principal.id")
 	public ResponseEntity<ClienteDTO> editarCliente(@PathVariable Long id, @RequestBody ClienteDTO clienteDTO) {
@@ -67,7 +64,6 @@ public class ClienteController {
 		clienteExistente.setEmail(clienteDTO.getEmail());
 		clienteExistente.setNombre(clienteDTO.getNombre());
 //		clienteExistente.setFavoritos(clienteDTO.getFavoritos());
-		// Si es ADMIN, puede cambiar los roles
 		if (clienteDTO.getAuthorities() != null && !clienteDTO.getAuthorities().isEmpty()) {
 			clienteExistente.setAuthorities(
 					clienteDTO.getAuthorities().stream().map(UserAuthority::valueOf).collect(Collectors.toSet()));
@@ -77,7 +73,6 @@ public class ClienteController {
 		return new ResponseEntity<>(convertirAClienteDTO(clienteExistente), HttpStatus.OK);
 	}
 
-	// Eliminar cliente (solo ADMIN)
 	@DeleteMapping("/borrar/{id}")
 	@PreAuthorize("hasAuthority('ADMIN')")
 	public ResponseEntity<Void> eliminarCliente(@PathVariable Long id) {
@@ -91,32 +86,28 @@ public class ClienteController {
 		dto.setUsername(cliente.getUsername());
 		dto.setNombre(cliente.getNombre());
 		dto.setEmail(cliente.getEmail());
-//		dto.setFavoritos(cliente.getFavoritos());
 		dto.setAuthorities(
 				cliente.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
 		return dto;
 	}
-	// Agregar producto a favoritos
+
 	@PostMapping("/{clienteId}/favorito/{productoId}")
- 	public ResponseEntity<ClienteDTO> agregarAFavoritos(@PathVariable Long clienteId, @PathVariable Long productoId) {
-	Cliente  cliente=  clienteService.agregarAFavoritos(clienteId, productoId);
-	    
-//	    return new ResponseEntity<>(HttpStatus.CREATED).bo;añadir url del get del producto
-	    return ResponseEntity.created(null).body(convertirAClienteDTO(cliente));
+	public ResponseEntity<ClienteDTO> agregarAFavoritos(@PathVariable Long clienteId, @PathVariable Long productoId) {
+		Cliente cliente = clienteService.agregarAFavoritos(clienteId, productoId);
+
+		return ResponseEntity.created(null).body(convertirAClienteDTO(cliente));
 	}
 
-	// Eliminar producto de favoritos
 	@DeleteMapping("/{clienteId}/favorito/{productoId}")
- 	public ResponseEntity<Void> eliminarDeFavoritos(@PathVariable Long clienteId, @PathVariable Long productoId) {
-	    clienteService.agregarAFavoritos(clienteId, productoId);
-	    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	public ResponseEntity<Void> eliminarDeFavoritos(@PathVariable Long clienteId, @PathVariable Long productoId) {
+		clienteService.agregarAFavoritos(clienteId, productoId);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
-	// Obtener la lista de favoritos del cliente
 	@GetMapping("/{clienteId}/favoritos")
- 	public ResponseEntity<List<ProductoDTO>> obtenerFavoritos(@PathVariable Long clienteId) {
-	    List<ProductoDTO> favoritos = clienteService.obtenerFavoritos(clienteId);
-	    return new ResponseEntity<>(favoritos, HttpStatus.OK);
+	public ResponseEntity<List<ProductoDTO>> obtenerFavoritos(@PathVariable Long clienteId) {
+		List<ProductoDTO> favoritos = clienteService.obtenerFavoritos(clienteId);
+		return new ResponseEntity<>(favoritos, HttpStatus.OK);
 	}
 
 }

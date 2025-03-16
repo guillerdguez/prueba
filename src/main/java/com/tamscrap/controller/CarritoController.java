@@ -28,7 +28,7 @@ import com.tamscrap.service.impl.ProductoServiceImpl;
 
 @RestController
 @RequestMapping("/api/carrito")
-@CrossOrigin(origins = {"http://localhost:4200", "https://tamscrapt.up.railway.app"})
+@CrossOrigin(origins = { "http://localhost:4200", "https://tamscrapt.up.railway.app" })
 public class CarritoController {
 
 	private static final Logger logger = Logger.getLogger(CarritoController.class.getName());
@@ -39,7 +39,6 @@ public class CarritoController {
 	@Autowired
 	private ClienteServiceImpl clienteService;
 
-	// Obtener o crear carrito para un cliente
 	private Carrito obtenerOCrearCarrito(Cliente cliente) {
 		if (cliente.getCarrito() == null) {
 			Carrito nuevoCarrito = new Carrito(cliente.getNombre());
@@ -49,12 +48,10 @@ public class CarritoController {
 		return cliente.getCarrito();
 	}
 
-	// Agregar producto al carrito
 	@PostMapping("/addProducto/{id}/{cantidad}")
 	public ResponseEntity<Void> agregarProductoAlCarrito(@PathVariable Long id, @PathVariable int cantidad) {
 		logger.info("Agregando producto al carrito con ID: " + id + " y cantidad: " + cantidad);
 
-		// Obtener el usuario autenticado desde el contexto de seguridad
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		if (authentication == null || !authentication.isAuthenticated()
 				|| authentication.getPrincipal().equals("anonymousUser")) {
@@ -82,10 +79,8 @@ public class CarritoController {
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
-	// Obtener productos del carrito
 	@GetMapping("/productos/{userId}")
 	public ResponseEntity<CarritoDTO> mostrarProductosCarrito(@PathVariable Long userId) {
-		// Recuperar la autenticación del usuario
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		if (authentication == null || !authentication.isAuthenticated()
 				|| authentication.getPrincipal().equals("anonymousUser")) {
@@ -93,23 +88,19 @@ public class CarritoController {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 		}
 
-		// Obtener el nombre de usuario autenticado
 		String username = authentication.getName();
 		Cliente cliente = clienteService.obtenerPorUsername(username);
 
-		// Verificar si el cliente existe y si tiene acceso al carrito solicitado
 		if (cliente == null || !cliente.getId().equals(userId)) {
 			logger.warning("El cliente autenticado no tiene acceso al carrito solicitado o no existe.");
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 		}
 
-		// Obtener el carrito del cliente
 		Carrito carrito = cliente.getCarrito();
 		if (carrito == null || carrito.getProductos().isEmpty()) {
 			return ResponseEntity.noContent().build();
 		}
 
-		// Convertir el carrito a CarritoDTO
 		Set<CarritoProductoDTO> productosDTO = carrito.getProductos().stream().map(cp -> {
 			Producto p = cp.getProducto();
 			ProductoDTO productoDTO = new ProductoDTO(p.getId(), p.getNombre(), p.getPrecio(), p.getImagen(),
@@ -123,7 +114,6 @@ public class CarritoController {
 		return ResponseEntity.ok(carritoDTO);
 	}
 
-	// Eliminar producto del carrito
 	@DeleteMapping("/removeProducto/{id}")
 	public ResponseEntity<Void> eliminarProductoDelCarrito(@PathVariable Long id) {
 		logger.info("Eliminando producto del carrito con ID: " + id);
@@ -155,7 +145,6 @@ public class CarritoController {
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
-	// Calcular el total del carrito
 	@GetMapping("/checkout/total")
 	public ResponseEntity<Double> calcularTotalCarrito() {
 		logger.info("Calculando el total del carrito");
@@ -182,7 +171,6 @@ public class CarritoController {
 		return new ResponseEntity<>(total, HttpStatus.OK);
 	}
 
-	// Vaciar carrito
 	@DeleteMapping("/clear")
 	public ResponseEntity<Void> vaciarCarrito() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

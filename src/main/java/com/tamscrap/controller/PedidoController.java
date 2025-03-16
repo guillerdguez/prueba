@@ -35,7 +35,7 @@ import com.tamscrap.service.impl.ProductoServiceImpl;
 
 @RestController
 @RequestMapping("/api/pedidos")
-@CrossOrigin(origins = {"http://localhost:4200", "https://tamscrapt.up.railway.app"})
+@CrossOrigin(origins = { "http://localhost:4200", "https://tamscrapt.up.railway.app" })
 public class PedidoController {
 
 	private final ProductoServiceImpl productoService;
@@ -57,7 +57,6 @@ public class PedidoController {
 
 		logger.log(Level.INFO, "Pedido recibido: {0}", pedido);
 		System.err.println(clienteId + "Pedidodddddd");
-		// Validaciones básicas antes de delegar al servicio
 		if (pedido.getDireccionEnvio() == null || pedido.getDireccionEnvio().trim().isEmpty()) {
 			logger.log(Level.WARNING, "La dirección de envío es requerida.");
 			return ResponseEntity.badRequest().build();
@@ -82,7 +81,6 @@ public class PedidoController {
 		}
 	}
 
-	// READ
 	@GetMapping("/listar")
 	public ResponseEntity<List<PedidoDTOListar>> mostrarPedidos() {
 		logger.log(Level.INFO, "Obteniendo todos los pedidos");
@@ -90,55 +88,48 @@ public class PedidoController {
 				.collect(Collectors.toList());
 		return new ResponseEntity<>(pedidos, HttpStatus.OK);
 	}
+
 	@GetMapping("/pedidosCliente")
 	public ResponseEntity<List<PedidoDTOListar>> mostrarPedidosPorCliente(@AuthenticationPrincipal Cliente cliente) {
-	    Long clienteId = cliente.getId();
-	    logger.log(Level.INFO, "Obteniendo los pedidos para el cliente con ID: " + clienteId);
-	    
-	    List<PedidoDTOListar> pedidos = pedidoService.obtenerPorClienteId(clienteId)
-	            .stream()
-	            .map(this::convertirAPedidoDTO)
-	            .collect(Collectors.toList());
-	    
+		Long clienteId = cliente.getId();
+		logger.log(Level.INFO, "Obteniendo los pedidos para el cliente con ID: " + clienteId);
+
+		List<PedidoDTOListar> pedidos = pedidoService.obtenerPorClienteId(clienteId).stream()
+				.map(this::convertirAPedidoDTO).collect(Collectors.toList());
+
 //	    if (pedidos.isEmpty()) {
 // 	        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 //	    }
-	    
-	    return new ResponseEntity<>(pedidos, HttpStatus.OK);
+
+		return new ResponseEntity<>(pedidos, HttpStatus.OK);
 	}
 
-
-//aaaaa
 	@GetMapping("/ver/{id}")
 	public ResponseEntity<?> obtenerPedido(@PathVariable Long id) {
 		logger.log(Level.INFO, "Obteniendo pedido con ID: {0}", id);
 		Pedido pedido = pedidoService.obtenerPorId(id);
-		 PedidoDTOListar pedidoDTO=convertirAPedidoDTO(pedido);
- 
-//		if (pedido == null) {
-//			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-//		}
-	    return new ResponseEntity<>(pedidoDTO, HttpStatus.OK);
+		PedidoDTOListar pedidoDTO = convertirAPedidoDTO(pedido);
+
+		return new ResponseEntity<>(pedidoDTO, HttpStatus.OK);
 	}
 
 	// UPDATE
 
 	@PutMapping("/editar/{id}")
-    public ResponseEntity<Pedido> actualizarPedido(@PathVariable Long id, @RequestBody Pedido pedido) {
+	public ResponseEntity<Pedido> actualizarPedido(@PathVariable Long id, @RequestBody Pedido pedido) {
 //	    Pedido pedidoExistente = pedidoService.obtenerPorId(id);
-	    System.err.println("DDDDDDDDDDD"+pedido.getCliente().getId());
+		System.err.println("DDDDDDDDDDD" + pedido.getCliente().getId());
 //	    pedidoExistente.setCliente(clienteService.obtenerPorId(pedido.getCliente().getId()));
 //	    pedidoExistente.setDireccionEnvio(pedido.getDireccionEnvio());
 //	    pedidoExistente.setMetodoPago(pedido.getMetodoPago());
 //	    pedidoExistente.setNombreComprador(pedido.getNombreComprador());
 //	    pedidoExistente.setEstado(pedido.getEstado());
 ////	    pedidoExistente.setProductos(pedido.getProductos());
-     Pedido updatedPedido = pedidoService.insertarPedido(pedido);
+		Pedido updatedPedido = pedidoService.insertarPedido(pedido);
 //	    PedidoDTOListar updatedPedidoDTO = convertirAPedidoDTO(pedido);
-	    return new ResponseEntity<>(pedido, HttpStatus.OK);
+		return new ResponseEntity<>(pedido, HttpStatus.OK);
 	}
 
-	// ADD PRODUCT
 	@PostMapping("/addProducto/{id}")
 	public ResponseEntity<?> agregarProducto(@PathVariable Long id, @RequestParam("idProducto") Long idProducto,
 			@RequestParam("cantidad") int cantidad) {
@@ -149,8 +140,7 @@ public class PedidoController {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 		}
 
-		Producto  producto = productoService.obtenerPorId(idProducto)
-			    .orElseThrow();
+		Producto producto = productoService.obtenerPorId(idProducto).orElseThrow();
 		if (producto == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 		}
@@ -166,7 +156,6 @@ public class PedidoController {
 		}
 	}
 
-	// REMOVE PRODUCT
 	@PostMapping("/removeProducto")
 	public ResponseEntity<?> removeProducto(@RequestBody Map<String, Long> request) {
 		Long pedidoId = request.get("pedidoId");
@@ -175,16 +164,12 @@ public class PedidoController {
 		logger.log(Level.INFO, "Eliminando producto con ID {0} del pedido con ID {1}",
 				new Object[] { productoId, pedidoId });
 
-//		if (pedidoId == null || productoId == null) {
-//			return ResponseEntity.badRequest().body("El ID del pedido y el producto son obligatorios.");
-//		}
-
 		Pedido pedido = pedidoService.obtenerPorId(pedidoId);
 		if (pedido == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 		}
 
-		Producto  producto = productoService.obtenerPorId(productoId).orElseThrow();
+		Producto producto = productoService.obtenerPorId(productoId).orElseThrow();
 		if (producto == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 		}
@@ -199,23 +184,21 @@ public class PedidoController {
 		}
 	}
 
-	// DELETE
 	@DeleteMapping("/delete/{id}")
 	public ResponseEntity<?> eliminarPedido(@PathVariable Long id) {
-	    logger.log(Level.INFO, "Eliminando pedido con ID: {0}", id);
+		logger.log(Level.INFO, "Eliminando pedido con ID: {0}", id);
 
-	    try {
-	        pedidoService.eliminarPedido(id);
+		try {
+			pedidoService.eliminarPedido(id);
 			return new ResponseEntity<>("Pedido eliminado con éxito", HttpStatus.NO_CONTENT);
-	    } catch (IllegalArgumentException e) {
-	        logger.log(Level.WARNING, "Error al eliminar pedido: {0}", e.getMessage());
+		} catch (IllegalArgumentException e) {
+			logger.log(Level.WARNING, "Error al eliminar pedido: {0}", e.getMessage());
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-	    } catch (Exception e) {
-	        logger.log(Level.SEVERE, "Error interno al eliminar pedido", e);
+		} catch (Exception e) {
+			logger.log(Level.SEVERE, "Error interno al eliminar pedido", e);
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-	    }
+		}
 	}
-
 
 	private PedidoDTOListar convertirAPedidoDTO(Pedido pedido) {
 		PedidoDTOListar dto = new PedidoDTOListar();
@@ -227,16 +210,14 @@ public class PedidoController {
 		dto.setEstado(pedido.getEstado());
 		dto.setNombreComprador(pedido.getNombreComprador());
 
-		// Convertir Cliente a ClienteDTOListarPedidos
 		Cliente cliente = pedido.getCliente();
 		if (cliente != null) {
 			ClienteDTOListarPedidos ClienteDTOListarPedidos = convertirAClienteDTOListarPedidos(cliente);
 			dto.setCliente(ClienteDTOListarPedidos);
 		}
 
-		// Convertir ProductosPedidos a ProductoPedidoDTO y recopilar en un Set
 		Set<ProductoPedidoDTO> productosDTO = pedido.getProductos().stream().map(this::convertirAProductoPedidoDTO)
-				.collect(Collectors.toSet()); // Usar Collectors.toSet()
+				.collect(Collectors.toSet());
 		dto.setProductos(productosDTO);
 
 		return dto;
@@ -255,7 +236,7 @@ public class PedidoController {
 		dto.setUsername(cliente.getUsername());
 		dto.setNombre(cliente.getNombre());
 		dto.setEmail(cliente.getEmail());
-  
+
 		dto.setAuthorities(
 				cliente.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
 		return dto;

@@ -2,148 +2,154 @@ package com.tamscrap.dto;
 
 public class ProductoDTO {
 
-    private Long id;
-    private String nombre;
-    private double precio;
-    private String imagen;
-    private boolean lettering;
-    private boolean scrapbooking;
-    private boolean oferta;
-    private Integer descuento;
-    private Double precioOriginal;
-    private int cantidad;
-    private String descripcion;
+	private Long id;
+	private String nombre;
+	private double precio;
+	private String imagen;
+	private boolean lettering;
+	private boolean scrapbooking;
+	private boolean oferta;
+	private Integer descuento;
+	private Double precioOriginal;
+	private int cantidad;
+	private String descripcion;
 
-    public ProductoDTO() {
-    }
+	public ProductoDTO() {
+	}
 
-    // Constructor básico
-    public ProductoDTO(Long id, String nombre, Double precio, String imagen, int cantidad) {
-        this.id = id;
-        this.nombre = nombre;
-        this.precio = precio;
-        this.imagen = imagen;
-        this.cantidad = cantidad;
-    }
-    public ProductoDTO(Long id, String nombre, Double precio) {
-        this.id = id;
-        this.nombre = nombre;
-        this.precio = precio;
-    }
-    // Constructor completo
-    public ProductoDTO(Long id, String nombre, double precio, String imagen, boolean lettering, boolean scrapbooking,
-                       boolean oferta, Integer descuento, Double precioOriginal, int cantidad, String descripcion) {
-        this.id = id;
-        this.nombre = nombre;
-        this.precio = precio;
-        this.imagen = imagen;
-        this.lettering = lettering;
-        this.scrapbooking = scrapbooking;
-        this.oferta = oferta;
-        this.descuento = descuento;
-        this.precioOriginal = precioOriginal;
-        this.cantidad = cantidad;
-        this.descripcion = descripcion;
-    }
+	public ProductoDTO(Long id, String nombre, Double precio, String imagen, int cantidad) {
+		this.id = id;
+		this.nombre = nombre;
+		this.precio = precio;
+		this.imagen = imagen;
+		this.cantidad = cantidad;
+	}
 
-    // Constructor que recibe la Entidad Producto
-    public ProductoDTO(com.tamscrap.model.Producto producto) {
-        this.id = producto.getId();
-        this.nombre = producto.getNombre();
-        this.precio = producto.getPrecio();
-        this.imagen = producto.getImagen();
-        this.lettering = producto.isLettering();
-        this.scrapbooking = producto.isScrapbooking();
-        this.oferta = producto.isOferta();
-        this.descuento = producto.getDescuento();
-        this.precioOriginal = producto.getPrecioOriginal(); // Se calcula en la entidad o en la lógica
-        this.cantidad = producto.getCantidad();
-        this.descripcion = producto.getDescripcion();
-    }
+	public ProductoDTO(Long id, String nombre, Double precio) {
+		this.id = id;
+		this.nombre = nombre;
+		this.precio = precio;
+	}
 
-    // Getters y Setters
+	public ProductoDTO(Long id, String nombre, double precio, String imagen, boolean lettering, boolean scrapbooking,
+			boolean oferta, Integer descuento, Double precioOriginal, int cantidad, String descripcion) {
+		this.id = id;
+		this.nombre = nombre;
+		this.precio = precio;
+		this.imagen = imagen;
+		this.lettering = lettering;
+		this.scrapbooking = scrapbooking;
+		this.oferta = oferta;
+		this.descuento = descuento;
+		this.precioOriginal = precioOriginal;
+		this.cantidad = cantidad;
+		this.descripcion = descripcion;
+	}
 
-    public Long getId() {
-        return id;
-    }
-    public void setId(Long id) {
-        this.id = id;
-    }
+	public ProductoDTO(com.tamscrap.model.Producto producto) {
+		this.id = producto.getId();
+		this.nombre = producto.getNombre();
+		this.precio = producto.getPrecio();
+		this.imagen = producto.getImagen();
+		this.lettering = producto.isLettering();
+		this.scrapbooking = producto.isScrapbooking();
+		this.oferta = producto.isOferta();
+		this.descuento = producto.getDescuento();
+		this.precioOriginal = producto.getPrecioOriginal();
+		this.cantidad = producto.getCantidad();
+		this.descripcion = producto.getDescripcion();
+	}
 
-    public String getNombre() {
-        return nombre;
-    }
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
+	public Long getId() {
+		return id;
+	}
 
-    public double getPrecio() {
-        return precio;
-    }
-    public void setPrecio(double precio) {
-        this.precio = precio;
-    }
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-    public String getImagen() {
-        return imagen;
-    }
-    public void setImagen(String imagen) {
-        this.imagen = imagen;
-    }
+	public String getNombre() {
+		return nombre;
+	}
 
-    public boolean isLettering() {
-        return lettering;
-    }
-    public void setLettering(boolean lettering) {
-        this.lettering = lettering;
-    }
+	public void setNombre(String nombre) {
+		this.nombre = nombre;
+	}
 
-    public boolean isScrapbooking() {
-        return scrapbooking;
-    }
-    public void setScrapbooking(boolean scrapbooking) {
-        this.scrapbooking = scrapbooking;
-    }
+	public double getPrecio() {
+		return precio;
+	}
 
-    public boolean isOferta() {
-        return oferta;
-    }
-    public void setOferta(boolean oferta) {
-        this.oferta = oferta;
-    }
+	public void setPrecio(double precio) {
+		this.precio = precio;
+	}
 
-    public Integer getDescuento() {
-        return descuento;
-    }
-    public void setDescuento(Integer descuento) {
-        this.descuento = descuento;
-    }
+	public String getImagen() {
+		return imagen;
+	}
 
-    public Double getPrecioOriginal() {
-        // Ejemplo de cálculo alternativo si está en oferta.
-        // Esto podría ir en la entidad o en la lógica del servicio.
-        if (this.oferta && this.descuento != null && this.descuento > 0) {
-            double calc = this.precio / (1 - this.descuento / 100.0);
-            calc = Math.round(calc * 100.0) / 100.0;
-            return calc;
-        }
-        return this.precioOriginal;
-    }
-    public void setPrecioOriginal(Double precioOriginal) {
-        this.precioOriginal = precioOriginal;
-    }
+	public void setImagen(String imagen) {
+		this.imagen = imagen;
+	}
 
-    public int getCantidad() {
-        return cantidad;
-    }
-    public void setCantidad(int cantidad) {
-        this.cantidad = cantidad;
-    }
+	public boolean isLettering() {
+		return lettering;
+	}
 
-    public String getDescripcion() {
-        return descripcion;
-    }
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
-    }
+	public void setLettering(boolean lettering) {
+		this.lettering = lettering;
+	}
+
+	public boolean isScrapbooking() {
+		return scrapbooking;
+	}
+
+	public void setScrapbooking(boolean scrapbooking) {
+		this.scrapbooking = scrapbooking;
+	}
+
+	public boolean isOferta() {
+		return oferta;
+	}
+
+	public void setOferta(boolean oferta) {
+		this.oferta = oferta;
+	}
+
+	public Integer getDescuento() {
+		return descuento;
+	}
+
+	public void setDescuento(Integer descuento) {
+		this.descuento = descuento;
+	}
+
+	public Double getPrecioOriginal() {
+		if (this.oferta && this.descuento != null && this.descuento > 0) {
+			double calc = this.precio / (1 - this.descuento / 100.0);
+			calc = Math.round(calc * 100.0) / 100.0;
+			return calc;
+		}
+		return this.precioOriginal;
+	}
+
+	public void setPrecioOriginal(Double precioOriginal) {
+		this.precioOriginal = precioOriginal;
+	}
+
+	public int getCantidad() {
+		return cantidad;
+	}
+
+	public void setCantidad(int cantidad) {
+		this.cantidad = cantidad;
+	}
+
+	public String getDescripcion() {
+		return descripcion;
+	}
+
+	public void setDescripcion(String descripcion) {
+		this.descripcion = descripcion;
+	}
 }

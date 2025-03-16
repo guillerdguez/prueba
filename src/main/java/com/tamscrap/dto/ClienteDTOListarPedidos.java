@@ -9,17 +9,14 @@ public class ClienteDTOListarPedidos {
 	private String username;
 	private String nombre;
 	private String email;
-	private String password; // Agregado para registro y autenticación
+	private String password;
 	private List<String> authorities;
- 
+
 	private Carrito carrito;
-	// Getters y Setters
 
 	public Long getId() {
 		return id;
 	}
-
- 
 
 	public String getUsername() {
 		return username;
