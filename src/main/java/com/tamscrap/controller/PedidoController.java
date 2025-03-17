@@ -38,206 +38,205 @@ import com.tamscrap.service.impl.ProductoServiceImpl;
 @CrossOrigin(origins = { "http://localhost:4200", "https://tamscrapt.up.railway.app" })
 public class PedidoController {
 
-    private final ProductoServiceImpl productoService;
-    private final PedidoServiceImpl pedidoService;
-    private final ClienteServiceImpl clienteService;
-    private static final Logger logger = Logger.getLogger(PedidoController.class.getName());
+	private final ProductoServiceImpl productoService;
+	private final PedidoServiceImpl pedidoService;
+	private final ClienteServiceImpl clienteService;
+	private static final Logger logger = Logger.getLogger(PedidoController.class.getName());
 
-    public PedidoController(ProductoServiceImpl productoService, PedidoServiceImpl pedidoService,
-            ClienteServiceImpl clienteService) {
-        this.productoService = productoService;
-        this.pedidoService = pedidoService;
-        this.clienteService = clienteService;
-    }
+	public PedidoController(ProductoServiceImpl productoService, PedidoServiceImpl pedidoService,
+			ClienteServiceImpl clienteService) {
+		this.productoService = productoService;
+		this.pedidoService = pedidoService;
+		this.clienteService = clienteService;
+	}
 
-    @PostMapping("/addPedido")
-    public ResponseEntity<Void> guardarPedido(@RequestBody Pedido pedido, @AuthenticationPrincipal Cliente cliente) {
+	@PostMapping("/addPedido")
+	public ResponseEntity<Void> guardarPedido(@RequestBody Pedido pedido, @AuthenticationPrincipal Cliente cliente) {
 
-        Long clienteId = cliente.getId();
+		Long clienteId = cliente.getId();
 
-        logger.log(Level.INFO, "Pedido recibido: {0}", pedido);
-        System.err.println(clienteId + " Pedidodddddd");
-        if (pedido.getDireccionEnvio() == null || pedido.getDireccionEnvio().trim().isEmpty()) {
-            logger.log(Level.WARNING, "La dirección de envío es requerida.");
-            return ResponseEntity.badRequest().build();
-        }
+		logger.log(Level.INFO, "Pedido recibido: {0}", pedido);
+		System.err.println(clienteId + " Pedidodddddd");
+		if (pedido.getDireccionEnvio() == null || pedido.getDireccionEnvio().trim().isEmpty()) {
+			logger.log(Level.WARNING, "La dirección de envío es requerida.");
+			return ResponseEntity.badRequest().build();
+		}
 
-        if (pedido.getMetodoPago() == null || pedido.getMetodoPago().trim().isEmpty()) {
-            logger.log(Level.WARNING, "El método de pago es requerido.");
-            return ResponseEntity.badRequest().build();
-        }
+		if (pedido.getMetodoPago() == null || pedido.getMetodoPago().trim().isEmpty()) {
+			logger.log(Level.WARNING, "El método de pago es requerido.");
+			return ResponseEntity.badRequest().build();
+		}
 
-        try {
-            pedido.setCliente(clienteService.obtenerPorId(clienteId));
-            System.err.println(clienteService.obtenerPorId(clienteId) + " Pedidodddddd");
-            pedidoService.insertarPedido(pedido);
-            return ResponseEntity.status(HttpStatus.CREATED).build();
-        } catch (IllegalArgumentException e) {
-            logger.log(Level.WARNING, "Error al crear el pedido: {0}", e.getMessage());
-            return ResponseEntity.badRequest().build();
-        } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error interno al crear el pedido", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
+		try {
+			pedido.setCliente(clienteService.obtenerPorId(clienteId));
+			System.err.println(clienteService.obtenerPorId(clienteId) + " Pedidodddddd");
+			pedidoService.insertarPedido(pedido);
+			return ResponseEntity.status(HttpStatus.CREATED).build();
+		} catch (IllegalArgumentException e) {
+			logger.log(Level.WARNING, "Error al crear el pedido: {0}", e.getMessage());
+			return ResponseEntity.badRequest().build();
+		} catch (Exception e) {
+			logger.log(Level.SEVERE, "Error interno al crear el pedido", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
+	}
 
-    @GetMapping("/listar")
-    public ResponseEntity<List<PedidoDTOListar>> mostrarPedidos() {
-        logger.log(Level.INFO, "Obteniendo todos los pedidos");
-        List<PedidoDTOListar> pedidos = pedidoService.obtenerTodos().stream()
-                .map(this::convertirAPedidoDTO)
-                .collect(Collectors.toList());
-        return new ResponseEntity<>(pedidos, HttpStatus.OK);
-    }
+	@GetMapping("/listar")
+	public ResponseEntity<List<PedidoDTOListar>> mostrarPedidos() {
+		logger.log(Level.INFO, "Obteniendo todos los pedidos");
+		List<PedidoDTOListar> pedidos = pedidoService.obtenerTodos().stream().map(this::convertirAPedidoDTO)
+				.collect(Collectors.toList());
+		return new ResponseEntity<>(pedidos, HttpStatus.OK);
+	}
 
-    @GetMapping("/pedidosCliente")
-    public ResponseEntity<List<PedidoDTOListar>> mostrarPedidosPorCliente(@AuthenticationPrincipal Cliente cliente) {
-        Long clienteId = cliente.getId();
-        logger.log(Level.INFO, "Obteniendo los pedidos para el cliente con ID: " + clienteId);
+	@GetMapping("/pedidosCliente")
+	public ResponseEntity<List<PedidoDTOListar>> mostrarPedidosPorCliente(@AuthenticationPrincipal Cliente cliente) {
+		Long clienteId = cliente.getId();
+		logger.log(Level.INFO, "Obteniendo los pedidos para el cliente con ID: " + clienteId);
 
-        List<PedidoDTOListar> pedidos = pedidoService.obtenerPorClienteId(clienteId).stream()
-                .map(this::convertirAPedidoDTO)
-                .collect(Collectors.toList());
+		List<PedidoDTOListar> pedidos = pedidoService.obtenerPorClienteId(clienteId).stream()
+				.map(this::convertirAPedidoDTO).collect(Collectors.toList());
 
-        return new ResponseEntity<>(pedidos, HttpStatus.OK);
-    }
+		return new ResponseEntity<>(pedidos, HttpStatus.OK);
+	}
 
-    @GetMapping("/ver/{id}")
-    public ResponseEntity<?> obtenerPedido(@PathVariable Long id) {
-        logger.log(Level.INFO, "Obteniendo pedido con ID: {0}", id);
-        Pedido pedido = pedidoService.obtenerPorId(id);
-        PedidoDTOListar pedidoDTO = convertirAPedidoDTO(pedido);
-        return new ResponseEntity<>(pedidoDTO, HttpStatus.OK);
-    }
+	@GetMapping("/ver/{id}")
+	public ResponseEntity<?> obtenerPedido(@PathVariable Long id) {
+		logger.log(Level.INFO, "Obteniendo pedido con ID: {0}", id);
+		Pedido pedido = pedidoService.obtenerPorId(id);
+		PedidoDTOListar pedidoDTO = convertirAPedidoDTO(pedido);
+		return new ResponseEntity<>(pedidoDTO, HttpStatus.OK);
+	}
 
-    // UPDATE
+	// UPDATE
 
-    @PatchMapping("/editarEstado/{id}")
-    public ResponseEntity<Pedido> editarSoloEstado(
-        @PathVariable Long id,
-        @RequestBody Pedido pedidoConNuevoEstado
-    ) {
-        // 1) Buscamos el pedido existente en DB
-        Pedido pedidoExistente = pedidoService.obtenerPorId(id);
-        if (pedidoExistente == null) {
-            return ResponseEntity.notFound().build();
-        }
-        
-        // 2) Extraemos el estado del body (aunque venga todo el objeto, usaremos solo "estado")
-        //    Ajusta si tu "estado" es un enum o un String, etc.
-        if (pedidoConNuevoEstado.getEstado() != null) {
-            pedidoExistente.setEstado(pedidoConNuevoEstado.getEstado());
-        }
-        
-        // 3) Usamos un método del servicio que no valide cosas como direcciónEnvio, métodoPago, etc.
-        //    (ver más abajo)
-        Pedido pedidoActualizado = pedidoService.actualizarSoloEstado(pedidoExistente);
-        
-        return ResponseEntity.ok(pedidoActualizado);
-    }
+	@PatchMapping("/editarEstado/{id}")
+	public ResponseEntity<Map<String, Object>> editarSoloEstado(
+	    @PathVariable Long id,
+	    @RequestBody Pedido pedidoConNuevoEstado
+	) {
+	    // 1) Buscar el pedido existente
+	    Pedido pedidoExistente = pedidoService.obtenerPorId(id);
+	    if (pedidoExistente == null) {
+	        return ResponseEntity.notFound().build();
+	    }
+	    
+	    // 2) Actualizar solo el campo "estado"
+	    if (pedidoConNuevoEstado.getEstado() != null) {
+	        pedidoExistente.setEstado(pedidoConNuevoEstado.getEstado());
+	    }
+	    
+	    // 3) Guardar usando el método que actualiza solo el estado
+	    Pedido pedidoActualizado = pedidoService.actualizarSoloEstado(pedidoExistente);
+	    
+	    // 4) Crear una respuesta simple (DTO o Map) con solo los campos necesarios
+	    Map<String, Object> response = new java.util.HashMap<>();
+	    response.put("id", pedidoActualizado.getId());
+	    response.put("estado", pedidoActualizado.getEstado());
+	    
+	    return ResponseEntity.ok(response);
+	}
 
-    @PostMapping("/addProducto/{id}")
-    public ResponseEntity<?> agregarProducto(@PathVariable Long id,
-                                             @RequestParam("idProducto") Long idProducto,
-                                             @RequestParam("cantidad") int cantidad) {
-        logger.log(Level.INFO, "Agregando producto con ID {0} al pedido con ID {1}", new Object[] { idProducto, id });
-        Pedido pedidoExistente = pedidoService.obtenerPorId(id);
-        if (pedidoExistente == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-        Producto producto = productoService.obtenerPorId(idProducto).orElseThrow();
-        if (producto == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-        pedidoExistente.addProducto2(producto, cantidad);
-        pedidoExistente.calcularPrecio();
-        try {
-            Pedido updatedPedido = pedidoService.insertarPedido(pedidoExistente);
-            return ResponseEntity.ok(updatedPedido);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
+	@PostMapping("/addProducto/{id}")
+	public ResponseEntity<?> agregarProducto(@PathVariable Long id, @RequestParam("idProducto") Long idProducto,
+			@RequestParam("cantidad") int cantidad) {
+		logger.log(Level.INFO, "Agregando producto con ID {0} al pedido con ID {1}", new Object[] { idProducto, id });
+		Pedido pedidoExistente = pedidoService.obtenerPorId(id);
+		if (pedidoExistente == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+		}
+		Producto producto = productoService.obtenerPorId(idProducto).orElseThrow();
+		if (producto == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+		}
+		pedidoExistente.addProducto2(producto, cantidad);
+		pedidoExistente.calcularPrecio();
+		try {
+			Pedido updatedPedido = pedidoService.insertarPedido(pedidoExistente);
+			return ResponseEntity.ok(updatedPedido);
+		} catch (IllegalArgumentException e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+	}
 
-    @PostMapping("/removeProducto")
-    public ResponseEntity<?> removeProducto(@RequestBody Map<String, Long> request) {
-        Long pedidoId = request.get("pedidoId");
-        Long productoId = request.get("productoId");
+	@PostMapping("/removeProducto")
+	public ResponseEntity<?> removeProducto(@RequestBody Map<String, Long> request) {
+		Long pedidoId = request.get("pedidoId");
+		Long productoId = request.get("productoId");
 
-        logger.log(Level.INFO, "Eliminando producto con ID {0} del pedido con ID {1}", new Object[] { productoId, pedidoId });
-        Pedido pedido = pedidoService.obtenerPorId(pedidoId);
-        if (pedido == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-        Producto producto = productoService.obtenerPorId(productoId).orElseThrow();
-        if (producto == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-        pedido.removeProducto(producto);
-        try {
-            pedidoService.insertarPedido(pedido);
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error al eliminar producto del pedido", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
+		logger.log(Level.INFO, "Eliminando producto con ID {0} del pedido con ID {1}",
+				new Object[] { productoId, pedidoId });
+		Pedido pedido = pedidoService.obtenerPorId(pedidoId);
+		if (pedido == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+		}
+		Producto producto = productoService.obtenerPorId(productoId).orElseThrow();
+		if (producto == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+		}
+		pedido.removeProducto(producto);
+		try {
+			pedidoService.insertarPedido(pedido);
+			return ResponseEntity.ok().build();
+		} catch (Exception e) {
+			logger.log(Level.SEVERE, "Error al eliminar producto del pedido", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
+	}
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> eliminarPedido(@PathVariable Long id) {
-        logger.log(Level.INFO, "Eliminando pedido con ID: {0}", id);
-        try {
-            pedidoService.eliminarPedido(id);
-            return new ResponseEntity<>("Pedido eliminado con éxito", HttpStatus.NO_CONTENT);
-        } catch (IllegalArgumentException e) {
-            logger.log(Level.WARNING, "Error al eliminar pedido: {0}", e.getMessage());
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error interno al eliminar pedido", e);
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
+	@DeleteMapping("/delete/{id}")
+	public ResponseEntity<?> eliminarPedido(@PathVariable Long id) {
+		logger.log(Level.INFO, "Eliminando pedido con ID: {0}", id);
+		try {
+			pedidoService.eliminarPedido(id);
+			return new ResponseEntity<>("Pedido eliminado con éxito", HttpStatus.NO_CONTENT);
+		} catch (IllegalArgumentException e) {
+			logger.log(Level.WARNING, "Error al eliminar pedido: {0}", e.getMessage());
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		} catch (Exception e) {
+			logger.log(Level.SEVERE, "Error interno al eliminar pedido", e);
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+	}
 
-    private PedidoDTOListar convertirAPedidoDTO(Pedido pedido) {
-        PedidoDTOListar dto = new PedidoDTOListar();
-        dto.setId(pedido.getId());
-        dto.setPrecio(pedido.getPrecio());
-        dto.setFechaCreacion(pedido.getFechaCreacion());
-        dto.setDireccionEnvio(pedido.getDireccionEnvio());
-        dto.setMetodoPago(pedido.getMetodoPago());
-        dto.setEstado(pedido.getEstado());
-        dto.setNombreComprador(pedido.getNombreComprador());
+	private PedidoDTOListar convertirAPedidoDTO(Pedido pedido) {
+		PedidoDTOListar dto = new PedidoDTOListar();
+		dto.setId(pedido.getId());
+		dto.setPrecio(pedido.getPrecio());
+		dto.setFechaCreacion(pedido.getFechaCreacion());
+		dto.setDireccionEnvio(pedido.getDireccionEnvio());
+		dto.setMetodoPago(pedido.getMetodoPago());
+		dto.setEstado(pedido.getEstado());
+		dto.setNombreComprador(pedido.getNombreComprador());
 
-        Cliente cliente = pedido.getCliente();
-        if (cliente != null) {
-            ClienteDTOListarPedidos clienteDTO = convertirAClienteDTOListarPedidos(cliente);
-            dto.setCliente(clienteDTO);
-        }
+		Cliente cliente = pedido.getCliente();
+		if (cliente != null) {
+			ClienteDTOListarPedidos clienteDTO = convertirAClienteDTOListarPedidos(cliente);
+			dto.setCliente(clienteDTO);
+		}
 
-        Set<ProductoPedidoDTO> productosDTO = pedido.getProductos().stream()
-                .map(this::convertirAProductoPedidoDTO)
-                .collect(Collectors.toSet());
-        dto.setProductos(productosDTO);
+		Set<ProductoPedidoDTO> productosDTO = pedido.getProductos().stream().map(this::convertirAProductoPedidoDTO)
+				.collect(Collectors.toSet());
+		dto.setProductos(productosDTO);
 
-        return dto;
-    }
+		return dto;
+	}
 
-    private ProductoPedidoDTO convertirAProductoPedidoDTO(ProductosPedidos productosPedidos) {
-        ProductoPedidoDTO dto = new ProductoPedidoDTO();
-        dto.setProductoId(productosPedidos.getProducto().getId());
-        dto.setCantidad(productosPedidos.getCantidad());
-        return dto;
-    }
+	private ProductoPedidoDTO convertirAProductoPedidoDTO(ProductosPedidos productosPedidos) {
+		ProductoPedidoDTO dto = new ProductoPedidoDTO();
+		dto.setProductoId(productosPedidos.getProducto().getId());
+		dto.setCantidad(productosPedidos.getCantidad());
+		return dto;
+	}
 
-    private ClienteDTOListarPedidos convertirAClienteDTOListarPedidos(Cliente cliente) {
-        ClienteDTOListarPedidos dto = new ClienteDTOListarPedidos();
-        dto.setId(cliente.getId());
-        dto.setUsername(cliente.getUsername());
-        dto.setNombre(cliente.getNombre());
-        dto.setEmail(cliente.getEmail());
-        dto.setAuthorities(cliente.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList()));
-        return dto;
-    }
+	private ClienteDTOListarPedidos convertirAClienteDTOListarPedidos(Cliente cliente) {
+		ClienteDTOListarPedidos dto = new ClienteDTOListarPedidos();
+		dto.setId(cliente.getId());
+		dto.setUsername(cliente.getUsername());
+		dto.setNombre(cliente.getNombre());
+		dto.setEmail(cliente.getEmail());
+		dto.setAuthorities(
+				cliente.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
+		return dto;
+	}
 }
