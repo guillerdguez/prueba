@@ -1,6 +1,6 @@
 package com.tamscrap.config;
 
-import java.security.Key;  
+import java.security.Key;
 import java.util.Date;
 
 import org.springframework.security.core.userdetails.UserDetails;
@@ -8,20 +8,21 @@ import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+
 @Component
 public class JwtTokenUtil {
 
     private static final String SECRET_KEY = "your-256-bit-secret-key-must-be-long-enough-to-work";
-    private final Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());  
+    private final Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
 
     public String getUsernameFromToken(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(key)  
+                .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
-    } 
+    }
 
     public boolean validateToken(String token, UserDetails userDetails) {
         String username = getUsernameFromToken(token);
@@ -30,7 +31,7 @@ public class JwtTokenUtil {
 
     private boolean isTokenExpired(String token) {
         Date expiration = Jwts.parserBuilder()
-                .setSigningKey(key) 
+                .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
@@ -38,7 +39,6 @@ public class JwtTokenUtil {
         return expiration.before(new Date());
     }
 
-     
     public String generateToken(UserDetails userDetails) {
         return Jwts.builder()
                 .setSubject(userDetails.getUsername())
