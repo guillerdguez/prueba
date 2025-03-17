@@ -14,9 +14,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -112,30 +112,28 @@ public class PedidoController {
 
     // UPDATE
 
-    @PutMapping("/editar/{id}")
-    public ResponseEntity<Pedido> actualizarPedido(@PathVariable Long id, @RequestBody Pedido pedido) {
-        // Se obtiene el pedido existente según el id recibido
+    @PatchMapping("/editarEstado/{id}")
+    public ResponseEntity<Pedido> editarSoloEstado(
+        @PathVariable Long id,
+        @RequestBody Pedido pedidoConNuevoEstado
+    ) {
+        // 1) Buscamos el pedido existente en DB
         Pedido pedidoExistente = pedidoService.obtenerPorId(id);
         if (pedidoExistente == null) {
-            logger.log(Level.WARNING, "No se encontró el pedido con ID: {0}", id);
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.notFound().build();
         }
-        // Actualizar los campos necesarios
-        pedidoExistente.setCliente(clienteService.obtenerPorId(pedido.getCliente().getId()));
-        pedidoExistente.setDireccionEnvio(pedido.getDireccionEnvio());
-        pedidoExistente.setMetodoPago(pedido.getMetodoPago());
-        pedidoExistente.setNombreComprador(pedido.getNombreComprador());
-        pedidoExistente.setEstado(pedido.getEstado());
-        // Si es necesario actualizar los productos, se debe realizar aquí
-        // pedidoExistente.setProductos(pedido.getProductos());
         
-        try {
-            Pedido updatedPedido = pedidoService.insertarPedido(pedidoExistente);
-            return new ResponseEntity<>(updatedPedido, HttpStatus.OK);
-        } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error al actualizar el pedido", e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        // 2) Extraemos el estado del body (aunque venga todo el objeto, usaremos solo "estado")
+        //    Ajusta si tu "estado" es un enum o un String, etc.
+        if (pedidoConNuevoEstado.getEstado() != null) {
+            pedidoExistente.setEstado(pedidoConNuevoEstado.getEstado());
         }
+        
+        // 3) Usamos un método del servicio que no valide cosas como direcciónEnvio, métodoPago, etc.
+        //    (ver más abajo)
+        Pedido pedidoActualizado = pedidoService.actualizarSoloEstado(pedidoExistente);
+        
+        return ResponseEntity.ok(pedidoActualizado);
     }
 
     @PostMapping("/addProducto/{id}")

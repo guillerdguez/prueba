@@ -103,6 +103,12 @@ public class PedidoServiceImpl implements PedidoService {
 		pedido.calcularPrecio();
 		return pedidoRepository.save(pedido);
 	}
+	@Transactional
+	public Pedido actualizarSoloEstado(Pedido pedido) {
+	    // Aquí *no* validamos cliente, dirección, método de pago...
+	    // Simplemente guardamos con el repositorio
+	    return pedidoRepository.save(pedido);
+	}
 
 	@Override
 	@Transactional
