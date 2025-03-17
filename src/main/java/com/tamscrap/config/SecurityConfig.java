@@ -20,25 +20,25 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    @Autowired
-    private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+	@Autowired
+	private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
-    @Autowired
-    private JwtRequestFilter jwtRequestFilter;
+	@Autowired
+	private JwtRequestFilter jwtRequestFilter;
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
 
-    @Bean
-    public AuthenticationManager authenticationManager(
-            org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration authConfig)
-            throws Exception {
-        return authConfig.getAuthenticationManager();
-    }
+	@Bean
+	public AuthenticationManager authenticationManager(
+			org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration authConfig)
+			throws Exception {
+		return authConfig.getAuthenticationManager();
+	}
 
-    @Bean
+	@Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
          String[] publicEndpoints = {
                 "/api/producto/listar", "/api/producto/buscar/**", "/api/producto/ver/**",
@@ -52,7 +52,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(publicEndpoints).permitAll()
                 .requestMatchers("/api/carrito/editar/**").authenticated()
-                .requestMatchers("/api/pedidos/delete/**", "/api/pedidos/editar/**").hasAnyAuthority("USER", "ADMIN")
+                .requestMatchers("/api/pedidos/delete/**", "/api/pedidos/editar/**")                
+                .hasAuthority("ADMIN")
                 .requestMatchers("/api/pedidos/**", "/profile/**").authenticated()
                 .requestMatchers("/api/producto/addProducto", "/api/producto/editar/**", "/api/producto/borrar/**")
                 .hasAuthority("ADMIN")
@@ -66,20 +67,14 @@ public class SecurityConfig {
         return http.build();
     }
 
-    @Configuration
-    public class CorsConfig implements WebMvcConfigurer {
-        @Override
-        public void addCorsMappings(CorsRegistry registry) {
-            registry.addMapping("/**")
-                .allowedOrigins(
-                    "http://localhost:4200",
-                    "https://tamscrapt.up.railway.app"
-                )
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                .allowedHeaders("*")
-                .exposedHeaders("Authorization")
-                .allowCredentials(true);
-        }
-    }
+	@Configuration
+	public class CorsConfig implements WebMvcConfigurer {
+		@Override
+		public void addCorsMappings(CorsRegistry registry) {
+			registry.addMapping("/**").allowedOrigins("http://localhost:4200", "https://tamscrapt.up.railway.app")
+					.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS").allowedHeaders("*")
+					.exposedHeaders("Authorization").allowCredentials(true);
+		}
+	}
 
 }
