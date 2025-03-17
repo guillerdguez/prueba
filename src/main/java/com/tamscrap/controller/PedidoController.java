@@ -111,30 +111,24 @@ public class PedidoController {
 	// UPDATE
 
 	@PatchMapping("/editarEstado/{id}")
-	public ResponseEntity<Map<String, Object>> editarSoloEstado(
-	    @PathVariable Long id,
-	    @RequestBody Pedido pedidoConNuevoEstado
-	) {
-	    // 1) Buscar el pedido existente
-	    Pedido pedidoExistente = pedidoService.obtenerPorId(id);
-	    if (pedidoExistente == null) {
-	        return ResponseEntity.notFound().build();
-	    }
-	    
-	    // 2) Actualizar solo el campo "estado"
-	    if (pedidoConNuevoEstado.getEstado() != null) {
-	        pedidoExistente.setEstado(pedidoConNuevoEstado.getEstado());
-	    }
-	    
-	    // 3) Guardar usando el método que actualiza solo el estado
-	    Pedido pedidoActualizado = pedidoService.actualizarSoloEstado(pedidoExistente);
-	    
-	    // 4) Crear una respuesta simple (DTO o Map) con solo los campos necesarios
-	    Map<String, Object> response = new java.util.HashMap<>();
-	    response.put("id", pedidoActualizado.getId());
-	    response.put("estado", pedidoActualizado.getEstado());
-	    
-	    return ResponseEntity.ok(response);
+	public ResponseEntity<Map<String, Object>> editarSoloEstado(@PathVariable Long id,
+			@RequestBody Pedido pedidoConNuevoEstado) {
+		Pedido pedidoExistente = pedidoService.obtenerPorId(id);
+		if (pedidoExistente == null) {
+			return ResponseEntity.notFound().build();
+		}
+
+		if (pedidoConNuevoEstado.getEstado() != null) {
+			pedidoExistente.setEstado(pedidoConNuevoEstado.getEstado());
+		}
+
+		Pedido pedidoActualizado = pedidoService.actualizarSoloEstado(pedidoExistente);
+
+		Map<String, Object> response = new java.util.HashMap<>();
+		response.put("id", pedidoActualizado.getId());
+		response.put("estado", pedidoActualizado.getEstado());
+
+		return ResponseEntity.ok(response);
 	}
 
 	@PostMapping("/addProducto/{id}")
