@@ -22,121 +22,107 @@ import jakarta.transaction.Transactional;
 @Service
 public class PedidoServiceImpl implements PedidoService {
 
-    private final PedidoRepo pedidoRepository;
-    private final ProductoService productoService;
-    private final ClienteService clienteService;
+	private final PedidoRepo pedidoRepository;
+	private final ProductoService productoService;
+	private final ClienteService clienteService;
 
-    @Autowired
-    public PedidoServiceImpl(PedidoRepo pedidoRepository,
-                             ProductoService productoService,
-                             ClienteService clienteService) {
-        this.pedidoRepository = pedidoRepository;
-        this.productoService = productoService;
-        this.clienteService = clienteService;
-    }
+	@Autowired
+	public PedidoServiceImpl(PedidoRepo pedidoRepository, ProductoService productoService,
+			ClienteService clienteService) {
+		this.pedidoRepository = pedidoRepository;
+		this.productoService = productoService;
+		this.clienteService = clienteService;
+	}
 
-    @Override
-    public List<Pedido> obtenerTodos() {
-        return pedidoRepository.findAll();
-    }
+	@Override
+	public List<Pedido> obtenerTodos() {
+		return pedidoRepository.findAll();
+	}
 
-    public List<Pedido> obtenerPorClienteId(Long clienteId) {
-        return pedidoRepository.findByClienteId(clienteId);
-    }
+	public List<Pedido> obtenerPorClienteId(Long clienteId) {
+		return pedidoRepository.findByClienteId(clienteId);
+	}
 
-    @Override
-    public Pedido obtenerPorId(Long id) {
-        return pedidoRepository.findById(id).orElse(null);
-    }
+	@Override
+	public Pedido obtenerPorId(Long id) {
+		return pedidoRepository.findById(id).orElse(null);
+	}
 
-    // CREACIÓN o ACTUALIZACIÓN COMPLETA
-    @Override
-    @Transactional
-    public Pedido insertarPedido(Pedido pedido) {
-        // Validaciones estrictas
-        if (pedido.getCliente() == null
-                || pedido.getCliente().getId() == null
-                || pedido.getDireccionEnvio() == null
-                || pedido.getDireccionEnvio().trim().isEmpty()
-                || pedido.getMetodoPago() == null
-                || pedido.getMetodoPago().trim().isEmpty()) {
-            throw new IllegalArgumentException("Datos del pedido inválidos (cliente, dirección o método de pago).");
-        }
+	@Override
+	@Transactional
+	public Pedido insertarPedido(Pedido pedido) {
+		if (pedido.getCliente() == null || pedido.getCliente().getId() == null || pedido.getDireccionEnvio() == null
+				|| pedido.getDireccionEnvio().trim().isEmpty() || pedido.getMetodoPago() == null
+				|| pedido.getMetodoPago().trim().isEmpty()) {
+			throw new IllegalArgumentException("Datos del pedido inválidos (cliente, dirección o método de pago).");
+		}
 
-        Cliente cliente = clienteService.obtenerPorId(pedido.getCliente().getId());
-        if (cliente == null) {
-            throw new IllegalArgumentException("El cliente no existe en la base de datos.");
-        }
-        pedido.setCliente(cliente);
+		Cliente cliente = clienteService.obtenerPorId(pedido.getCliente().getId());
+		if (cliente == null) {
+			throw new IllegalArgumentException("El cliente no existe en la base de datos.");
+		}
+		pedido.setCliente(cliente);
 
-        Set<ProductosPedidos> productosOriginales = new HashSet<>(pedido.getProductos());
-        pedido.getProductos().clear();
-        pedido = pedidoRepository.save(pedido);
+		Set<ProductosPedidos> productosOriginales = new HashSet<>(pedido.getProductos());
+		pedido.getProductos().clear();
+		pedido = pedidoRepository.save(pedido);
 
-        Set<ProductosPedidos> productosFinales = new HashSet<>();
+		Set<ProductosPedidos> productosFinales = new HashSet<>();
 
-        for (ProductosPedidos ppOriginal : productosOriginales) {
-            if (ppOriginal.getProducto() == null || ppOriginal.getProducto().getId() == null) {
-                throw new IllegalArgumentException("Uno o más productos asociados al pedido son inválidos.");
-            }
-            Producto productoBD = productoService.obtenerPorId(ppOriginal.getProducto().getId())
-                    .orElseThrow(() -> new IllegalArgumentException("El producto con ID "
-                            + ppOriginal.getProducto().getId() + " no existe en la base de datos."));
-            if (productoBD == null) {
-                throw new IllegalArgumentException("El producto con ID "
-                        + ppOriginal.getProducto().getId() + " no existe en la base de datos.");
-            }
+		for (ProductosPedidos ppOriginal : productosOriginales) {
+			if (ppOriginal.getProducto() == null || ppOriginal.getProducto().getId() == null) {
+				throw new IllegalArgumentException("Uno o más productos asociados al pedido son inválidos.");
+			}
+			Producto productoBD = productoService.obtenerPorId(ppOriginal.getProducto().getId())
+					.orElseThrow(() -> new IllegalArgumentException("El producto con ID "
+							+ ppOriginal.getProducto().getId() + " no existe en la base de datos."));
+			if (productoBD == null) {
+				throw new IllegalArgumentException(
+						"El producto con ID " + ppOriginal.getProducto().getId() + " no existe en la base de datos.");
+			}
 
-            int cantidadSolicitada = ppOriginal.getCantidad();
-            if (productoBD.getCantidad() < cantidadSolicitada) {
-                throw new IllegalArgumentException("Stock insuficiente para el producto: " + productoBD.getNombre());
-            }
+			int cantidadSolicitada = ppOriginal.getCantidad();
+			if (productoBD.getCantidad() < cantidadSolicitada) {
+				throw new IllegalArgumentException("Stock insuficiente para el producto: " + productoBD.getNombre());
+			}
 
-            productoBD.setCantidad(productoBD.getCantidad() - cantidadSolicitada);
-            productoService.insertarProducto(productoBD);
+			productoBD.setCantidad(productoBD.getCantidad() - cantidadSolicitada);
+			productoService.insertarProducto(productoBD);
 
-            ProductosPedidos nuevoPP = new ProductosPedidos();
-            nuevoPP.setPedido(pedido);
-            nuevoPP.setProducto(productoBD);
-            nuevoPP.setCantidad(cantidadSolicitada);
-            nuevoPP.setNombre(productoBD.getNombre());
-            nuevoPP.setId(new ProductoPedidoId(pedido.getId(), productoBD.getId()));
+			ProductosPedidos nuevoPP = new ProductosPedidos();
+			nuevoPP.setPedido(pedido);
+			nuevoPP.setProducto(productoBD);
+			nuevoPP.setCantidad(cantidadSolicitada);
+			nuevoPP.setNombre(productoBD.getNombre());
+			nuevoPP.setId(new ProductoPedidoId(pedido.getId(), productoBD.getId()));
 
-            productosFinales.add(nuevoPP);
-        }
+			productosFinales.add(nuevoPP);
+		}
 
-        pedido.setProductos(productosFinales);
-        pedido.calcularPrecio();
-        return pedidoRepository.save(pedido);
-    }
+		pedido.setProductos(productosFinales);
+		pedido.calcularPrecio();
+		return pedidoRepository.save(pedido);
+	}
 
-    // NUEVO: Actualizar SOLO el estado (sin revalidar otros campos)
-    @Transactional
-    public Pedido actualizarEstado(Pedido pedido) {
-        // Aquí no forzamos datos como dirección, método de pago, etc.
-        // Simplemente guardamos el nuevo estado
-        return pedidoRepository.save(pedido);
-    }
+	@Override
+	@Transactional
+	public void eliminarPedido(Long id) {
+		Pedido pedido = pedidoRepository.findById(id)
+				.orElseThrow(() -> new IllegalArgumentException("Pedido no encontrado con el ID: " + id));
 
-    @Override
-    @Transactional
-    public void eliminarPedido(Long id) {
-        Pedido pedido = pedidoRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Pedido no encontrado con el ID: " + id));
+		if (pedido.getCliente() != null) {
+			pedido.getCliente().getPedidos().remove(pedido);
+		}
 
-        if (pedido.getCliente() != null) {
-            pedido.getCliente().getPedidos().remove(pedido);
-        }
+		for (ProductosPedidos productoPedido : pedido.getProductos()) {
+			Producto producto = productoPedido.getProducto();
+			if (producto != null) {
+				producto.setCantidad(producto.getCantidad() + productoPedido.getCantidad());
+				producto.getPedidos().remove(productoPedido);
+			}
+		}
 
-        for (ProductosPedidos productoPedido : pedido.getProductos()) {
-            Producto producto = productoPedido.getProducto();
-            if (producto != null) {
-                producto.setCantidad(producto.getCantidad() + productoPedido.getCantidad());
-                producto.getPedidos().remove(productoPedido);
-            }
-        }
-
-        pedidoRepository.delete(pedido);
-    }
+		pedidoRepository.delete(pedido);
+	}
 
 }

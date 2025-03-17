@@ -11,7 +11,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.tamscrap.dto.ClienteDTOListarPedidos;
 import com.tamscrap.dto.PedidoDTOListar;
@@ -35,13 +44,12 @@ public class PedidoController {
     private static final Logger logger = Logger.getLogger(PedidoController.class.getName());
 
     public PedidoController(ProductoServiceImpl productoService, PedidoServiceImpl pedidoService,
-                            ClienteServiceImpl clienteService) {
+            ClienteServiceImpl clienteService) {
         this.productoService = productoService;
         this.pedidoService = pedidoService;
         this.clienteService = clienteService;
     }
 
-    // CREATE
     @PostMapping("/addPedido")
     public ResponseEntity<Void> guardarPedido(@RequestBody Pedido pedido, @AuthenticationPrincipal Cliente cliente) {
 
@@ -73,7 +81,6 @@ public class PedidoController {
         }
     }
 
-    // READ
     @GetMapping("/listar")
     public ResponseEntity<List<PedidoDTOListar>> mostrarPedidos() {
         logger.log(Level.INFO, "Obteniendo todos los pedidos");
@@ -88,9 +95,7 @@ public class PedidoController {
         Long clienteId = cliente.getId();
         logger.log(Level.INFO, "Obteniendo los pedidos para el cliente con ID: " + clienteId);
 
-        List<PedidoDTOListar> pedidos = pedidoService
-                .obtenerPorClienteId(clienteId)
-                .stream()
+        List<PedidoDTOListar> pedidos = pedidoService.obtenerPorClienteId(clienteId).stream()
                 .map(this::convertirAPedidoDTO)
                 .collect(Collectors.toList());
 
@@ -105,25 +110,25 @@ public class PedidoController {
         return new ResponseEntity<>(pedidoDTO, HttpStatus.OK);
     }
 
-    // UPDATE COMPLETO (requiere pasar cliente, dirección, método de pago, etc.)
+    // UPDATE
+
     @PutMapping("/editar/{id}")
     public ResponseEntity<Pedido> actualizarPedido(@PathVariable Long id, @RequestBody Pedido pedido) {
-
+        // Se obtiene el pedido existente según el id recibido
         Pedido pedidoExistente = pedidoService.obtenerPorId(id);
         if (pedidoExistente == null) {
             logger.log(Level.WARNING, "No se encontró el pedido con ID: {0}", id);
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-
-        // Actualizar los campos que quieras sobrescribir
+        // Actualizar los campos necesarios
         pedidoExistente.setCliente(clienteService.obtenerPorId(pedido.getCliente().getId()));
         pedidoExistente.setDireccionEnvio(pedido.getDireccionEnvio());
         pedidoExistente.setMetodoPago(pedido.getMetodoPago());
         pedidoExistente.setNombreComprador(pedido.getNombreComprador());
         pedidoExistente.setEstado(pedido.getEstado());
-        // Si es necesario actualizar los productos, se debe realizar aquí o
-        // en un endpoint específico
-
+        // Si es necesario actualizar los productos, se debe realizar aquí
+        // pedidoExistente.setProductos(pedido.getProductos());
+        
         try {
             Pedido updatedPedido = pedidoService.insertarPedido(pedidoExistente);
             return new ResponseEntity<>(updatedPedido, HttpStatus.OK);
@@ -133,35 +138,10 @@ public class PedidoController {
         }
     }
 
-    // NUEVO: UPDATE PARCIAL DEL ESTADO (PATCH)
-    @PatchMapping("/estado/{id}")
-    public ResponseEntity<Pedido> actualizarEstado(@PathVariable Long id, @RequestBody EstadoDTO estadoDTO) {
-        logger.log(Level.INFO, "Actualizando SOLO el estado del pedido con ID: {0}", id);
-
-        Pedido pedidoExistente = pedidoService.obtenerPorId(id);
-        if (pedidoExistente == null) {
-            logger.log(Level.WARNING, "No se encontró el pedido con ID: {0}", id);
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-
-        // Aquí NO forzamos a pasar cliente, dirección, etc. Solo cambiamos el estado.
-        pedidoExistente.setEstado(estadoDTO.getEstado());
-        try {
-            Pedido updatedPedido = pedidoService.actualizarEstado(pedidoExistente);
-            return new ResponseEntity<>(updatedPedido, HttpStatus.OK);
-        } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error interno al actualizar estado del pedido", e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    // ADD PRODUCTO
     @PostMapping("/addProducto/{id}")
-    public ResponseEntity<?> agregarProducto(
-            @PathVariable Long id,
-            @RequestParam("idProducto") Long idProducto,
-            @RequestParam("cantidad") int cantidad
-    ) {
+    public ResponseEntity<?> agregarProducto(@PathVariable Long id,
+                                             @RequestParam("idProducto") Long idProducto,
+                                             @RequestParam("cantidad") int cantidad) {
         logger.log(Level.INFO, "Agregando producto con ID {0} al pedido con ID {1}", new Object[] { idProducto, id });
         Pedido pedidoExistente = pedidoService.obtenerPorId(id);
         if (pedidoExistente == null) {
@@ -186,9 +166,7 @@ public class PedidoController {
         Long pedidoId = request.get("pedidoId");
         Long productoId = request.get("productoId");
 
-        logger.log(Level.INFO, "Eliminando producto con ID {0} del pedido con ID {1}",
-                new Object[] { productoId, pedidoId });
-
+        logger.log(Level.INFO, "Eliminando producto con ID {0} del pedido con ID {1}", new Object[] { productoId, pedidoId });
         Pedido pedido = pedidoService.obtenerPorId(pedidoId);
         if (pedido == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -207,7 +185,6 @@ public class PedidoController {
         }
     }
 
-    // DELETE
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> eliminarPedido(@PathVariable Long id) {
         logger.log(Level.INFO, "Eliminando pedido con ID: {0}", id);
@@ -239,8 +216,7 @@ public class PedidoController {
             dto.setCliente(clienteDTO);
         }
 
-        Set<ProductoPedidoDTO> productosDTO = pedido.getProductos()
-                .stream()
+        Set<ProductoPedidoDTO> productosDTO = pedido.getProductos().stream()
                 .map(this::convertirAProductoPedidoDTO)
                 .collect(Collectors.toSet());
         dto.setProductos(productosDTO);
@@ -262,19 +238,8 @@ public class PedidoController {
         dto.setNombre(cliente.getNombre());
         dto.setEmail(cliente.getEmail());
         dto.setAuthorities(cliente.getAuthorities().stream()
-            .map(GrantedAuthority::getAuthority)
-            .collect(Collectors.toList()));
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList()));
         return dto;
-    }
-
-    // DTO interno para el PATCH de estado
-    public static class EstadoDTO {
-        private String estado;
-        public String getEstado() {
-            return estado;
-        }
-        public void setEstado(String estado) {
-            this.estado = estado;
-        }
     }
 }
