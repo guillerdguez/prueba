@@ -1,78 +1,114 @@
 package com.tamscrap.controller;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.HashSet;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tamscrap.config.JwtAuthenticationEntryPoint;
+import com.tamscrap.config.JwtRequestFilter;
+import com.tamscrap.config.JwtTokenUtil;
 import com.tamscrap.config.SecurityConfig;
 import com.tamscrap.model.Cliente;
+import com.tamscrap.model.UserAuthority;
 import com.tamscrap.repository.ClienteRepo;
 import com.tamscrap.repository.ProductoRepo;
 import com.tamscrap.service.impl.ClienteServiceImpl;
 
-@Import(SecurityConfig.class)
+@Import({
+    SecurityConfig.class,
+    JwtTokenUtil.class,
+    JwtRequestFilter.class,
+    JwtAuthenticationEntryPoint.class
+})
 @WebMvcTest(ClienteController.class)
+@TestPropertySource(properties = {
+    "jwt.secret=clave-secreta-muy-larga-de-256-bits-1234567890ABCDEF"
+})
 public class ClienteControllerTest {
 
-	private static final String BASE_URL = "http://localhost:8082";
+    @Autowired
+    private MockMvc mockMvc;
 
-	@Autowired
-	private MockMvc mockMvc;
+    @MockBean
+    private ClienteServiceImpl clienteService;
 
-	@MockBean
-	private ClienteServiceImpl clienteService;
+    @MockBean
+    private ProductoRepo productoRepository;
 
-	@MockBean
-	private ProductoRepo productoRepository;
+    @MockBean
+    private ClienteRepo clienteRepository;
 
-	@MockBean
-	private ClienteRepo clienteRepository;
+    @MockBean
+    private UserDetailsService userService;
 
-	@Test
-	public void testWhen_guardarCliente_resultIsForbiddenTest() throws Exception {
-		final Cliente cliente = new Cliente("NombreDelCliente", "username", "password", "correo1",
-				new HashSet<>());
-		Mockito.when(clienteService.insertarCliente(cliente)).thenReturn(cliente);
+    // Test para editar cliente sin autenticación
+    @Test
+    public void testEditarCliente_SinAutenticacion_Forbidden() throws Exception {
+        Cliente cliente = new Cliente("NombreActualizado", "user", "pass", "email@test.com", new HashSet<>());
+        cliente.setId(1L);
 
-		ResultActions resultActions = mockMvc.perform(post(BASE_URL + "/clientes/api/clientes"));
+        mockMvc.perform(put("/api/clientes/editar/1")
+               .contentType(APPLICATION_JSON)
+               .content(new ObjectMapper().writeValueAsString(cliente)))
+               .andExpect(status().isUnauthorized()); // ✅ Expect 401, not 403
+    }
 
-		resultActions.andExpect(status().isForbidden());
-		Mockito.verifyNoInteractions(clienteService);
-	}
+    // Test para editar cliente como ADMIN 
+    @Test
+    public void testEditarCliente_AutenticadoComoAdmin_Ok() throws Exception {
+        Cliente clienteExistente = new Cliente("NombreOriginal", "user", "pass", "email@test.com", new HashSet<>());
+        clienteExistente.setId(1L);
 
-	@Test
-	public void testWhen_guardarCliente_resultIsOkTest() throws Exception {
-		final ObjectMapper objectMapper = new ObjectMapper();
-		final Cliente cliente = new Cliente("NombreDelCliente", "username", "password", "correo1",
-				new HashSet<>());
-		Mockito.when(clienteService.insertarCliente(cliente)).thenReturn(cliente);
+        // Create a Cliente instance with ADMIN authority and an ID
+        Set<UserAuthority> authorities = new HashSet<>();
+        authorities.add(UserAuthority.ADMIN); // Use the enum
 
-		ResultActions resultActions = mockMvc.perform(post(BASE_URL + "/clientes/api/clientes")
-				.contentType(APPLICATION_JSON).content(objectMapper.writeValueAsString(cliente))
-				.with(user("Admin 1").password("1234").roles("USER", "ADMIN")).with(csrf()));
+        Cliente adminCliente = new Cliente("AdminName", "admin", "adminPass", "admin@test.com", authorities);
+        adminCliente.setId(999L);
 
-		resultActions.andExpect(status().isOk()).andExpect(result -> {
-			Cliente clienteResponse = objectMapper.readValue(result.getResponse().getContentAsString(), Cliente.class);
-			assertThat(clienteResponse).usingRecursiveComparison().isEqualTo(cliente);
-		});
-		verify(clienteService).insertarCliente(any(Cliente.class));
-	}
+        when(clienteService.obtenerPorId(1L)).thenReturn(clienteExistente);
+        when(clienteService.insertarCliente(any(Cliente.class))).thenReturn(clienteExistente);
 
+        mockMvc.perform(put("/api/clientes/editar/1")
+               .contentType(APPLICATION_JSON)
+               .content(new ObjectMapper().writeValueAsString(clienteExistente))
+               .with(user(adminCliente)) // Cliente is now the principal
+               .with(csrf()))
+               .andExpect(status().isOk());
+
+        verify(clienteService).insertarCliente(any(Cliente.class));
+    }
+    // Test para agregar favorito
+    @Test
+    public void testAgregarFavorito_Autenticado_Created() throws Exception {
+        Cliente cliente = new Cliente();
+        cliente.setId(1L);
+        
+        when(clienteService.agregarAFavoritos(anyLong(), anyLong())).thenReturn(cliente);
+
+        mockMvc.perform(post("/api/clientes/1/favorito/100")
+               .with(user("user1").roles("USER"))
+               .with(csrf()))
+               .andExpect(status().isCreated());
+    }
 }

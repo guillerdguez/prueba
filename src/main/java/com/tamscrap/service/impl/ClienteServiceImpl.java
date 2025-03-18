@@ -25,12 +25,14 @@ public class ClienteServiceImpl implements ClienteService {
 
 	@Override
 	public Cliente insertarCliente(Cliente cliente) {
-		if (cliente.getUsername() == null || cliente.getUsername().isEmpty()) {
-			throw new IllegalArgumentException("El username no puede ser nulo o vacío");
-		}
-		return clienteRepository.save(cliente);
+	    if (cliente.getNombre() == null || cliente.getNombre().trim().isEmpty()) {
+	        throw new IllegalArgumentException("El nombre del cliente no puede ser nulo o vacío");
+	    }
+	    if (cliente.getUsername() == null || cliente.getUsername().trim().isEmpty()) {
+	        throw new IllegalArgumentException("El username no puede ser nulo o vacío");
+	    }
+	    return clienteRepository.save(cliente);
 	}
-
 	@Override
 	public List<Cliente> obtenerTodos() {
 		return clienteRepository.findAll();

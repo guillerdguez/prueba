@@ -1,19 +1,28 @@
 package com.tamscrap.config;
 
-import java.security.Key;  
+import java.security.Key;
 import java.util.Date;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 @Component
 public class JwtTokenUtil {
 
-    private static final String SECRET_KEY = "your-256-bit-secret-key-must-be-long-enough-to-work";
-    private final Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());  
+    @Value("${jwt.secret}")  
+    private String secretKey;
 
+    private Key key;
+
+    @PostConstruct
+    public void init() {
+        this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
+    }
+  
     public String getUsernameFromToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)  

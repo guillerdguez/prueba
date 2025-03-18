@@ -12,9 +12,9 @@ import com.tamscrap.model.Producto;
 
 @Repository
 public interface ProductoRepo extends JpaRepository<Producto, Long> {
-
+	Producto findByNombre(String nombre);
 	@Query("SELECT new com.tamscrap.dto.ProductoDTO(p) FROM Producto p WHERE p.nombre = :nombre")
-	ProductoDTO findByNombre(@Param("nombre") String nombre);
+	ProductoDTO findByNombreDto(@Param("nombre") String nombre);
 
 	@Query("SELECT new com.tamscrap.dto.ProductoDTO(p) FROM Producto p")
 	List<ProductoDTO> findAllAsDTO();

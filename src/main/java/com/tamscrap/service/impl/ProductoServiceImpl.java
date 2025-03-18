@@ -13,6 +13,7 @@ import com.tamscrap.repository.PedidoRepo;
 import com.tamscrap.repository.ProductoRepo;
 import com.tamscrap.service.ProductoService;
 
+import jakarta.persistence.EntityExistsException;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -33,10 +34,13 @@ public class ProductoServiceImpl implements ProductoService {
 
 	@Override
 	public Producto insertarProducto(Producto producto) {
-
-		validarProducto(producto);
-		Producto savedProducto = productoRepo.save(producto);
-		return savedProducto;
+	    validarProducto(producto);
+	    
+ 	    if (productoRepo.findByNombre(producto.getNombre()) != null) {
+	        throw new EntityExistsException("Ya existe un producto con el nombre: " + producto.getNombre());
+	    }
+	    
+	    return productoRepo.save(producto);
 	}
 
 	@Override
@@ -78,7 +82,7 @@ public class ProductoServiceImpl implements ProductoService {
 
 	@Override
 	public ProductoDTO obtenerPorNombre(String nombre) {
-		ProductoDTO productoDTO = productoRepo.findByNombre(nombre);
+		ProductoDTO productoDTO = productoRepo.findByNombreDto(nombre);
 		return productoDTO;
 	}
 
@@ -95,7 +99,10 @@ public class ProductoServiceImpl implements ProductoService {
 			throw new IllegalArgumentException("Categoría no válida: " + categoria);
 		}
 	}
-
+	public Producto  obtenerPorNombreNoDto(String nombre) {
+	    Producto  producto  = productoRepo.findByNombre (nombre);  
+	    return producto ;
+	}
 	@Override
 	public List<ProductoDTO> buscarProductos(String term) {
 		return productoRepo.findByNombreContainingIgnoreCase(term);
