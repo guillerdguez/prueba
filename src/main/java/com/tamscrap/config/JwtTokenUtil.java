@@ -13,16 +13,9 @@ import jakarta.annotation.PostConstruct;
 @Component
 public class JwtTokenUtil {
 
-    @Value("${jwt.secret}")  
-    private String secretKey;
 
-    private Key key;
-
-    @PostConstruct
-    public void init() {
-        this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
-    }
-  
+    private static final String SECRET_KEY = "your-256-bit-secret-key-must-be-long-enough-to-work";
+    private final Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());  
     public String getUsernameFromToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)  
