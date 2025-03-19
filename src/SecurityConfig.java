@@ -23,8 +23,6 @@ public class SecurityConfig {
 	@Autowired
 	private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
-//    @Autowired
-//    private UserServiceImpl userService;
 
 	@Autowired
 	private JwtRequestFilter jwtRequestFilter;
@@ -55,24 +53,12 @@ public class SecurityConfig {
 				.exceptionHandling(exception -> exception.authenticationEntryPoint(jwtAuthenticationEntryPoint))
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-		// Agregar el filtro JWT antes del filtro de autenticación
 		http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
 	}
 
-//	@Bean
-//	public WebMvcConfigurer corsConfigurer() {
-//		return new WebMvcConfigurer() {
-//			@Override
-//			public void addCorsMappings(CorsRegistry registry) {
-//				registry.addMapping("/**").allowedOrigins("http://localhost:4200")
-//						.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS").allowedHeaders("*")
-//						.exposedHeaders("Authorization").allowCredentials(true);
-//			}
-//		};
-//
-//	}
+
 	@Configuration
 	public class CorsConfig implements WebMvcConfigurer {
 		@Override

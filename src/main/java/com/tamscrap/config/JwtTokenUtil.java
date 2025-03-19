@@ -45,7 +45,7 @@ public class JwtTokenUtil {
         return Jwts.builder()
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 172800000)) // Token válido por 2 días
+                .setExpiration(new Date(System.currentTimeMillis() + 172800000)) 
                 .signWith(key)
                 .compact();
     }

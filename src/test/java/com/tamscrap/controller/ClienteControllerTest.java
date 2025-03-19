@@ -70,7 +70,7 @@ public class ClienteControllerTest {
         mockMvc.perform(put("/api/clientes/editar/1")
                .contentType(APPLICATION_JSON)
                .content(new ObjectMapper().writeValueAsString(cliente)))
-               .andExpect(status().isUnauthorized()); // ✅ Expect 401, not 403
+               .andExpect(status().isUnauthorized());
     }
 
     // Test para editar cliente como ADMIN 
@@ -79,9 +79,8 @@ public class ClienteControllerTest {
         Cliente clienteExistente = new Cliente("NombreOriginal", "user", "pass", "email@test.com", new HashSet<>());
         clienteExistente.setId(1L);
 
-        // Create a Cliente instance with ADMIN authority and an ID
         Set<UserAuthority> authorities = new HashSet<>();
-        authorities.add(UserAuthority.ADMIN); // Use the enum
+        authorities.add(UserAuthority.ADMIN); 
 
         Cliente adminCliente = new Cliente("AdminName", "admin", "adminPass", "admin@test.com", authorities);
         adminCliente.setId(999L);
@@ -92,7 +91,7 @@ public class ClienteControllerTest {
         mockMvc.perform(put("/api/clientes/editar/1")
                .contentType(APPLICATION_JSON)
                .content(new ObjectMapper().writeValueAsString(clienteExistente))
-               .with(user(adminCliente)) // Cliente is now the principal
+               .with(user(adminCliente))
                .with(csrf()))
                .andExpect(status().isOk());
 

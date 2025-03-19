@@ -113,7 +113,6 @@ public class PedidoController {
 		return new ResponseEntity<>(pedidoDTO, HttpStatus.OK);
 	}
 
-	// UPDATE
 
 	@PatchMapping("/editarEstado/{id}")
 	public ResponseEntity<Map<String, Object>> editarSoloEstado(@PathVariable Long id,

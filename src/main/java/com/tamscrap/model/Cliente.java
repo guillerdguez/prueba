@@ -104,7 +104,6 @@ public class Cliente implements UserDetails {
 		this.favoritos = favoritos;
 	}
 
-	// Override de métodos para UserDetails
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return authorities;
@@ -213,7 +212,6 @@ public class Cliente implements UserDetails {
 		return Objects.equals(id, other.id) && Objects.equals(username, other.username);
 	}
 
-//
 	@Override
 	public String toString() {
 		return "Cliente [id=" + id + ", nombre=" + nombre + ", username=" + username + ", email=" + email + "]";

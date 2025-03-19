@@ -53,7 +53,6 @@ public class ProductoServiceImplTest {
 	    Long productId = 1L;
 	    Producto mockProducto = new Producto(productId, "Test", "", 10.0, "img", false, false, false, null, 0, false, null);
 	    
-	    // Mock the existence check
 	    when(productoRepository.findById(productId)).thenReturn(Optional.of(mockProducto));
 	    doNothing().when(productoRepository).deleteById(productId);
 

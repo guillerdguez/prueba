@@ -63,7 +63,6 @@ public class ClienteController {
 		clienteExistente.setUsername(clienteDTO.getUsername());
 		clienteExistente.setEmail(clienteDTO.getEmail());
 		clienteExistente.setNombre(clienteDTO.getNombre());
-//		clienteExistente.setFavoritos(clienteDTO.getFavoritos());
 		if (clienteDTO.getAuthorities() != null && !clienteDTO.getAuthorities().isEmpty()) {
 			clienteExistente.setAuthorities(
 					clienteDTO.getAuthorities().stream().map(UserAuthority::valueOf).collect(Collectors.toSet()));
