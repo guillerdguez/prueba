@@ -23,6 +23,8 @@ public class SecurityConfig {
 	@Autowired
 	private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
+//    @Autowired
+//    private UserServiceImpl userService;
 
 	@Autowired
 	private JwtRequestFilter jwtRequestFilter;
@@ -46,27 +48,25 @@ public class SecurityConfig {
 						"/api/producto/categoria/**", "/api/auth/**", "/home", "/carrito", "/api/pedidos/addPedido",
 						"/", "/api/clientes/addCliente","/register")
 				.permitAll().requestMatchers("/api/carrito/editar/**").authenticated()
-				.requestMatchers("/api/pedidos/delete/**").hasAnyAuthority("USER", "ADMIN")
+				.requestMatchers("/api/pedidos/delete/**","/api/pedidos/editar/**").hasAnyAuthority("USER", "ADMIN")
 				.requestMatchers("/api/pedidos/**", "/profile/**").authenticated()
 				.requestMatchers("/api/producto/addProducto", "/api/producto/editar/**", "/api/producto/borrar/**")
 				.hasAuthority("ADMIN").anyRequest().authenticated())
 				.exceptionHandling(exception -> exception.authenticationEntryPoint(jwtAuthenticationEntryPoint))
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
+		// Agregar el filtro JWT antes del filtro de autenticación
 		http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
 	}
-
-
-	@Configuration
+@Configuration
 	public class CorsConfig implements WebMvcConfigurer {
 		@Override
 		public void addCorsMappings(CorsRegistry registry) {
-			registry.addMapping("/**").allowedOrigins("http://localhost:4200")
+			registry.addMapping("/**").allowedOrigins("http://localhost:4200", "https://tamscrapt.up.railway.app")
 					.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS").allowedHeaders("*")
 					.exposedHeaders("Authorization").allowCredentials(true);
 		}
 	}
-
 }
