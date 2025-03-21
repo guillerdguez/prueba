@@ -91,9 +91,7 @@ public class PedidoController {
 		Long clienteId = cliente.getId();
 
 		logger.log(Level.INFO, "Pedido recibido: {0}", pedido);
-		System.err.println(clienteId + "Pedidodddddd");
-		// Validaciones básicas antes de delegar al servicio
-		if (pedido.getDireccionEnvio() == null || pedido.getDireccionEnvio().trim().isEmpty()) {
+ 		if (pedido.getDireccionEnvio() == null || pedido.getDireccionEnvio().trim().isEmpty()) {
 			logger.log(Level.WARNING, "La dirección de envío es requerida.");
 			return ResponseEntity.badRequest().build();
 		}

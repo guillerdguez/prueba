@@ -36,13 +36,13 @@ public class ProductoServiceImpl implements ProductoService {
 	public Producto insertarProducto(Producto producto) {
 	    validarProducto(producto);
 	    
- 	    if (productoRepo.findByNombre(producto.getNombre()) != null) {
-	        throw new EntityExistsException("Ya existe un producto con el nombre: " + producto.getNombre());
+ 	    if (producto.getId() == null) {
+	        if (productoRepo.findByNombre(producto.getNombre()) != null) {
+	            throw new EntityExistsException("Ya existe un producto con el nombre: " + producto.getNombre());
+	        }
 	    }
-	    
-	    return productoRepo.save(producto);
+ 	    return productoRepo.save(producto);
 	}
-
 	@Override
 	public ProductoDTO obtenerDtoPorId(Long id) {
 		Optional<Producto> optionalProducto = productoRepo.findById(id);
