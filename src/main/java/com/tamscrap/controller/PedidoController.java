@@ -48,7 +48,7 @@ public class PedidoController {
 		this.productoService = productoService;
 		this.pedidoService = pedidoService;
 		this.clienteService = clienteService;
-	// }
+  }
 
 	// @PostMapping("/addPedido")
 	// public ResponseEntity<Void> guardarPedido(
