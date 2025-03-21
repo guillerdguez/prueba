@@ -1,4 +1,4 @@
-package com.tamscrap.config;
+package com.tamscrap.controller;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
