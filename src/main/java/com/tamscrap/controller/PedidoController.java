@@ -85,37 +85,37 @@ public class PedidoController {
 	//         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 	//     }
 	// }
-@PostMapping("/addPedido")
-	public ResponseEntity<Void> guardarPedido(@RequestBody Pedido pedido, @AuthenticationPrincipal Cliente cliente) {
-
-		Long clienteId = cliente.getId();
-
-		logger.log(Level.INFO, "Pedido recibido: {0}", pedido);
-		System.err.println(clienteId + "Pedidodddddd");
-		// Validaciones básicas antes de delegar al servicio
-		if (pedido.getDireccionEnvio() == null || pedido.getDireccionEnvio().trim().isEmpty()) {
-			logger.log(Level.WARNING, "La dirección de envío es requerida.");
-			return ResponseEntity.badRequest().build();
-		}
-
-		if (pedido.getMetodoPago() == null || pedido.getMetodoPago().trim().isEmpty()) {
-			logger.log(Level.WARNING, "El método de pago es requerido.");
-			return ResponseEntity.badRequest().build();
-		}
-
-		try {
-			pedido.setCliente(clienteService.obtenerPorId(clienteId));
-			System.err.println(clienteService.obtenerPorId(clienteId) + "Pedidodddddd");
-			pedidoService.insertarPedido(pedido);
-			return ResponseEntity.status(HttpStatus.CREATED).build();
-		} catch (IllegalArgumentException e) {
-			logger.log(Level.WARNING, "Error al crear el pedido: {0}", e.getMessage());
-			return ResponseEntity.badRequest().build();
-		} catch (Exception e) {
-			logger.log(Level.SEVERE, "Error interno al crear el pedido", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-		}
-	}
+//@PostMapping("/addPedido")
+//	public ResponseEntity<Void> guardarPedido(@RequestBody Pedido pedido, @AuthenticationPrincipal Cliente cliente) {
+//
+//		Long clienteId = cliente.getId();
+//
+//		logger.log(Level.INFO, "Pedido recibido: {0}", pedido);
+//		System.err.println(clienteId + "Pedidodddddd");
+//		// Validaciones básicas antes de delegar al servicio
+//		if (pedido.getDireccionEnvio() == null || pedido.getDireccionEnvio().trim().isEmpty()) {
+//			logger.log(Level.WARNING, "La dirección de envío es requerida.");
+//			return ResponseEntity.badRequest().build();
+//		}
+//
+//		if (pedido.getMetodoPago() == null || pedido.getMetodoPago().trim().isEmpty()) {
+//			logger.log(Level.WARNING, "El método de pago es requerido.");
+//			return ResponseEntity.badRequest().build();
+//		}
+//
+//		try {
+//			pedido.setCliente(clienteService.obtenerPorId(clienteId));
+//			System.err.println(clienteService.obtenerPorId(clienteId) + "Pedidodddddd");
+//			pedidoService.insertarPedido(pedido);
+//			return ResponseEntity.status(HttpStatus.CREATED).build();
+//		} catch (IllegalArgumentException e) {
+//			logger.log(Level.WARNING, "Error al crear el pedido: {0}", e.getMessage());
+//			return ResponseEntity.badRequest().build();
+//		} catch (Exception e) {
+//			logger.log(Level.SEVERE, "Error interno al crear el pedido", e);
+//			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+//		}
+//	}
 	@GetMapping("/listar")
 	public ResponseEntity<List<PedidoDTOListar>> mostrarPedidos() {
 		logger.log(Level.INFO, "Obteniendo todos los pedidos");
