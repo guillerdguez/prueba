@@ -47,8 +47,8 @@ public class SecurityConfig {
 				"/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html", "/webjars/**" };
 
 		http.csrf(csrf -> csrf.disable()).authorizeHttpRequests(auth -> auth.requestMatchers(publicEndpoints)
-				.permitAll().requestMatchers("/api/carrito/editar/**").authenticated()
-				.requestMatchers("/api/pedidos/delete/**", "/api/pedidos/editar/**").hasAuthority("ADMIN")
+				.permitAll().requestMatchers("/api/carrito/editar/**","/api/pedidos/delete/**").authenticated()
+				.requestMatchers( "/api/pedidos/editar/**").hasAuthority("ADMIN")
 				.requestMatchers("/api/pedidos/editarEstado/**").hasAuthority("ADMIN")
 				.requestMatchers("/api/pedidos/**", "/profile/**").authenticated()
 				.requestMatchers("/api/producto/addProducto", "/api/producto/editar/**", "/api/producto/borrar/**")
